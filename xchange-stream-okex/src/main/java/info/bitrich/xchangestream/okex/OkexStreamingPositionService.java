@@ -5,8 +5,8 @@ import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.instrument.Instrument;
-import org.knowm.xchange.okex.OkexAdapters;
 import org.knowm.xchange.okex.dto.account.OkexPosition;
+import org.knowm.xchange.okex.service.EmptyFuturesContract;
 
 import java.util.List;
 
@@ -33,8 +33,12 @@ public class OkexStreamingPositionService {
         this.exchangeMetaData = exchangeMetaData;
     }
 
+    public Observable<OkexPosition> getPositions() {
+        return getPositions(new EmptyFuturesContract());
+    }
+
     public Observable<OkexPosition> getPositions(Instrument instrument, Object... args) {
-        String channelUniqueId = OkexStreamingService.POSITIONS + OkexAdapters.adaptInstrument(instrument);
+        String channelUniqueId = OkexStreamingService.POSITIONS;
 
         return service.subscribeChannel(channelUniqueId)
                       .filter(message -> message.has("data"))

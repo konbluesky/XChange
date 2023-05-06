@@ -131,8 +131,11 @@ public class OkexStreamingService extends JsonNettyStreamingService {
     protected String getChannelNameFromMessage(JsonNode message) {
         String channelName = "";
         if(message.has("arg")){
-            if(message.get("arg").has("channel") && message.get("arg").has("instId")){
-                channelName = message.get("arg").get("channel").asText()+message.get("arg").get("instId").asText();
+            if(message.get("arg").has("channel")  ){
+                channelName = message.get("arg").get("channel").asText();
+                if(message.get("arg").has("instId")){
+                    channelName += message.get("arg").get("instId").asText();
+                }
             }
         }
         return channelName;
