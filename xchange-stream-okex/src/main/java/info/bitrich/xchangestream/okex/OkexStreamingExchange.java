@@ -1,24 +1,25 @@
 package info.bitrich.xchangestream.okex;
 
-import info.bitrich.xchangestream.core.ProductSubscription;
-import info.bitrich.xchangestream.core.StreamingExchange;
-import info.bitrich.xchangestream.core.StreamingMarketDataService;
-import info.bitrich.xchangestream.core.StreamingTradeService;
+import info.bitrich.xchangestream.core.*;
 import io.reactivex.Completable;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.okex.OkexExchange;
 
 public class OkexStreamingExchange extends OkexExchange implements StreamingExchange {
+
     // Production URIs
     public static final String WS_PUBLIC_CHANNEL_URI = "wss://ws.okx.com:8443/ws/v5/public";
+
     public static final String WS_PRIVATE_CHANNEL_URI = "wss://ws.okx.com:8443/ws/v5/private";
 
     public static final String AWS_WS_PUBLIC_CHANNEL_URI = "wss://wsaws.okx.com:8443/ws/v5/public";
+
     public static final String AWS_WS_PRIVATE_CHANNEL_URI = "wss://wsaws.okx.com:8443/ws/v5/private";
 
     // Demo(Sandbox) URIs
     public static final String SANDBOX_WS_PUBLIC_CHANNEL_URI = "wss://wspap.okx.com:8443/ws/v5/public?brokerId=9999";
+
     public static final String SANDBOX_WS_PRIVATE_CHANNEL_URI = "wss://wspap.okx.com:8443/ws/v5/private?brokerId=9999";
 
     private OkexStreamingService streamingService;
@@ -30,15 +31,18 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
     //Custom PositionService implementation
     private OkexStreamingPositionService streamingPositionService;
 
-    public OkexStreamingExchange() {}
+    private OkexStreamingAccountService streamingAccountService;
 
+    public OkexStreamingExchange() {
+    }
 
     @Override
     public Completable connect(ProductSubscription... args) {
         this.streamingService = new OkexStreamingService(getApiUrl(), this.exchangeSpecification);
         this.streamingMarketDataService = new OkexStreamingMarketDataService(streamingService);
         this.streamingTradeService = new OkexStreamingTradeService(streamingService, exchangeMetaData);
-        this.streamingPositionService = new OkexStreamingPositionService(streamingService,exchangeMetaData);
+        this.streamingPositionService = new OkexStreamingPositionService(streamingService, exchangeMetaData);
+        this.streamingAccountService = new OkexStreamingAccountService(streamingService);
 
         return streamingService.connect();
     }
@@ -50,14 +54,13 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
             return exchangeSpec.getOverrideWebsocketApiUri();
         }
 
-        boolean userAws =
-                Boolean.TRUE.equals(
-                        exchangeSpecification.getExchangeSpecificParametersItem(PARAM_USE_AWS)
-                );
+        boolean userAws = Boolean.TRUE.equals(exchangeSpecification.getExchangeSpecificParametersItem(PARAM_USE_AWS));
         if (useSandbox()) {
             apiUrl = (this.exchangeSpecification.getApiKey() == null) ? SANDBOX_WS_PUBLIC_CHANNEL_URI : SANDBOX_WS_PRIVATE_CHANNEL_URI;
         } else {
-            apiUrl = (this.exchangeSpecification.getApiKey() == null) ? userAws ? AWS_WS_PUBLIC_CHANNEL_URI : WS_PUBLIC_CHANNEL_URI : userAws ? AWS_WS_PRIVATE_CHANNEL_URI : WS_PRIVATE_CHANNEL_URI;
+            apiUrl = (this.exchangeSpecification.getApiKey() == null) ?
+                    userAws ? AWS_WS_PUBLIC_CHANNEL_URI : WS_PUBLIC_CHANNEL_URI :
+                    userAws ? AWS_WS_PRIVATE_CHANNEL_URI : WS_PRIVATE_CHANNEL_URI;
         }
         return apiUrl;
     }
@@ -83,9 +86,12 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
         return streamingTradeService;
     }
 
-
     public OkexStreamingPositionService getStreamingPositionService() {
         return streamingPositionService;
+    }
+
+    public StreamingAccountService getStreamingAccountService() {
+        return streamingAccountService;
     }
 
     @Override

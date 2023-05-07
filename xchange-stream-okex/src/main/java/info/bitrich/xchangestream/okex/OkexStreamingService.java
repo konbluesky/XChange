@@ -43,6 +43,7 @@ public class OkexStreamingService extends JsonNettyStreamingService {
     public static final String TICKERS = "tickers";
     public static final String USERTRADES = "orders";
     public static final String POSITIONS = "positions";
+    public static final String ACCOUNT= "account";
 
     private final Observable<Long> pingPongSrc = Observable.interval(15, 15, TimeUnit.SECONDS);
 
@@ -143,15 +144,15 @@ public class OkexStreamingService extends JsonNettyStreamingService {
 
     @Override
     public String getSubscribeMessage(String channelName, Object... args) throws IOException {
-        return objectMapper.writeValueAsString(new OkexSubscribeMessage(SUBSCRIBE, Collections.singletonList(getTopic(channelName))));
+        return objectMapper.writeValueAsString(new OkexSubscribeMessage(SUBSCRIBE, Collections.singletonList(getTopic(channelName,args))));
     }
 
     @Override
     public String getUnsubscribeMessage(String channelName, Object... args) throws IOException {
-        return objectMapper.writeValueAsString(new OkexSubscribeMessage(UNSUBSCRIBE, Collections.singletonList(getTopic(channelName))));
+        return objectMapper.writeValueAsString(new OkexSubscribeMessage(UNSUBSCRIBE, Collections.singletonList(getTopic(channelName,args))));
     }
 
-    private OkexSubscribeMessage.SubscriptionTopic getTopic(String channelName){
+    private OkexSubscribeMessage.SubscriptionTopic getTopic(String channelName,Object... args){
         if(channelName.contains(ORDERBOOK5)){
             return new OkexSubscribeMessage.SubscriptionTopic(ORDERBOOK5,null,null,channelName.replace(ORDERBOOK5,""));
         } else if(channelName.contains(ORDERBOOK)){
@@ -166,7 +167,9 @@ public class OkexStreamingService extends JsonNettyStreamingService {
             return new OkexSubscribeMessage.SubscriptionTopic(FUNDING_RATE, null,null,channelName.replace(FUNDING_RATE,""));
         } else if (channelName.contains(POSITIONS)){
             return new OkexSubscribeMessage.SubscriptionTopic(POSITIONS,OkexInstType.ANY,null,channelName.replace(POSITIONS,""));
-        } else{
+        } else if (channelName.contains(ACCOUNT)){
+            return new OkexSubscribeMessage.SubscriptionTopic(ACCOUNT,OkexInstType.ANY,null,null,String.valueOf(args[0]));
+        }else{
             throw new NotYetImplementedForExchangeException("ChannelName: "+channelName+" has not implemented yet on "+this.getClass().getSimpleName());
         }
     }

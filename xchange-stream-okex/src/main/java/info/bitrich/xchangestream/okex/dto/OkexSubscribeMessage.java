@@ -12,7 +12,6 @@ public class OkexSubscribeMessage {
     private final List<SubscriptionTopic> args;
 
     @Data
-    @AllArgsConstructor
     public static class SubscriptionTopic {
         private final String channel;
 
@@ -21,5 +20,22 @@ public class OkexSubscribeMessage {
         private final String uly;
 
         private final String instId;
+
+        private String ccy;
+
+        public SubscriptionTopic(String channel, OkexInstType instType, String uly, String instId) {
+            this.channel = channel;
+            this.instType = instType;
+            this.uly = uly;
+            this.instId = instId;
+        }
+
+        public SubscriptionTopic(String channel, OkexInstType instType, String uly, String instId, String ccy) {
+            this.channel = channel;
+            this.instType = instType;
+            this.uly = uly;
+            this.instId = instId;
+            this.ccy = ccy;
+        }
     }
 }

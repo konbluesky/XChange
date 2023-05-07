@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.derivative.FuturesContract;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.okex.OkexExchange;
@@ -61,9 +62,19 @@ public class OkexStreamingPrivateDataIntegtration {
     public void checkPositionsStream() throws InterruptedException {
         OkexStreamingExchange okexStreamingExchange = (OkexStreamingExchange) exchange;
         Disposable dis = okexStreamingExchange.getStreamingPositionService()
-                                              .getPositions(instrument)
-                                              .subscribe(System.out::println);
-        TimeUnit.SECONDS.sleep(3);
+                                              .getPositions(new EmptyFuturesContract())
+                                              .subscribe(okexPosition -> {
+                                                  log.info("sub: {}",okexPosition.toString());
+                                              });
+        TimeUnit.SECONDS.sleep(30);
+
+        dis.dispose();
+    }
+
+    @Test
+    public void checkAccountInfoStream() throws InterruptedException {
+        Disposable dis = exchange.getStreamingAccountService().getBalanceChanges(Currency.XRP).subscribe(System.out::println);
+        TimeUnit.SECONDS.sleep(30);
 
         dis.dispose();
     }
