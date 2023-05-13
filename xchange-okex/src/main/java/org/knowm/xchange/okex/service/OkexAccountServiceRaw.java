@@ -105,6 +105,66 @@ public class OkexAccountServiceRaw extends OkexBaseService {
     }
   }
 
+  public OkexResponse<List<OkexCancelWithdrawalResponse>> cancelWithdrawal(String wdId) throws OkexException, IOException{
+    try {
+      OkexCancelWithdrawalRequest requestPayload = OkexCancelWithdrawalRequest.builder()
+                                                                              .wdId(wdId)
+                                                                              .build();
+      return decorateApiCall(()->okexAuthenticated.cancelWithdrawal(
+              exchange.getExchangeSpecification().getApiKey(),
+              signatureCreator,
+              DateUtils.toUTCISODateString(new Date()),
+              (String)
+                      exchange
+                              .getExchangeSpecification()
+                              .getExchangeSpecificParametersItem(PARAM_PASSPHRASE),
+              (String)
+                      exchange
+                              .getExchangeSpecification()
+                              .getExchangeSpecificParametersItem(PARAM_SIMULATED),
+              requestPayload
+      )).withRateLimiter(rateLimiter(OkexAuthenticated.assetCancelWithdrawalPath)).call();
+    }catch (OkexException e) {
+      throw handleError(e);
+    }
+  }
+
+  public OkexResponse<List<OkexWithdrawalHistoryResponse>> getWithdrawalHistory(String currency, String wdId,
+                                                                                String clientId, String txId, String type, String state,String after, String before, String limit)
+          throws OkexException, IOException {
+    try {
+      return decorateApiCall(
+              () ->
+                      okexAuthenticated.getWithdrawalHistory(
+                              exchange.getExchangeSpecification().getApiKey(),
+                              signatureCreator,
+                              DateUtils.toUTCISODateString(new Date()),
+                              (String)
+                                      exchange
+                                              .getExchangeSpecification()
+                                              .getExchangeSpecificParametersItem(PARAM_PASSPHRASE),
+                              (String)
+                                      exchange
+                                              .getExchangeSpecification()
+                                              .getExchangeSpecificParametersItem(PARAM_SIMULATED),
+                              currency,
+                                wdId,
+                                clientId,
+                                txId,
+                                type,
+                                state,
+                                after,
+                                before,
+                                limit
+                      ))
+              .withRateLimiter(rateLimiter(OkexAuthenticated.assetWithdrawalHistoryPath))
+              .call();
+    } catch (OkexException e) {
+      throw handleError(e);
+    }
+  }
+
+
   public OkexResponse<List<OkexWithdrawalResponse>> assetWithdrawal(String currency, String amount, String method, String address, String fee, String chain, String clientId)
           throws OkexException, IOException {
     try {
@@ -126,11 +186,11 @@ public class OkexAccountServiceRaw extends OkexBaseService {
                               (String)
                                       exchange
                                               .getExchangeSpecification()
-                                              .getExchangeSpecificParametersItem("passphrase"),
+                                              .getExchangeSpecificParametersItem(PARAM_PASSPHRASE),
                               (String)
                                       exchange
                                               .getExchangeSpecification()
-                                              .getExchangeSpecificParametersItem("simulated"),
+                                              .getExchangeSpecificParametersItem(PARAM_SIMULATED),
                               requestPayload)
 
       )

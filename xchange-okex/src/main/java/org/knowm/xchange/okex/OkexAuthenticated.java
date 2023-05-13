@@ -37,6 +37,8 @@ public interface OkexAuthenticated extends Okex {
   String currenciesPath = "/asset/currencies"; // Stated as 6 req/sec
   String assetBalancesPath = "/asset/balances"; // Stated as 6 req/sec
   String assetWithdrawalPath = "/asset/withdrawal"; // Stated as 6 req/sec
+  String assetWithdrawalHistoryPath = "/asset/withdrawal-history"; // Stated as 6 req/sec
+  String assetCancelWithdrawalPath = "/asset/cancel-withdrawal"; // Stated as 6 req/sec
   String positionsPath = "/account/positions"; // Stated as 10 req/2 sec
   String accountPositionAtRiskPath = "/account/account-position-risk"; // Stated as 10 req/2 sec
   String setLeveragePath = "/account/set-leverage"; // Stated as 20 req/2 sec
@@ -61,6 +63,8 @@ public interface OkexAuthenticated extends Okex {
           put(balancePath, Arrays.asList(5, 1));
           put(currenciesPath, Arrays.asList(6, 1));
           put(assetBalancesPath, Arrays.asList(6, 1));
+          put(assetWithdrawalHistoryPath, Arrays.asList(6, 1));
+          put(assetCancelWithdrawalPath, Arrays.asList(6, 1));
           put(positionsPath, Arrays.asList(5, 1));
           put(setLeveragePath, Arrays.asList(20, 2));
           put(pendingOrdersPath, Arrays.asList(20, 2));
@@ -381,4 +385,38 @@ public interface OkexAuthenticated extends Okex {
       @HeaderParam("X-SIMULATED-TRADING") String simulatedTrading,
       List<OkexAmendOrderRequest> requestPayload)
       throws OkexException, IOException;
+
+
+  @POST
+  @Path(assetCancelWithdrawalPath)
+  @Consumes(MediaType.APPLICATION_JSON)
+  OkexResponse<List<OkexCancelWithdrawalResponse>> cancelWithdrawal(
+      @HeaderParam("OK-ACCESS-KEY") String apiKey,
+      @HeaderParam("OK-ACCESS-SIGN") ParamsDigest signature,
+      @HeaderParam("OK-ACCESS-TIMESTAMP") String timestamp,
+      @HeaderParam("OK-ACCESS-PASSPHRASE") String passphrase,
+      @HeaderParam("X-SIMULATED-TRADING") String simulatedTrading,
+      OkexCancelWithdrawalRequest requestPayload)
+      throws OkexException, IOException;
+
+  @GET
+  @Path(assetWithdrawalHistoryPath)
+  OkexResponse<List<OkexWithdrawalHistoryResponse>> getWithdrawalHistory(
+        @HeaderParam("OK-ACCESS-KEY") String apiKey,
+        @HeaderParam("OK-ACCESS-SIGN") ParamsDigest signature,
+        @HeaderParam("OK-ACCESS-TIMESTAMP") String timestamp,
+        @HeaderParam("OK-ACCESS-PASSPHRASE") String passphrase,
+        @HeaderParam("X-SIMULATED-TRADING") String simulatedTrading,
+        @QueryParam("ccy") String ccy,
+        @QueryParam("wdId") String wdId,
+        @QueryParam("clientId") String clientId,
+        @QueryParam("txId") String txId,
+        @QueryParam("type") String type,
+        @QueryParam("state") String state,
+        @QueryParam("after") String after,
+        @QueryParam("before") String before,
+        @QueryParam("limit") String limit)
+        throws OkexException, IOException;
+
+
 }

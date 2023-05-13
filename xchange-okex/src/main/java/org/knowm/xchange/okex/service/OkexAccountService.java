@@ -6,12 +6,9 @@ import org.knowm.xchange.okex.OkexAdapters;
 import org.knowm.xchange.okex.OkexExchange;
 import org.knowm.xchange.okex.dto.OkexException;
 import org.knowm.xchange.okex.dto.OkexResponse;
-import org.knowm.xchange.okex.dto.account.OkexAccountPositionRisk;
-import org.knowm.xchange.okex.dto.account.OkexAssetBalance;
-import org.knowm.xchange.okex.dto.account.OkexWalletBalance;
-import org.knowm.xchange.okex.dto.account.OkexWithdrawalResponse;
+import org.knowm.xchange.okex.dto.account.*;
+import org.knowm.xchange.okex.service.params.OkexWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
-import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 
 import java.io.IOException;
@@ -39,8 +36,16 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
 
   @Override
   public String withdrawFunds(WithdrawFundsParams params) throws IOException {
-    if (params instanceof DefaultWithdrawFundsParams) {
-      DefaultWithdrawFundsParams defaultParams = (DefaultWithdrawFundsParams) params;
+      String chain=null;
+      String clientId=null;
+      if (params instanceof OkexWithdrawFundsParams) {
+          if (((OkexWithdrawFundsParams) params).getChain() != null) {
+              chain = ((OkexWithdrawFundsParams) params).getChain();
+          }
+          if (((OkexWithdrawFundsParams) params).getClientId() != null) {
+              clientId = ((OkexWithdrawFundsParams) params).getClientId();
+      }
+      OkexWithdrawFundsParams defaultParams = (OkexWithdrawFundsParams) params;
       String address = defaultParams.getAddressTag() != null ? defaultParams.getAddress() + ":" + defaultParams.getAddressTag() : defaultParams.getAddress();
       OkexResponse<List<OkexWithdrawalResponse>> okexResponse = assetWithdrawal(
               defaultParams.getCurrency().getCurrencyCode(),
@@ -48,8 +53,8 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
               ON_CHAIN_METHOD,
               address,
               defaultParams.getCommission() != null ? defaultParams.getCommission().toPlainString() : null,
-              null,
-              null
+              chain,
+              clientId
       );
       if (!okexResponse.isSuccess())
         throw new OkexException(okexResponse.getMsg(), Integer.parseInt(okexResponse.getCode()));
@@ -58,4 +63,6 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
     }
     throw new IllegalStateException("Don't know how to withdraw: " + params);
   }
+
+
 }

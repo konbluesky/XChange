@@ -5,34 +5,45 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /** Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021 */
+
 /** https://www.okex.com/docs-v5/en/#rest-api-funding-get-currencies * */
 @Getter
 @NoArgsConstructor
 public class OkexCurrency {
-  @JsonProperty("ccy")
-  private String currency;
 
-  @JsonProperty("name")
-  private String name;
+    @JsonProperty("ccy")
+    private String currency;
 
-  @JsonProperty("chain")
-  private String chain;
+    @JsonProperty("name")
+    private String name;
 
-  @JsonProperty("canDep")
-  private boolean canDep;
+    @JsonProperty("chain")
+    private String chain;
 
-  @JsonProperty("canWd")
-  private boolean canWd;
+    @JsonProperty("canDep")
+    private boolean canDep;
 
-  @JsonProperty("canInternal")
-  private boolean canInternal;
+    @JsonProperty("canWd")
+    private boolean canWd;
 
-  @JsonProperty("minWd")
-  private String minWd;
+    @JsonProperty("canInternal")
+    private boolean canInternal;
 
-  @JsonProperty("minFee")
-  private String minFee;
+    @JsonProperty("minWd")
+    private String minWd;
 
-  @JsonProperty("maxFee")
-  private String maxFee;
+    @JsonProperty("maxWd")
+    private String maxWd;
+
+    @JsonProperty("minFee")
+    private String minFee;
+
+    @JsonProperty("maxFee")
+    private String maxFee;
+
+    @JsonProperty("wdTickSz")
+    private String wdTickSz;
+
+    @JsonProperty("mainNet")
+    private boolean mainNet;
 }
