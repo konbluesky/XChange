@@ -43,7 +43,10 @@ public class OkexStreamingService extends JsonNettyStreamingService {
     public static final String TICKERS = "tickers";
     public static final String USERTRADES = "orders";
     public static final String POSITIONS = "positions";
-    public static final String ACCOUNT= "account";
+    public static final String ACCOUNT = "account";
+    public static final String BALANCE_AND_POSITION= "balance_and_position";
+    public static final String DEPOSIT_INFO= "deposit-info";
+    public static final String WITHDRAWAL_INFO= "withdrawal-info";
 
     private final Observable<Long> pingPongSrc = Observable.interval(15, 15, TimeUnit.SECONDS);
 
@@ -169,7 +172,13 @@ public class OkexStreamingService extends JsonNettyStreamingService {
             return new OkexSubscribeMessage.SubscriptionTopic(POSITIONS,OkexInstType.ANY,null,channelName.replace(POSITIONS,""));
         } else if (channelName.contains(ACCOUNT)){
             return new OkexSubscribeMessage.SubscriptionTopic(ACCOUNT,OkexInstType.ANY,null,null,String.valueOf(args[0]));
-        }else{
+        } else if (channelName.contains(BALANCE_AND_POSITION)) {
+            return new OkexSubscribeMessage.SubscriptionTopic(BALANCE_AND_POSITION,null,null,null,null);
+        } else if (channelName.contains(WITHDRAWAL_INFO)) {
+            return new OkexSubscribeMessage.SubscriptionTopic(WITHDRAWAL_INFO,null,null,null,null);
+        } else if (channelName.contains(DEPOSIT_INFO)) {
+            return new OkexSubscribeMessage.SubscriptionTopic(DEPOSIT_INFO,null,null,null,null);
+        } else{
             throw new NotYetImplementedForExchangeException("ChannelName: "+channelName+" has not implemented yet on "+this.getClass().getSimpleName());
         }
     }

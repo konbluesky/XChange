@@ -17,6 +17,11 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
 
     public static final String AWS_WS_PRIVATE_CHANNEL_URI = "wss://wsaws.okx.com:8443/ws/v5/private";
 
+    // Recharge URIs
+    public static final String WS_BUSINESS_CHANNEL_URI = "wss://ws.okx.com:8443/ws/v5/business";
+
+    public static final String AWS_WS_BUSINESS_CHANNEL_URI = "wss://wsaws.okx.com:8443/ws/v5/business";
+
     // Demo(Sandbox) URIs
     public static final String SANDBOX_WS_PUBLIC_CHANNEL_URI = "wss://wspap.okx.com:8443/ws/v5/public?brokerId=9999";
 
@@ -33,6 +38,8 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
 
     private OkexStreamingAccountService streamingAccountService;
 
+    private OkexStreamingBusinessService streamingBusinessService;
+
     public OkexStreamingExchange() {
     }
 
@@ -44,7 +51,11 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
         this.streamingPositionService = new OkexStreamingPositionService(streamingService, exchangeMetaData);
         this.streamingAccountService = new OkexStreamingAccountService(streamingService);
 
-        return streamingService.connect();
+        // Use WS_BUSINESS_CHANNEL_URI to initialize the socket connection
+        OkexStreamingService okexStreamingService = new OkexStreamingService(WS_BUSINESS_CHANNEL_URI, this.exchangeSpecification);
+        this.streamingBusinessService = new OkexStreamingBusinessService(okexStreamingService);
+
+        return streamingService.connect().andThen(okexStreamingService.connect());
     }
 
     private String getApiUrl() {
@@ -90,8 +101,13 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
         return streamingPositionService;
     }
 
+    @Override
     public StreamingAccountService getStreamingAccountService() {
         return streamingAccountService;
+    }
+
+    public OkexStreamingBusinessService getStreamingBusinessService() {
+        return streamingBusinessService;
     }
 
     @Override
