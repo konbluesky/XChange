@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,8 +17,10 @@ import org.knowm.xchange.okex.OkexExchange;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
+import org.knowm.xchange.okex.service.EmptyFuturesContract;
 
 @Ignore
+@Slf4j
 public class OkexStreamingPrivateDataIntegtration {
 
     StreamingExchange exchange;
