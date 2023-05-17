@@ -1,5 +1,6 @@
 package org.knowm.xchange.okex.dto.marketdata;
 
+import com.google.common.collect.Multimap;
 import lombok.Getter;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
@@ -19,9 +20,9 @@ import java.util.Map;
 @Getter
 public class OkexExchangeMetaData extends ExchangeMetaData {
 
-    private Map<Currency, OkexInstrument> okexInstruments;
+    private Multimap<Currency, OkexInstrument> okexInstruments;
 
-    private Map<Currency, OkexCurrency> okexCurrencys;
+    private Multimap<Currency, OkexCurrency> okexCurrencys;
 
     /**
      * Constructor
@@ -38,8 +39,8 @@ public class OkexExchangeMetaData extends ExchangeMetaData {
     }
 
     public OkexExchangeMetaData(Map<Instrument, InstrumentMetaData> instruments, Map<Currency, CurrencyMetaData> currency, RateLimit[] publicRateLimits,
-                                RateLimit[] privateRateLimits, Boolean shareRateLimits, Map<Currency, OkexInstrument> okexInstruments,
-                                Map<Currency, OkexCurrency> okexCurrencys) {
+                                RateLimit[] privateRateLimits, Boolean shareRateLimits, Multimap<Currency, OkexInstrument> okexInstruments,
+                                Multimap<Currency, OkexCurrency> okexCurrencys) {
         super(instruments, currency, publicRateLimits, privateRateLimits, shareRateLimits);
         this.okexInstruments = okexInstruments;
         this.okexCurrencys = okexCurrencys;

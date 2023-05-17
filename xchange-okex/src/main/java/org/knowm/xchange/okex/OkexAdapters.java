@@ -1,5 +1,7 @@
 package org.knowm.xchange.okex;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.currency.Currency;
@@ -8,16 +10,14 @@ import org.knowm.xchange.derivative.FuturesContract;
 import org.knowm.xchange.derivative.OptionsContract;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
-import org.knowm.xchange.dto.account.Balance;
-import org.knowm.xchange.dto.account.OpenPosition;
-import org.knowm.xchange.dto.account.OpenPositions;
-import org.knowm.xchange.dto.account.Wallet;
+import org.knowm.xchange.dto.account.*;
 import org.knowm.xchange.dto.marketdata.*;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
 import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.*;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.okex.dto.OkexInstType;
 import org.knowm.xchange.okex.dto.OkexResponse;
@@ -269,8 +269,8 @@ public class OkexAdapters {
 
         Map<Instrument, InstrumentMetaData> instrumentMetaData = new HashMap<>();
         Map<Currency, CurrencyMetaData> currencies = new HashMap<>();
-        Map<Currency, OkexCurrency> rawOKexCurrencies= new HashMap<>();
-        Map<Currency, OkexInstrument> rawOKexInstruments= new HashMap<>();
+        Multimap<Currency,OkexCurrency> rawOKexCurrencies= ArrayListMultimap.create();
+        Multimap<Currency, OkexInstrument> rawOKexInstruments= ArrayListMultimap.create();
 
         String makerFee = "0.5";
         if (tradeFee != null && !tradeFee.isEmpty()) {
@@ -462,5 +462,115 @@ public class OkexAdapters {
                                    .currentLeverage((totalPositionValueInUsd.compareTo(BigDecimal.ZERO) != 0) ? divide : BigDecimal.ZERO)
                                    .features(new HashSet<>(Collections.singletonList(Wallet.WalletFeature.FUTURES_TRADING)))
                                    .build();
+    }
+
+    public static List<FundingRecord> adaptOkexWithdrawalHistory(List<OkexWithdrawalHistoryResponse> okexWithdrawalHistoryResponseList) {
+        List<FundingRecord> fundingRecordList = new ArrayList<>();
+        for (OkexWithdrawalHistoryResponse okexWithdrawalHistoryResponse : okexWithdrawalHistoryResponseList) {
+            fundingRecordList.add(adaptOkexWithdrawalHistoryResponse(okexWithdrawalHistoryResponse));
+        }
+        return fundingRecordList;
+    }
+    public static List<FundingRecord> adaptOkexDepositHistory(List<OkexDepositHistoryResponse> okexDepositHistoryResponseList) {
+        List<FundingRecord> fundingRecordList = new ArrayList<>();
+        for (OkexDepositHistoryResponse okexDepositHistoryResponse : okexDepositHistoryResponseList) {
+            fundingRecordList.add(adaptOkexDepositHistoryResponse(okexDepositHistoryResponse));
+        }
+        return fundingRecordList;
+    }
+
+    public static FundingRecord adaptOkexWithdrawalHistoryResponse(OkexWithdrawalHistoryResponse okexWithdrawalHistoryResponse) {
+        //https://www.okx.com/docs-v5/zh/#rest-api-funding-get-withdrawal-history
+        return new FundingRecord.Builder().setAddress(okexWithdrawalHistoryResponse.getTo())
+                .setAmount(new BigDecimal(okexWithdrawalHistoryResponse.getAmt()))
+                .setCurrency(Currency.getInstance(okexWithdrawalHistoryResponse.getCcy()))
+                .setDate(new Date(Long.valueOf(okexWithdrawalHistoryResponse.getTs())))
+                .setFee(new BigDecimal(okexWithdrawalHistoryResponse.getFee()))
+                .setDescription(okexWithdrawalHistoryResponse.getClientId())
+                //internalId is wdId
+                .setInternalId(okexWithdrawalHistoryResponse.getWdId())
+                .setStatus(convertWithdrawalStatus(okexWithdrawalHistoryResponse.getState()))
+                .setBlockchainTransactionHash(okexWithdrawalHistoryResponse.getTxId())
+                .setType(FundingRecord.Type.WITHDRAWAL)
+                .build();
+    }
+
+    public static FundingRecord adaptOkexDepositHistoryResponse(OkexDepositHistoryResponse okexDepositHistoryResponse) {
+        //https://www.okx.com/docs-v5/zh/#rest-api-funding-get-deposit-history
+        return new FundingRecord.Builder().setAddress(okexDepositHistoryResponse.getTo())
+                .setAmount(new BigDecimal(okexDepositHistoryResponse.getAmt()))
+                .setCurrency(Currency.getInstance(okexDepositHistoryResponse.getCcy()))
+                .setDate(new Date(Long.valueOf(okexDepositHistoryResponse.getTs())))
+                .setStatus(convertDepositStatus(okexDepositHistoryResponse.getState()))
+                .setBlockchainTransactionHash(okexDepositHistoryResponse.getTxId())
+                .setType(FundingRecord.Type.DEPOSIT)
+                .build();
+    }
+
+
+    /**
+     * 充值状态
+     * 0：等待确认
+     * 1：确认到账
+     * 2：充值成功
+     * 8：因该币种暂停充值而未到账，恢复充值后自动到账
+     * 11：命中地址黑名单
+     * 12：账户或充值被冻结
+     * 13：子账户充值拦截
+     * 14：KYC限额
+     */
+    private static FundingRecord.Status convertDepositStatus(String status) {
+        switch (status) {
+            case "0":
+                return FundingRecord.Status.PROCESSING;
+            case "1":
+            case "2":
+                return FundingRecord.Status.COMPLETE;
+            case "8":
+            case "11":
+            case "12":
+            case "13":
+            case "14":
+                return FundingRecord.Status.FAILED;
+            default:
+                throw new ExchangeException("Unknown withdrawal status: " + status);
+        }
+    }
+
+    /**
+     * 提币状态
+     * -3：撤销中
+     * -2：已撤销
+     * -1：失败
+     * 0：等待提币
+     * 1：提币中
+     * 2：提币成功
+     * 7: 审核通过
+     * 10: 等待划转
+     * 4, 5, 6, 8, 9, 12: 等待客服审核
+     */
+    private static FundingRecord.Status convertWithdrawalStatus(String status) {
+        switch (status) {
+            case "-3":
+            case "-2":
+                return FundingRecord.Status.CANCELLED;
+            case "-1":
+                return FundingRecord.Status.FAILED;
+            case "0":
+            case "1":
+            case "4":
+            case "5":
+            case "6":
+            case "8":
+            case "9":
+            case "12":
+                return FundingRecord.Status.PROCESSING;
+            case "7":
+            case "2":
+            case "10":
+                return FundingRecord.Status.COMPLETE;
+            default:
+                throw new ExchangeException("Unknown withdrawal status: " + status);
+        }
     }
 }

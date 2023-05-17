@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021 */
+/**
+ * Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021
+ */
 
 /** https://www.okex.com/docs-v5/en/#rest-api-funding-get-currencies * */
 @Getter
@@ -46,4 +48,7 @@ public class OkexCurrency {
 
     @JsonProperty("mainNet")
     private boolean mainNet;
+
+    @JsonProperty("logoLink")
+    private String logoLink;
 }

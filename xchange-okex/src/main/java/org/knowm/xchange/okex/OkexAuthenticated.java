@@ -36,6 +36,7 @@ public interface OkexAuthenticated extends Okex {
   String changeMarginPath = "/account/position/margin-balance"; // Stated as 20 req/2 sec
   String currenciesPath = "/asset/currencies"; // Stated as 6 req/sec
   String assetBalancesPath = "/asset/balances"; // Stated as 6 req/sec
+  String assetDepositHistoryPath = "/asset/deposit-history"; // Stated as 6 req/sec
   String assetWithdrawalPath = "/asset/withdrawal"; // Stated as 6 req/sec
   String assetWithdrawalHistoryPath = "/asset/withdrawal-history"; // Stated as 6 req/sec
   String assetCancelWithdrawalPath = "/asset/cancel-withdrawal"; // Stated as 6 req/sec
@@ -418,5 +419,23 @@ public interface OkexAuthenticated extends Okex {
         @QueryParam("limit") String limit)
         throws OkexException, IOException;
 
+  @GET
+  @Path(assetDepositHistoryPath)
+  OkexResponse<List<OkexDepositHistoryResponse>> getDepositHistory(
+        @HeaderParam("OK-ACCESS-KEY") String apiKey,
+        @HeaderParam("OK-ACCESS-SIGN") ParamsDigest signature,
+        @HeaderParam("OK-ACCESS-TIMESTAMP") String timestamp,
+        @HeaderParam("OK-ACCESS-PASSPHRASE") String passphrase,
+        @HeaderParam("X-SIMULATED-TRADING") String simulatedTrading,
+        @QueryParam("ccy") String ccy,
+        @QueryParam("depId") String depId,
+        @QueryParam("fromWdId") String fromWdId,
+        @QueryParam("txId") String txId,
+        @QueryParam("type") String type,
+        @QueryParam("state") String state,
+        @QueryParam("after") String after,
+        @QueryParam("before") String before,
+        @QueryParam("limit") String limit)
+        throws OkexException, IOException;
 
 }

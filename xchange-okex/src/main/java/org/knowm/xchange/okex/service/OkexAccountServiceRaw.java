@@ -105,6 +105,35 @@ public class OkexAccountServiceRaw extends OkexBaseService {
     }
   }
 
+  public OkexResponse<List<OkexDepositHistoryResponse>> getDepositHistory(String ccy, String depId, String fromWdId, String txId, String type, String state, String after, String before, String limit) throws OkexException, IOException {
+    try {
+      return decorateApiCall(()->okexAuthenticated.getDepositHistory(
+              exchange.getExchangeSpecification().getApiKey(),
+              signatureCreator,
+              DateUtils.toUTCISODateString(new Date()),
+              (String)
+                      exchange
+                              .getExchangeSpecification()
+                              .getExchangeSpecificParametersItem(PARAM_PASSPHRASE),
+              (String)
+                      exchange
+                              .getExchangeSpecification()
+                              .getExchangeSpecificParametersItem(PARAM_SIMULATED),
+              ccy,
+                depId,
+                fromWdId,
+                txId,
+                type,
+                state,
+                after,
+                before,
+                limit
+      )).withRateLimiter(rateLimiter(OkexAuthenticated.assetDepositHistoryPath)).call();
+    }catch (OkexException e) {
+      throw handleError(e);
+    }
+  }
+
   public OkexResponse<List<OkexCancelWithdrawalResponse>> cancelWithdrawal(String wdId) throws OkexException, IOException{
     try {
       OkexCancelWithdrawalRequest requestPayload = OkexCancelWithdrawalRequest.builder()
