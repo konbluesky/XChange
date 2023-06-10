@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
+import org.knowm.xchange.okex.dto.account.OkexDepositHistoryResponse;
+
+import java.util.List;
 
 /**
  * wss://ws.okx.com:8443/ws/v5/business，wss://wsaws.okx.com:8443/ws/v5/business
@@ -54,12 +57,15 @@ public class OkexStreamingBusinessService {
     /**
      * https://www.okx.com/docs-v5/zh/#websocket-api-private-channel-deposit-info-channel
      */
-    public Observable<JsonNode> getDepositInfoChanges() {
+    public Observable<OkexDepositHistoryResponse> getDepositInfoChanges() {
         return service.subscribeChannel(OkexStreamingService.DEPOSIT_INFO)
                       .filter(message -> message.has("data"))
                       .flatMap(jsonNode -> {
                           log.debug("getDepositInfoChanges: {}", jsonNode);
-                          return Observable.just(jsonNode);
+                          List<OkexDepositHistoryResponse> deposits = mapper.treeToValue(jsonNode.get("data"), mapper.getTypeFactory()
+                                                                                                                     .constructCollectionType(List.class, OkexDepositHistoryResponse.class));
+
+                          return Observable.fromIterable(deposits);
                       });
     }
 
