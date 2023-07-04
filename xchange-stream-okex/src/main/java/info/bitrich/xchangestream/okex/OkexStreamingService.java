@@ -148,6 +148,9 @@ public class OkexStreamingService extends JsonNettyStreamingService {
 
     @Override
     public String getSubscribeMessage(String channelName, Object... args) throws IOException {
+        if(channelName.equalsIgnoreCase(MultipleSubscribeBuilder.MULTIPLE.toLowerCase())){
+            return objectMapper.writeValueAsString(args);
+        }
         return objectMapper.writeValueAsString(new OkexSubscribeMessage(SUBSCRIBE, Collections.singletonList(getTopic(channelName,args))));
     }
 
