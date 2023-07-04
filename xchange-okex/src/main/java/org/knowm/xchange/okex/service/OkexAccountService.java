@@ -9,6 +9,7 @@ import org.knowm.xchange.okex.OkexExchange;
 import org.knowm.xchange.okex.dto.OkexException;
 import org.knowm.xchange.okex.dto.OkexResponse;
 import org.knowm.xchange.okex.dto.account.*;
+import org.knowm.xchange.okex.dto.trade.OkexTransferResponse;
 import org.knowm.xchange.okex.service.params.OkexFundingHistoryParams;
 import org.knowm.xchange.okex.service.params.OkexWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
@@ -17,6 +18,7 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 /** Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021 */
@@ -114,5 +116,26 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
             }
         }
         throw new IllegalStateException("Don't know how to get funding history: " + params);
+    }
+
+
+    public List<OkexTransferResponse> innerTransferFundToTrade(Currency currency, BigDecimal amount) throws IOException{
+
+        OkexResponse<List<OkexTransferResponse>> okexResponse = transfer(currency.getCurrencyCode(), amount.toPlainString(),"6","18","0");
+        if (!okexResponse.isSuccess())
+            throw new OkexException(okexResponse.getMsg(), Integer.parseInt(okexResponse.getCode()));
+
+        return okexResponse.getData();
+
+    }
+
+    public List<OkexTransferResponse> innerTransferTradeToFund(Currency currency, BigDecimal amount) throws IOException{
+
+        OkexResponse<List<OkexTransferResponse>> okexResponse = transfer(currency.getCurrencyCode(), amount.toPlainString(),"18","6","0");
+        if (!okexResponse.isSuccess())
+            throw new OkexException(okexResponse.getMsg(), Integer.parseInt(okexResponse.getCode()));
+
+        return okexResponse.getData();
+
     }
 }

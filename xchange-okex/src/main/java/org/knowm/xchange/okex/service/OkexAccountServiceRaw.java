@@ -16,6 +16,8 @@ import org.knowm.xchange.okex.dto.account.OkexTradeFee;
 import org.knowm.xchange.okex.dto.account.OkexWalletBalance;
 import org.knowm.xchange.okex.dto.account.PiggyBalance;
 import org.knowm.xchange.okex.dto.subaccount.OkexSubAccountDetails;
+import org.knowm.xchange.okex.dto.trade.OkexTransferRequest;
+import org.knowm.xchange.okex.dto.trade.OkexTransferResponse;
 import org.knowm.xchange.utils.DateUtils;
 
 import static org.knowm.xchange.okex.OkexExchange.PARAM_PASSPHRASE;
@@ -490,4 +492,39 @@ public class OkexAccountServiceRaw extends OkexBaseService {
         .withRateLimiter(rateLimiter(OkexAuthenticated.subAccountList))
         .call();
   }
+
+  public OkexResponse<List<OkexTransferResponse>> transfer(
+          String ccy,
+          String amt,
+          String from,
+          String to,
+          String type
+          )
+          throws OkexException, IOException {
+    OkexTransferRequest requestPayload = OkexTransferRequest.builder()
+            .currency(ccy)
+            .amount(amt)
+            .from(from)
+            .to(to)
+            .type(type)
+            .build();
+    return decorateApiCall(
+            () ->
+                this.okexAuthenticated.transfer(
+                    exchange.getExchangeSpecification().getApiKey(),
+                    signatureCreator,
+                    DateUtils.toUTCISODateString(new Date()),
+                    (String)
+                        exchange
+                            .getExchangeSpecification()
+                            .getExchangeSpecificParametersItem(PARAM_PASSPHRASE),
+                    (String)
+                        exchange
+                            .getExchangeSpecification()
+                            .getExchangeSpecificParametersItem(PARAM_SIMULATED),
+                    requestPayload))
+        .withRateLimiter(rateLimiter(OkexAuthenticated.subAccountList))
+        .call();
+  }
+
 }

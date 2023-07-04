@@ -6,6 +6,8 @@ import lombok.ToString;
 
 /**
  * https://www.okx.com/docs-v5/zh/#rest-api-funding-get-deposit-address
+ * https://www.okx.com/docs-v5/zh/#websocket-api-private-channel-deposit-info-channel
+ * 共用一个实体类
  * <p> @Date : 2023/5/13 </p>
  * <p> @Project : XChange</p>
  *
@@ -77,5 +79,18 @@ public class OkexDepositHistoryResponse {
 
     @JsonProperty("actualDepBlkConfirm")
     private String actualDepBlkConfirm;
+
+    /****************************************************************************************************/
+    /**** websocket api private channel deposit info channel **/
+    /****************************************************************************************************/
+    @JsonProperty("pTime")
+    private String pTime;
+
+    @JsonProperty("uid")
+    private String uid;
+
+    @JsonProperty("subAcct")
+    private String subAcct;
+
 
 }
