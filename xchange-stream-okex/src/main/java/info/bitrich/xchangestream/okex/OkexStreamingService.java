@@ -2,6 +2,7 @@ package info.bitrich.xchangestream.okex;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import info.bitrich.xchangestream.okex.dto.MultipleSubscribeBuilder;
 import info.bitrich.xchangestream.okex.dto.OkexLoginMessage;
 import info.bitrich.xchangestream.okex.dto.OkexSubscribeMessage;
 import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
@@ -41,7 +42,7 @@ public class OkexStreamingService extends JsonNettyStreamingService {
     public static final String ORDERBOOK5 = "books5";
     public static final String FUNDING_RATE = "funding-rate";
     public static final String TICKERS = "tickers";
-    public static final String USERTRADES = "orders";
+    public static final String USERORDERS = "orders";
     public static final String POSITIONS = "positions";
     public static final String ACCOUNT = "account";
     public static final String BALANCE_AND_POSITION= "balance_and_position";
@@ -164,8 +165,8 @@ public class OkexStreamingService extends JsonNettyStreamingService {
             return new OkexSubscribeMessage.SubscriptionTopic(TRADES,null,null,channelName.replace(TRADES,""));
         } else if(channelName.contains(TICKERS)){
             return new OkexSubscribeMessage.SubscriptionTopic(TICKERS,null,null,channelName.replace(TICKERS,""));
-        } else if (channelName.contains(USERTRADES)){
-            return new OkexSubscribeMessage.SubscriptionTopic(USERTRADES, OkexInstType.ANY,null,channelName.replace(USERTRADES,""));
+        } else if (channelName.contains(USERORDERS)){
+            return new OkexSubscribeMessage.SubscriptionTopic(USERORDERS, OkexInstType.ANY,null,channelName.replace(USERORDERS,""));
         } else if(channelName.contains(FUNDING_RATE)){
             return new OkexSubscribeMessage.SubscriptionTopic(FUNDING_RATE, null,null,channelName.replace(FUNDING_RATE,""));
         } else if (channelName.contains(POSITIONS)){
