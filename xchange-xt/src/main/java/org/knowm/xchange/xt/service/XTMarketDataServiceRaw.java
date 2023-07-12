@@ -7,6 +7,7 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
+import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,8 @@ public class XTMarketDataServiceRaw extends XTBaseService {
         super(exchange);
     }
 
-    public List<XTSymbol> getSymbols() {
-        JsonNode currencies = xt.symbol(null, null, null).getData();
+    public List<XTSymbol> getSymbols(String symbol, String currency) {
+        JsonNode currencies = xt.symbol(symbol == null ? "" : symbol, currency == null ? "" : currency, null).getData();
         try {
             return mapper.treeToValue(currencies.get("symbols"), mapper.getTypeFactory()
                                                                        .constructCollectionType(List.class, XTSymbol.class));
@@ -64,5 +65,8 @@ public class XTMarketDataServiceRaw extends XTBaseService {
 
     }
 
+    public List<XTTicker> getTickers(String symbol, String symbols) {
+        return xt.getFullTickerPrice(symbol == null ? null : symbol, symbols == null ? null : symbols, null).getData();
+    }
 
 }

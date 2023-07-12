@@ -1,7 +1,18 @@
 package org.knowm.xchange.xt.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
+import org.knowm.xchange.service.marketdata.params.Params;
+import org.knowm.xchange.xt.XTAdapters;
+import org.knowm.xchange.xt.dto.marketdata.XTTicker;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p> @Date : 2023/7/10 </p>
@@ -9,6 +20,7 @@ import org.knowm.xchange.service.marketdata.MarketDataService;
  *
  * <p> @author konbluesky </p>
  */
+@Slf4j
 public class XTMarketDataService extends XTMarketDataServiceRaw implements MarketDataService {
     /**
      * Constructor
@@ -19,6 +31,23 @@ public class XTMarketDataService extends XTMarketDataServiceRaw implements Marke
         super(exchange);
     }
 
+    @Override
+    public Ticker getTicker(Instrument instrument, Object... args) throws IOException {
+        List<XTTicker> tickers = getTickers(XTAdapters.adaptInstrument(instrument), null);
+        return XTAdapters.adaptTicker(tickers.get(0), instrument);
+    }
 
 
+    @Override
+    public List<Ticker> getTickers(Params params) throws IOException {
+        if (params instanceof InstrumentsParams) {
+            Collection<Instrument> is = ((InstrumentsParams) params).getInstruments();
+            String symbols = is.stream().map(i -> i.getBase() + "_" + i.getCounter()).reduce((a, b) -> a + "," + b)
+                               .get();
+            List<XTTicker> tickers = getTickers(null, symbols);
+            return XTAdapters.adaptTickers(tickers);
+        } else {
+            throw new IllegalArgumentException("params must be InstrumentsParams");
+        }
+    }
 }

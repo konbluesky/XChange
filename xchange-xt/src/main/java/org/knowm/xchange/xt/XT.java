@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.knowm.xchange.xt.dto.XTException;
 import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
+import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -44,4 +45,19 @@ public interface XT {
     @Path("/wallet/support/currency")
     XTResponse<List<XTCurrencyWalletInfo>> walletSupportCurrency() throws XTException;
 
+    @GET
+    @Path("/ticker/price")
+    XTResponse<List<XTTicker>> getTickerPrice(
+            @QueryParam("symbol") String symbol,
+            @QueryParam("symbols") String symbols,
+            @QueryParam("tags") String tags
+    ) throws XTException;
+
+    @GET
+    @Path("/ticker")
+    XTResponse<List<XTTicker>> getFullTickerPrice(
+            @QueryParam("symbol") String symbol,
+            @QueryParam("symbols") String symbols,
+            @QueryParam("tags") String tags
+    ) throws XTException;
 }

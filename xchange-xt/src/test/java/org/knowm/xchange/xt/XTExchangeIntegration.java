@@ -2,6 +2,7 @@ package org.knowm.xchange.xt;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -10,8 +11,12 @@ import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.service.marketdata.MarketDataService;
+import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
 import org.knowm.xchange.xt.dto.BalanceResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
@@ -22,6 +27,7 @@ import org.knowm.xchange.xt.service.XTMarketDataService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -100,13 +106,35 @@ public class XTExchangeIntegration {
             log.info("{}", currencyInfo);
         }
 
-        List<XTSymbol> symbols = marketDataService.getSymbols();
+        List<XTSymbol> symbols = marketDataService.getSymbols(null, null);
         log.info("Symbols size:{} ", symbols.size());
         for (XTSymbol symbol : symbols) {
             log.info("{}", symbol);
         }
 
     }
+
+
+    @Test
+    public void testTicker() throws IOException {
+        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
+        spec.setApiKey(API_KEY);
+        spec.setSecretKey(SECRET_KEY);
+        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
+        MarketDataService marketDataService = exchange.getMarketDataService();
+        Instrument instrument = new CurrencyPair("BTC", "USDT");
+        Ticker ticker = marketDataService.getTicker(instrument);
+        log.info("{}", ticker.toString());
+
+        Instrument instrument1 = new CurrencyPair("ETH", "USDT");
+
+        List<Ticker> tickers = marketDataService.getTickers((InstrumentsParams) () -> Lists.newArrayList(instrument, instrument1));
+
+        log.info("TICKERS:{}", tickers);
+
+
+    }
+
 
     @Test
     public void filterBNB() {
