@@ -1,0 +1,98 @@
+package org.knowm.xchange.xt;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import org.knowm.xchange.xt.dto.BalanceResponse;
+import org.knowm.xchange.xt.dto.XTResponse;
+import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
+import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
+import org.knowm.xchange.xt.dto.ws.WebSocketToken;
+import si.mazi.rescu.ParamsDigest;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * <p> @Date : 2023/7/10 </p>
+ * <p> @Project : XChange</p>
+ *
+ * <p> @author konbluesky </p>
+ */
+@Path("/v4")
+@Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+public interface XTAuthenticated {
+
+    @POST
+    @Path("/ws-token")
+    XTResponse<WebSocketToken> getWsToken(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature
+    ) throws IOException;
+
+
+    @GET
+    @Path("/balance")
+    XTResponse<BalanceResponse> balance(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            @QueryParam("currency") String currency
+    ) throws IOException;
+
+    @POST
+    @Path("/order")
+    @Consumes(MediaType.APPLICATION_JSON)
+    XTResponse<JsonNode> placeOrder(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            PlaceOrderRequest requestPayload
+    ) throws IOException;
+
+    @GET
+    @Path("/order")
+    XTResponse<GetOrderResponse> getOrder(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            @QueryParam("orderId") Long orderId,
+            @QueryParam("clientOrderId") String clientOrderId
+    ) throws IOException;
+
+
+    @DELETE
+    @Path("/order/{orderId}")
+    XTResponse<JsonNode> cancelOrder(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            @PathParam("orderId") Long orderId
+    ) throws IOException;
+
+    @GET
+    @Path("/open-order")
+    XTResponse<List<GetOrderResponse>> getOpenOrders(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            @QueryParam("symbol") String symbol,
+            @QueryParam("bizType") String bizType,
+            @QueryParam("side") String side
+    ) throws IOException;
+
+}
+
