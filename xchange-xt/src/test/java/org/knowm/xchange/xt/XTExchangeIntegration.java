@@ -12,6 +12,7 @@ import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
@@ -64,6 +65,18 @@ public class XTExchangeIntegration {
         BalanceResponse usdt = xtAccountServiceRaw.balance("usdt");
         log.info("usdt:{}", usdt.getAvailableAmount());
 
+    }
+
+
+    @Test
+    public void testBalances() throws IOException {
+        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
+        spec.setApiKey(API_KEY);
+        spec.setSecretKey(SECRET_KEY);
+        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
+        AccountInfo accountInfo = exchange.getAccountService().getAccountInfo();
+
+        log.info("{}", accountInfo.toString());
     }
 
 

@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
@@ -11,6 +13,7 @@ import org.knowm.xchange.dto.meta.InstrumentMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -43,6 +46,22 @@ public class XTAdapters {
 
     public static List<Ticker> adaptTickers(List<XTTicker> tickers) {
         return tickers.stream().map(t -> adaptTicker(t, adaptInstrumentId(t.getSymbol()))).collect(Collectors.toList());
+    }
+
+    public static Wallet adaptWallet(List<BalanceResponse> walletSupportCurrencies) {
+        List<Balance> balances = walletSupportCurrencies.stream()
+                                                        .map(balanceResponse -> new Balance.Builder()
+                                                                .currency(new Currency(balanceResponse.getCurrency()))
+                                                                .total(new BigDecimal(balanceResponse.getTotalAmount()))
+                                                                .available(new BigDecimal(balanceResponse.getAvailableAmount()))
+                                                                .timestamp(new Date())
+                                                                .build())
+                                                        .collect(Collectors.toList());
+
+        return Wallet.Builder.from(balances)
+                             .id("TRADING_WALLET_ID")
+                             .features(new HashSet<>(Collections.singletonList(Wallet.WalletFeature.TRADING)))
+                             .build();
     }
 
 

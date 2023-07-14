@@ -1,8 +1,8 @@
 package org.knowm.xchange.xt;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.XTResponse;
+import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
@@ -45,6 +45,18 @@ public interface XTAuthenticated {
             @HeaderParam("validate-signature") ParamsDigest signature,
             @QueryParam("currency") String currency
     ) throws IOException;
+
+
+    @GET
+    @Path("/balances")
+    XTResponse<JsonNode> balances(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature
+    ) throws IOException;
+
 
     @POST
     @Path("/order")
@@ -94,7 +106,6 @@ public interface XTAuthenticated {
             @QueryParam("bizType") String bizType,
             @QueryParam("side") String side
     ) throws IOException;
-
 
 
     @POST

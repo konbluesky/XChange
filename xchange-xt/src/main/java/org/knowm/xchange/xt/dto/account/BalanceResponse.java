@@ -35,5 +35,11 @@ public class BalanceResponse {
     @JsonProperty("totalAmount")
     private String totalAmount;
 
+    @JsonProperty("convertBtcAmount")
+    private String convertBtcAmount;
+
+    @JsonProperty("convertUsdtAmount")
+    private String convertUsdtAmount;
+
 
 }

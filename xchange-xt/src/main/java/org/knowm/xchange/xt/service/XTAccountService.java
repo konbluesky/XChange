@@ -2,8 +2,10 @@ package org.knowm.xchange.xt.service;
 
 import com.google.common.base.Strings;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
+import org.knowm.xchange.xt.XTAdapters;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
 
@@ -23,6 +25,11 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
      */
     public XTAccountService(Exchange exchange) {
         super(exchange);
+    }
+
+    @Override
+    public AccountInfo getAccountInfo() throws IOException {
+        return new AccountInfo(XTAdapters.adaptWallet(balances()));
     }
 
     @Override
