@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.marketdata.Ticker;
@@ -18,7 +19,8 @@ import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
-import org.knowm.xchange.xt.dto.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -27,7 +29,6 @@ import org.knowm.xchange.xt.service.XTMarketDataService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -221,6 +222,19 @@ public class XTExchangeIntegration {
 
 
     }
+
+    @Test
+    public void withdraw() throws IOException {
+        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
+        spec.setApiKey(API_KEY);
+        spec.setSecretKey(SECRET_KEY);
+        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
+
+        String result = exchange.getAccountService()
+                                .withdrawFunds(new XTWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT,new BigDecimal("14"),"BNB Smart Chain"));
+        log.info("result:{}", result);
+    }
+
 
 }
 

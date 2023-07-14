@@ -1,8 +1,10 @@
 package org.knowm.xchange.xt.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.service.BaseParamsDigest;
-import org.knowm.xchange.xt.dto.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 
 import java.io.IOException;
 
@@ -35,4 +37,17 @@ public class XTAccountServiceRaw extends XTBaseService {
     public String time() throws IOException {
         return xt.time().getData().get("serverTime").toString();
     }
+
+    public String withdraw(WithdrawRequest request) throws IOException {
+        JsonNode jsonNode = xtAuthenticated.withdraw(
+                BaseParamsDigest.HMAC_SHA_256,
+                apiKey,
+                RECV_WINDOW,
+                String.valueOf(System.currentTimeMillis()),
+                signatureCreator,
+                request
+        ).getData();
+        return jsonNode.get("id").textValue();
+    }
+
 }

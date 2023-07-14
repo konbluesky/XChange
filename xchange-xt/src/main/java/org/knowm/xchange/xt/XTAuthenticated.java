@@ -1,8 +1,9 @@
 package org.knowm.xchange.xt;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.knowm.xchange.xt.dto.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.XTResponse;
+import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 import org.knowm.xchange.xt.dto.ws.WebSocketToken;
@@ -92,6 +93,20 @@ public interface XTAuthenticated {
             @QueryParam("symbol") String symbol,
             @QueryParam("bizType") String bizType,
             @QueryParam("side") String side
+    ) throws IOException;
+
+
+
+    @POST
+    @Path("/withdraw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    XTResponse<JsonNode> withdraw(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            WithdrawRequest requestPayload
     ) throws IOException;
 
 }

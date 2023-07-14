@@ -3,10 +3,7 @@ package org.knowm.xchange.xt;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.exceptions.ExchangeException;
-import org.knowm.xchange.xt.service.XTAccountServiceRaw;
-import org.knowm.xchange.xt.service.XTMarketDataService;
-import org.knowm.xchange.xt.service.XTTradeService;
-import org.knowm.xchange.xt.service.XTWsTokenService;
+import org.knowm.xchange.xt.service.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +36,7 @@ public class XTExchange extends BaseExchange {
 
     @Override
     protected void initServices() {
+        this.accountService = new XTAccountService(this);
         this.marketDataService = new XTMarketDataService(this);
         this.tradeService = new XTTradeService(this);
         this.xtWsTokenService = new XTWsTokenService(this);

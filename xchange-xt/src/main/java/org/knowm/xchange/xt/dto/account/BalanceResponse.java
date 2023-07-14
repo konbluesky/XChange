@@ -1,4 +1,4 @@
-package org.knowm.xchange.xt.dto;
+package org.knowm.xchange.xt.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
