@@ -8,8 +8,11 @@ import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
+import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.xt.dto.XTOrderBook;
 import org.knowm.xchange.xt.dto.XTSendMessage;
+import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 
 /**
  * <p> @Date : 2023/7/11 </p>
@@ -53,4 +56,20 @@ public class XTStreamingMarketDataService implements StreamingMarketDataService 
                 });
     }
 
+    @Override
+    public Observable<Ticker> getTicker(Instrument instrument, Object... args) {
+        String topic = "ticker";
+        String symbol = instrument.getBase().getCurrencyCode().toLowerCase() + "_" + instrument.getCounter()
+                                                                                               .getCurrencyCode()
+                                                                                               .toLowerCase();
+        XTSendMessage sendMessage = XTSendMessage.createSubMessage();
+        sendMessage.putParam(topic, symbol);
+
+        return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+                               .filter(message -> message.has("data")).flatMap(jsonNode -> {
+                    XTTicker ticker = mapper.treeToValue(jsonNode.get("data"), XTTicker.class);
+                    Ticker adaptTicker = XTAdapters.adaptTicker(ticker, instrument);
+                    return Observable.just(adaptTicker);
+                });
+    }
 }

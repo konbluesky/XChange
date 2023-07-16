@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -158,14 +159,23 @@ public class XTExchangeIntegration {
         XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
         XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
         List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
+        List<XTSymbol> symbols1 = marketDataService.getSymbols(null, null).stream().filter(xt->xt.getState().equalsIgnoreCase("online")).collect(Collectors.toList());
         ImmutableList<XTCurrencyWalletInfo> collect = currencys.stream()
                                                                .filter(xtCurrencyWalletInfo -> xtCurrencyWalletInfo.getSupportChains()
                                                                                                                    .stream()
                                                                                                                    .anyMatch(supportChain -> supportChain.getChain()
-                                                                                                                                                         .startsWith("BNB") && supportChain.isDepositEnabled() && supportChain.isWithdrawEnabled()))
+                                                                                                                                                         .startsWith("BNB Smart Chain")
+                                                                                                                           && supportChain.isDepositEnabled()
+                                                                                                                           && supportChain.isWithdrawEnabled()))
+
                                                                .collect(ImmutableList.toImmutableList());
 
         log.info("BNB size:{}", collect.size());
+
+        List<String> symbols = collect.stream().map(XTCurrencyWalletInfo::getCurrency).collect(Collectors.toList());
+        ;
+
+        log.info("BNB symbols:{}", symbols);
         for (XTCurrencyWalletInfo xtCurrencyWalletInfo : collect) {
             log.info("currency Info :{}", xtCurrencyWalletInfo);
         }
@@ -244,7 +254,7 @@ public class XTExchangeIntegration {
         XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
 
         String result = exchange.getAccountService()
-                                .withdrawFunds(new XTWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT,new BigDecimal("14"),"BNB Smart Chain"));
+                                .withdrawFunds(new XTWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT, new BigDecimal("14"), "BNB Smart Chain"));
         log.info("result:{}", result);
     }
 

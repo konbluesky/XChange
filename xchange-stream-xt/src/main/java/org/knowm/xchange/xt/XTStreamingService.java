@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class XTStreamingService extends JsonNettyStreamingService {
 
-    private final Observable<Long> pingPongSrc = Observable.interval(50, 50, TimeUnit.SECONDS);
+    private final Observable<Long> pingPongSrc = Observable.interval(10, 15, TimeUnit.SECONDS);
     private Disposable pingPongSubscription;
 
     private String listenKey;
@@ -32,7 +32,7 @@ public class XTStreamingService extends JsonNettyStreamingService {
     }
 
     public XTStreamingService(String apiUrl, String listenKey) {
-        super(apiUrl);
+        super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 20);
         this.listenKey = listenKey;
     }
 

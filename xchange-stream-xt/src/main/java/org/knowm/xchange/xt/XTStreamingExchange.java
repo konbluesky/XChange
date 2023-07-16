@@ -1,9 +1,6 @@
 package org.knowm.xchange.xt;
 
-import info.bitrich.xchangestream.core.ProductSubscription;
-import info.bitrich.xchangestream.core.StreamingAccountService;
-import info.bitrich.xchangestream.core.StreamingExchange;
-import info.bitrich.xchangestream.core.StreamingMarketDataService;
+import info.bitrich.xchangestream.core.*;
 import io.reactivex.Completable;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 
@@ -23,6 +20,7 @@ public class XTStreamingExchange extends XTExchange implements StreamingExchange
     private XTStreamingService privateStreamingService;
     private XTStreamingMarketDataService streamingMarketDataService;
     private XTStreamingAccountService streamingAccountService;
+    private XTStreamingTradeService streamingTradeService;
 
     public XTStreamingExchange() {
     }
@@ -30,10 +28,13 @@ public class XTStreamingExchange extends XTExchange implements StreamingExchange
     @Override
     public Completable connect(ProductSubscription... args) {
         this.streamingService = new XTStreamingService(API_BASE_PUBLIC_URI);
+        this.streamingMarketDataService = new XTStreamingMarketDataService(streamingService);
+
         String listenKey = (String) exchangeSpecification.getExchangeSpecificParametersItem(LISTEN_KEY);
         this.privateStreamingService = new XTStreamingService(API_BASE_PRIVATE_URI, listenKey);
         this.streamingAccountService = new XTStreamingAccountService(this.privateStreamingService);
-        this.streamingMarketDataService = new XTStreamingMarketDataService(streamingService);
+        this.streamingTradeService = new XTStreamingTradeService(privateStreamingService);
+
         return this.streamingService.connect().andThen(this.privateStreamingService.connect());
     }
 
@@ -53,6 +54,10 @@ public class XTStreamingExchange extends XTExchange implements StreamingExchange
         throw new NotYetImplementedForExchangeException("useCompressedMessage");
     }
 
+    @Override
+    public StreamingTradeService getStreamingTradeService() {
+        return this.streamingTradeService;
+    }
 
     @Override
     public StreamingMarketDataService getStreamingMarketDataService() {
