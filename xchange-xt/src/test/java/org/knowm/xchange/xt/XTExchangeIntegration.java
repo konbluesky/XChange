@@ -13,7 +13,9 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.AccountInfo;
+import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
@@ -22,6 +24,7 @@ import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryParams;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -159,7 +162,9 @@ public class XTExchangeIntegration {
         XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
         XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
         List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
-        List<XTSymbol> symbols1 = marketDataService.getSymbols(null, null).stream().filter(xt->xt.getState().equalsIgnoreCase("online")).collect(Collectors.toList());
+        List<XTSymbol> symbols1 = marketDataService.getSymbols(null, null).stream()
+                                                   .filter(xt -> xt.getState().equalsIgnoreCase("online"))
+                                                   .collect(Collectors.toList());
         ImmutableList<XTCurrencyWalletInfo> collect = currencys.stream()
                                                                .filter(xtCurrencyWalletInfo -> xtCurrencyWalletInfo.getSupportChains()
                                                                                                                    .stream()
@@ -181,6 +186,40 @@ public class XTExchangeIntegration {
         }
     }
 
+    @Test
+    public void testExchangeMetadata() throws IOException {
+        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
+        spec.setApiKey(API_KEY);
+        spec.setSecretKey(SECRET_KEY);
+
+        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
+
+        ExchangeMetaData exchangeMetaData = exchange.getExchangeMetaData();
+        log.info("exchangeMetaData size:{},currencyPairs size:{} ,instrument size:{}",
+                exchangeMetaData.getCurrencies().size(),
+                exchangeMetaData.getCurrencies().size(),
+                exchangeMetaData.getInstruments().size());
+
+        exchangeMetaData.getInstruments().forEach((instrument, instrumentMetaData) -> {
+            log.info("instrument:{} ,instrumentMetaData:{}", instrument, instrumentMetaData);
+        });
+
+
+    }
+
+    @Test
+    public void testFunding()throws IOException{
+        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
+        spec.setApiKey(API_KEY);
+        spec.setSecretKey(SECRET_KEY);
+        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
+        List<FundingRecord> fundingHistory = exchange.getAccountService()
+                                                     .getFundingHistory(XTWithdrawHistoryParams.builder()
+                                                                                               .currency("USDT")
+                                                                                               .build());
+        log.info("{}",fundingHistory.toString());
+
+    }
 
     @Test
     public void placeLimitBuyOrder() throws IOException {

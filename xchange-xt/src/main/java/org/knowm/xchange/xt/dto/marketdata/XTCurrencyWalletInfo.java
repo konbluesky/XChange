@@ -16,4 +16,15 @@ import java.util.List;
 public class XTCurrencyWalletInfo {
     private String currency;
     private List<XTCurrencyChainInfo> supportChains;
+
+
+    public XTCurrencyChainInfo getWalletInfo(String chainName) {
+        for (XTCurrencyChainInfo chainInfo : supportChains) {
+            if (chainInfo.getChain().equalsIgnoreCase(chainName)) {
+                return chainInfo;
+            }
+        }
+        return null;
+
+    }
 }

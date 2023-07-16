@@ -5,16 +5,19 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
+import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
-import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
+import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
+import org.knowm.xchange.xt.dto.marketdata.XTCurrencyChainInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
 import org.knowm.xchange.xt.dto.marketdata.XTTicker;
@@ -24,6 +27,8 @@ import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.knowm.xchange.xt.service.XTMarketDataServiceRaw.BNB_SMART_CHAIN;
 
 /**
  * <p> @Date : 2023/7/10 </p>
@@ -38,7 +43,9 @@ public class XTAdapters {
                 .instrument(instrument)
                 .ask(new BigDecimal(ticker.getAsksPrice() == null ? "0" : ticker.getAsksPrice()))
                 .bid(new BigDecimal(ticker.getBidsPrice() == null ? "0" : ticker.getBidsPrice()))
-                .last(new BigDecimal(ticker.getPrice() == null ? "0" : ticker.getPrice()))
+                .last(new BigDecimal(ticker.getPrice() == null ?
+                        ticker.getClose() == null ? "0" : ticker.getClose() :
+                        ticker.getPrice()))
                 .volume(new BigDecimal(ticker.getVolume() == null ? "0" : ticker.getVolume()))
                 .timestamp(new Date(ticker.getTime()))
                 .build();
@@ -66,10 +73,9 @@ public class XTAdapters {
 
 
     public static ExchangeMetaData adaptToExchangeMetaData(List<XTSymbol> symbols,
-                                                           List<XTCurrencyInfo> currencyInfos,
-                                                           List<XTCurrencyWalletInfo> walletSupportCurrencys) {
+                                                           Map<String, XTCurrencyWalletInfo> walletSupportCurrencys) {
         Map<Currency, CurrencyMetaData> currencies = new HashMap<>();
-        Map<Instrument, InstrumentMetaData> instrumentMetaData = new HashMap<>();
+        Map<Instrument, InstrumentMetaData> instruments = new HashMap<>();
 
         for (XTSymbol symbol : symbols) {
 
@@ -79,13 +85,25 @@ public class XTAdapters {
 
             Instrument pair = adaptInstrumentId(symbol.getSymbol());
 
-            instrumentMetaData.put(pair, new InstrumentMetaData.Builder()
+            XTCurrencyWalletInfo xtCurrencyWalletInfo = walletSupportCurrencys.get(pair.getBase().toString()
+                                                                                       .toLowerCase());
+            if (xtCurrencyWalletInfo == null) {
+                continue;
+            }
+            XTCurrencyChainInfo walletInfo = xtCurrencyWalletInfo.getWalletInfo(BNB_SMART_CHAIN);
 
+            instruments.put(pair, new InstrumentMetaData.Builder()
+                    .minimumAmount(new BigDecimal(walletInfo.getWithdrawMinAmount()))
+                    .marketOrderEnabled(true)
                     .build());
-
+            currencies.put(pair.getBase(), new CurrencyMetaData(null,
+                    new BigDecimal(walletInfo.getWithdrawFeeAmount()),
+                    new BigDecimal(walletInfo.getWithdrawMinAmount()),
+                    walletInfo.isWithdrawEnabled() && walletInfo.isDepositEnabled() ? WalletHealth.ONLINE : WalletHealth.OFFLINE
+            ));
         }
 
-        return new ExchangeMetaData(null, null, null, null, null);
+        return new ExchangeMetaData(instruments, currencies, null, null, null);
     }
 
     public static Instrument adaptInstrumentId(String instrumentId) {
@@ -141,5 +159,57 @@ public class XTAdapters {
         return new OpenOrders(openOrders);
     }
 
+    public static List<FundingRecord> adaptWithdraws(List<WithdrawHistoryResponse> depositHistoryResponses) {
+        return depositHistoryResponses.stream()
+                                      .map(XTAdapters::adaptWithdrawalHistoryResponse)
+                                      .collect(Collectors.toList());
+    }
 
+    public static FundingRecord adaptWithdrawalHistoryResponse(WithdrawHistoryResponse response) {
+        //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
+        return new FundingRecord.Builder().setAddress(response.getAddress())
+                                          .setAmount(new BigDecimal(response.getAmount()))
+                                          .setCurrency(Currency.getInstance(response.getCurrency()))
+                                          .setDate(new Date(Long.valueOf(response.getCreatedTime())))
+                                          .setFee(new BigDecimal(response.getFee()))
+                                          .setDescription(response.getMemo())
+                                          //internalId is wdId
+                                          .setInternalId(String.valueOf(response.getId()))
+                                          .setStatus(convertWithdrawalStatus(response.getStatus()))
+                                          .setBlockchainTransactionHash(response.getTransactionId())
+                                          .setType(FundingRecord.Type.WITHDRAWAL)
+                                          .build();
+    }
+
+    /**
+     * 充值/提现记录状态码及含义
+     * Status	说明
+     * SUBMIT	提现: 未冻结
+     * REVIEW	提现: 已冻结,待审核
+     * AUDITED	提现: 已审核,发送钱包,待上链
+     * AUDITED_AGAIN	复审中
+     * PENDING	充值/提现: 已上链
+     * SUCCESS	完成
+     * FAIL	失败
+     * CANCEL	已取消
+     */
+    private static FundingRecord.Status convertWithdrawalStatus(String status) {
+        switch (status) {
+            case "SUBMIT":
+            case "REVIEW":
+            case "AUDITED":
+            case "AUDITED_AGAIN":
+            case "PENDING":
+                return FundingRecord.Status.PROCESSING;
+            case "SUCCESS":
+                return FundingRecord.Status.COMPLETE;
+            case "FAIL":
+                return FundingRecord.Status.FAILED;
+            case "CANCEL":
+                return FundingRecord.Status.CANCELLED;
+            default:
+                return FundingRecord.Status.FAILED;
+
+        }
+    }
 }

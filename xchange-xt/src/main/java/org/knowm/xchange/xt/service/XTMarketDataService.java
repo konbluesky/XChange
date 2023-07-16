@@ -37,7 +37,6 @@ public class XTMarketDataService extends XTMarketDataServiceRaw implements Marke
         return XTAdapters.adaptTicker(tickers.get(0), instrument);
     }
 
-
     @Override
     public List<Ticker> getTickers(Params params) throws IOException {
         if (params instanceof InstrumentsParams) {

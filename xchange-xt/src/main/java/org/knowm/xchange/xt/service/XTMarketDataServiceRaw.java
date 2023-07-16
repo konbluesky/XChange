@@ -3,6 +3,7 @@ package org.knowm.xchange.xt.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
  * <p> @author konbluesky </p>
  */
 public class XTMarketDataServiceRaw extends XTBaseService {
+    public static final String BNB_SMART_CHAIN = "BNB Smart Chain";
+
     /**
      * Constructor
      *
@@ -43,11 +46,21 @@ public class XTMarketDataServiceRaw extends XTBaseService {
         return xt.walletSupportCurrency().getData();
     }
 
-    public Map<String, XTCurrencyWalletInfo> getWalletSupportCurrencysMap() {
+    public Map<String, XTCurrencyWalletInfo> getWalletSupportCurrencysMap(String filterChain) {
+
+        if (Strings.isNullOrEmpty(filterChain)) {
+            filterChain = BNB_SMART_CHAIN;
+        }
 
         List<XTCurrencyWalletInfo> data = xt.walletSupportCurrency().getData();
         //将data转换成map结构，使用currency 作为key，XTCurrencyWalletInfo 作为value
+        String finalFilterChain = filterChain;
         Map<String, XTCurrencyWalletInfo> collected = data.stream()
+                                                          .filter(xtCurrencyWalletInfo -> xtCurrencyWalletInfo.getSupportChains()
+                                                                                                              .stream()
+                                                                                                              .anyMatch(supportChain -> supportChain.getChain()
+                                                                                                                                                    .startsWith(finalFilterChain)
+                                                                                                                      && supportChain.isDepositEnabled() && supportChain.isWithdrawEnabled()))
                                                           .collect(Collectors.toMap(XTCurrencyWalletInfo::getCurrency, x -> x));
         return collected;
     }
@@ -62,7 +75,14 @@ public class XTMarketDataServiceRaw extends XTBaseService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public Map<String, XTCurrencyInfo> getCurrencyInfosMap() {
+        List<XTCurrencyInfo> data = getCurrencyInfos();
+        //将data转换成map结构，使用currency 作为key，XTCurrencyInfo 作为value
+        Map<String, XTCurrencyInfo> collected = data.stream()
+                                                    .collect(Collectors.toMap(XTCurrencyInfo::getCurrency, x -> x));
+        return collected;
     }
 
     public List<XTTicker> getTickers(String symbol, String symbols) {

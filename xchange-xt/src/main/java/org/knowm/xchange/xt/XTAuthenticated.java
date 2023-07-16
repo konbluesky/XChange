@@ -3,6 +3,7 @@ package org.knowm.xchange.xt;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
@@ -118,6 +119,24 @@ public interface XTAuthenticated {
             @HeaderParam("validate-timestamp") String timestamp,
             @HeaderParam("validate-signature") ParamsDigest signature,
             WithdrawRequest requestPayload
+    ) throws IOException;
+
+    @GET
+    @Path("/withdraw/history")
+    XTResponse<JsonNode> getWithdrawHistory(
+            @HeaderParam("validate-algorithms") String validateAlgorithms,
+            @HeaderParam("validate-appkey") String appkey,
+            @HeaderParam("validate-recvwindow") String recvwindow,
+            @HeaderParam("validate-timestamp") String timestamp,
+            @HeaderParam("validate-signature") ParamsDigest signature,
+            @QueryParam("currency") String currency,
+            @QueryParam("chain") String chain,
+            @QueryParam("status") String status,
+            @QueryParam("fromId") Long fromId,
+            @QueryParam("direction") String direction,
+            @QueryParam("limit") int limit,
+            @QueryParam("startTime") Long startTime,
+            @QueryParam("endTime") Long endTime
     ) throws IOException;
 
 }

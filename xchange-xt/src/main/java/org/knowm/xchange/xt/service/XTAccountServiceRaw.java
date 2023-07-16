@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
-import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +49,7 @@ public class XTAccountServiceRaw extends XTBaseService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.treeToValue(jsonNode.get("assets"), mapper.getTypeFactory()
-                                                                          .constructCollectionType(List.class, BalanceResponse.class));
+                                                                    .constructCollectionType(List.class, BalanceResponse.class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -70,6 +70,40 @@ public class XTAccountServiceRaw extends XTBaseService {
                 request
         ).getData();
         return jsonNode.get("id").textValue();
+    }
+
+    public List<WithdrawHistoryResponse> getWithdrawHistory(
+            String currency,
+            String chain,
+            String status,
+            Long fromId,
+            String direction,
+            int limit,
+            Long startTime,
+            Long endTime
+    ) throws IOException {
+        JsonNode jsonNode = xtAuthenticated.getWithdrawHistory(
+                BaseParamsDigest.HMAC_SHA_256,
+                apiKey,
+                RECV_WINDOW,
+                String.valueOf(System.currentTimeMillis()),
+                signatureCreator,
+                currency,
+                chain,
+                status,
+                fromId,
+                direction,
+                limit,
+                startTime,
+                endTime
+        ).getData();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
+                                                                   .constructCollectionType(List.class, WithdrawHistoryResponse.class));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
