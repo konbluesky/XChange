@@ -56,6 +56,12 @@ public class XTAdapters {
     }
 
     public static Wallet adaptWallet(List<BalanceResponse> walletSupportCurrencies) {
+        if (walletSupportCurrencies == null || walletSupportCurrencies.isEmpty()) {
+            return Wallet.Builder.from(Collections.emptyList())
+                                 .id("TRADING_WALLET_ID")
+                                 .features(new HashSet<>(Collections.singletonList(Wallet.WalletFeature.TRADING)))
+                                 .build();
+        }
         List<Balance> balances = walletSupportCurrencies.stream()
                                                         .map(balanceResponse -> new Balance.Builder()
                                                                 .currency(new Currency(balanceResponse.getCurrency()))

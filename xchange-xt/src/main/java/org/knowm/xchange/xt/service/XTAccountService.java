@@ -72,7 +72,9 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
             String status = xtWithdrawHistoryParams.getStatus();
             List<WithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status, null, null, 20,
                     xtWithdrawHistoryParams.getStartTime(), xtWithdrawHistoryParams.getEndTime());
-            return XTAdapters.adaptWithdraws(withdrawHistory);
+            if (withdrawHistory != null && !withdrawHistory.isEmpty())
+                return XTAdapters.adaptWithdraws(withdrawHistory);
+            return null;
         }
         throw new IllegalStateException("Don't know how to withdraw: " + params);
     }
