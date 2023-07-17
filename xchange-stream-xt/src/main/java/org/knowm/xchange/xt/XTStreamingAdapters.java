@@ -6,11 +6,10 @@ import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
+import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.instrument.Instrument;
-import org.knowm.xchange.xt.dto.XTBalance;
-import org.knowm.xchange.xt.dto.XTOrderBook;
-import org.knowm.xchange.xt.dto.XTOrderBookItem;
-import org.knowm.xchange.xt.dto.XTOrderDetail;
+import org.knowm.xchange.xt.dto.*;
+import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -57,20 +56,6 @@ public class XTStreamingAdapters {
     }
 
     public static Order adaptOrder(XTOrderDetail xtOrderDetail) {
-        /**
-         *  Instrument instrument = adaptOkexInstrumentId(order.getInstrumentId());
-         *         return new LimitOrder("buy".equals(order.getSide()) ? Order.OrderType.BID : Order.OrderType.ASK, convertContractSizeToVolume(order.getAmount(), instrument,
-         *                                                                                                                                      exchangeMetaData.getInstruments()
-         *                                                                                                                                                      .get(instrument)
-         *                                                                                                                                                      .getContractValue()),
-         *                               instrument, order.getOrderId(), new Date(Long.parseLong(order.getCreationTime())), new BigDecimal(order.getPrice()),
-         *                               order.getAverageFilledPrice()
-         *                                    .isEmpty() ? BigDecimal.ZERO : new BigDecimal(order.getAverageFilledPrice()), new BigDecimal(order.getAccumulatedFill()),
-         *                               new BigDecimal(order.getFee()), "live".equals(order.getState()) ?
-         *                                       Order.OrderStatus.OPEN :
-         *                                       Order.OrderStatus.valueOf(order.getState()
-         *                                                                      .toUpperCase(Locale.ENGLISH)), order.getClientOrderId());
-         */
         Instrument symbol = XTAdapters.adaptInstrumentId(xtOrderDetail.getSymbol());
         Order order = null;
 

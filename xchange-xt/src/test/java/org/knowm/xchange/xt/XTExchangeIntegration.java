@@ -208,14 +208,13 @@ public class XTExchangeIntegration {
     }
 
     @Test
-    public void testFunding()throws IOException{
+    public void testFundingHistory()throws IOException{
         ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
         spec.setApiKey(API_KEY);
         spec.setSecretKey(SECRET_KEY);
         XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
         List<FundingRecord> fundingHistory = exchange.getAccountService()
                                                      .getFundingHistory(XTWithdrawHistoryParams.builder()
-                                                                                               .currency("USDT")
                                                                                                .build());
         log.info("{}",fundingHistory.toString());
 
