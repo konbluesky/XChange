@@ -116,6 +116,7 @@ public class OkexAdapters {
                                .reducePosition(order.hasFlag(OkexOrderFlags.REDUCE_ONLY))
                                .clientOrderId(order.getUserReference())
                                .orderType(OkexOrderType.market.name())
+                                .targetCurrency("base_ccy")
                                .amount(convertVolumeToContractSize(order, exchangeMetaData))
                                .build();
     }
