@@ -3,6 +3,7 @@ package org.knowm.xchange.binance.service.marketdata;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -10,11 +11,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.knowm.xchange.binance.BinanceExchangeIntegration;
 import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
+import org.knowm.xchange.binance.dto.meta.BinanceConfig;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
+import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
+@Slf4j
 public class MarketDataServiceIntegration extends BinanceExchangeIntegration {
 
   static MarketDataService marketService;
@@ -48,7 +52,7 @@ public class MarketDataServiceIntegration extends BinanceExchangeIntegration {
     }
 
     tickers.sort((BinanceTicker24h t1, BinanceTicker24h t2) ->
-            t2.getPriceChangePercent().compareTo(t1.getPriceChangePercent()));
+        t2.getPriceChangePercent().compareTo(t1.getPriceChangePercent()));
 
     tickers
         .forEach(
@@ -56,6 +60,23 @@ public class MarketDataServiceIntegration extends BinanceExchangeIntegration {
                 t.getSymbol()
                     + " => "
                     + String.format("%+.2f%%", t.getPriceChangePercent())));
+  }
+
+  @Test
+  public void testGetAllCoinConfig() throws Exception {
+    BinanceMarketDataServiceRaw service = (BinanceMarketDataServiceRaw) marketService;
+    List<BinanceConfig> allCoinConfig = service.getAllCoinConfig();
+
+    log.info("Config Size : {}", allCoinConfig.size());
+    allCoinConfig.forEach(config -> {
+      log.info("Config : {}", config);
+      config.getNetworkList().stream()
+          .filter(n->n.getNetwork().equalsIgnoreCase("bsc")||n.getNetwork().equalsIgnoreCase("bnb"))
+          .forEach(n -> {
+            log.info("Network : {}", n);
+          });
+    });
+
   }
 
   private BinanceTicker24h getBinanceTicker24h(Instrument pair) throws IOException {

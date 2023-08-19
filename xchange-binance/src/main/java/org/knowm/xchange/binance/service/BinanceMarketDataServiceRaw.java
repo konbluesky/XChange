@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.marketdata.*;
+import org.knowm.xchange.binance.dto.meta.BinanceConfig;
 import org.knowm.xchange.binance.dto.meta.BinanceTime;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -136,6 +137,17 @@ public class BinanceMarketDataServiceRaw extends BinanceBaseService {
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
         .call();
   }
+
+  public List<BinanceConfig> getAllCoinConfig() throws IOException {
+     return decorateApiCall(
+            () ->
+                binance.getAll(
+                    getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
+        .withRetry(retry("coinConfig"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
+        .call();
+  }
+
 
   protected int depthPermits(Integer limit) {
     if (limit == null || limit <= 100) {

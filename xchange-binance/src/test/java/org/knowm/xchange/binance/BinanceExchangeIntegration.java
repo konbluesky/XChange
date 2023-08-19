@@ -13,6 +13,7 @@ import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.binance.dto.meta.BinanceSystemStatus;
 import org.knowm.xchange.binance.service.BinanceAccountService;
+import org.knowm.xchange.utils.AuthUtils;
 
 public class BinanceExchangeIntegration {
   protected static BinanceExchange exchange;
@@ -39,6 +40,7 @@ public class BinanceExchangeIntegration {
         Boolean.parseBoolean(
             System.getProperty(Exchange.USE_SANDBOX, Boolean.FALSE.toString()));
     spec.setExchangeSpecificParametersItem(Exchange.USE_SANDBOX, useSandbox);
+    AuthUtils.setApiAndSecretKey(spec,"binance");
     exchange.applySpecification(spec);
   }
 
