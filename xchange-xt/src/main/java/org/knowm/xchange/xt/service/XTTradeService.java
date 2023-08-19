@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamInstrument;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.xt.XTAdapters;
@@ -35,6 +35,11 @@ public class XTTradeService extends XTTradeServiceRaw implements TradeService {
     @Override
     public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
         return placeLimitOrder(XTAdapters.adaptOrder(limitOrder, true));
+    }
+
+    @Override
+    public String placeMarketOrder(MarketOrder marketOrder) throws IOException {
+        return placeLimitOrder(XTAdapters.adaptOrder(marketOrder, false));
     }
 
     @Override

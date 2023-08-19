@@ -13,6 +13,7 @@ import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
 import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
@@ -127,19 +128,34 @@ public class XTAdapters {
     }
 
 
-    public static PlaceOrderRequest adaptOrder(LimitOrder order, boolean isLimit) {
-        return PlaceOrderRequest.builder()
-                                .symbol(adaptInstrument(order.getInstrument()))
-                                .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
-                                .clientOrderId(order.getUserReference())
-                                .type(isLimit ? "LIMIT" : "MARKET")
-                                //GTC,FOK,IOC,GTX
-                                .timeInForce("GTC")
-                                .bizType("SPOT")
-                                .quantity(order.getOriginalAmount().toPlainString())
-                                .price(order.getLimitPrice()
-                                            .toString())
-                                .build();
+    public static PlaceOrderRequest adaptOrder(Order order, boolean isLimit) {
+        if (isLimit) {
+            LimitOrder limitOrder = (LimitOrder) order;
+            return PlaceOrderRequest.builder()
+                                    .symbol(adaptInstrument(order.getInstrument()))
+                                    .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
+                                    .clientOrderId(order.getUserReference())
+                                    .type(isLimit ? "LIMIT" : "MARKET")
+                                    //GTC,FOK,IOC,GTX
+                                    .timeInForce("GTC")
+                                    .bizType("SPOT")
+                                    .quantity(order.getOriginalAmount().toPlainString())
+                                    .price(limitOrder.getLimitPrice()
+                                                     .toString())
+                                    .build();
+        } else {
+            MarketOrder marketOrder=(MarketOrder)order;
+            return PlaceOrderRequest.builder()
+                                    .symbol(adaptInstrument(order.getInstrument()))
+                                    .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
+                                    .clientOrderId(order.getUserReference())
+                                    .type(isLimit ? "LIMIT" : "MARKET")
+                                    //GTC,FOK,IOC,GTX
+                                    .timeInForce("GTC")
+                                    .bizType("SPOT")
+                                    .quantity(order.getOriginalAmount().toPlainString())
+                                    .build();
+        }
     }
 
     public static LimitOrder adaptOrder(GetOrderResponse order, ExchangeMetaData exchangeMetaData) {

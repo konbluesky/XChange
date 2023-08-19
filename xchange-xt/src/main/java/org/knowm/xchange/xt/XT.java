@@ -1,18 +1,19 @@
 package org.knowm.xchange.xt;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import org.knowm.xchange.xt.dto.XTException;
 import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import java.util.List;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * <p> @Date : 2023/7/10 </p>
