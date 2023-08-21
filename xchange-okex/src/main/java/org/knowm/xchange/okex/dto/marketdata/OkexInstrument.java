@@ -3,11 +3,13 @@ package org.knowm.xchange.okex.dto.marketdata;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /* Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021 */
 /** <a href="https://www.okex.com/docs-v5/en/#rest-api-public-data-get-instruments">...</a> * */
 @Getter
 @NoArgsConstructor
+@ToString
 public class OkexInstrument {
   @JsonProperty("instType")
   private String instrumentType;

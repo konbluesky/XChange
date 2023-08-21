@@ -3,6 +3,7 @@ package org.knowm.xchange.okex.dto.marketdata;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Author: Max Gao (gaamox@tutanota.com) Created: 08-06-2021
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 /** https://www.okex.com/docs-v5/en/#rest-api-funding-get-currencies * */
 @Getter
 @NoArgsConstructor
+@ToString
 public class OkexCurrency {
 
     @JsonProperty("ccy")
