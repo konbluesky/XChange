@@ -31,6 +31,15 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
         .call();
   }
 
+  public List<BinanceBalance> fundingAccount() throws BinanceException,IOException{
+    return decorateApiCall(
+        () -> binance.getFundingAccount(null,null,getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
+        .withRetry(retry("funding-account"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
+        .call();
+  }
+
+
   public BinanceFutureAccountInformation futuresAccount() throws BinanceException, IOException {
     return decorateApiCall(
             () -> binanceFutures.futuresAccount(getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
@@ -47,15 +56,15 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
   }
 
   public WithdrawResponse withdraw(
-      String coin, String address, String addressTag, BigDecimal amount)
+      String coin, String address, String addressTag, BigDecimal amount,String network)
       throws IOException, BinanceException {
     // the name parameter seams to be mandatory
     String name = address.length() <= 10 ? address : address.substring(0, 10);
-    return withdraw(coin, address, addressTag, amount, name);
+    return withdraw(coin, address, addressTag, amount, name,network);
   }
 
   private WithdrawResponse withdraw(
-      String coin, String address, String addressTag, BigDecimal amount, String name)
+      String coin, String address, String addressTag, BigDecimal amount, String name,String network)
       throws IOException, BinanceException {
     return decorateApiCall(
             () ->
@@ -65,6 +74,7 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
                     addressTag,
                     amount,
                     name,
+                    network,
                     getRecvWindow(),
                     getTimestampFactory(),
                     apiKey,
@@ -194,4 +204,46 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
         .call();
   }
+
+  public Map<String,String> transferAllPurpose(
+      TransferType type, String asset, BigDecimal amount, String fromSymbol, String toSymbol)
+      throws BinanceException, IOException {
+    return decorateApiCall(
+        () ->
+            binance.transferAllPurpose(
+                type,
+                asset,
+                amount,
+                fromSymbol,
+                toSymbol,
+                getRecvWindow(),
+                getTimestampFactory(),
+                apiKey,
+                signatureCreator))
+        .withRetry(retry("transferAllPurpose", NON_IDEMPOTENT_CALLS_RETRY_CONFIG_NAME))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
+        .call();
+  }
+  public TransferAllPurposeResponse transferAllPurposeHistory(
+      TransferType type, Long startTime, Long endTime, Integer current,Integer size, String fromSymbol, String toSymbol)
+  throws BinanceException, IOException {
+    return decorateApiCall(
+        () ->
+            binance.transferAllPurposeHistory(
+                type,
+                startTime,
+                endTime,
+                current==null?1:current,
+                size==null?10:size,
+                fromSymbol,
+                toSymbol,
+                getRecvWindow(),
+                getTimestampFactory(),
+                super.apiKey,
+                super.signatureCreator))
+        .withRetry(retry("transferAllPurposeHistory"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
+        .call();
+  }
+
 }

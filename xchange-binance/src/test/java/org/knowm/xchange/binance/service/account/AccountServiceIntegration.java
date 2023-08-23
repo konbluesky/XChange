@@ -1,12 +1,17 @@
 package org.knowm.xchange.binance.service.account;
 
+import static org.knowm.xchange.binance.dto.account.TransferType.MAIN_FUNDING;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 import org.knowm.xchange.binance.BinanceExchangeIntegration;
 import org.knowm.xchange.binance.dto.account.AssetDetail;
+import org.knowm.xchange.binance.dto.account.BinanceBalance;
 import org.knowm.xchange.binance.dto.account.BinanceDeposit;
+import org.knowm.xchange.binance.dto.account.TransferAllPurposeResponse;
 import org.knowm.xchange.binance.dto.account.TransferHistory;
 import org.knowm.xchange.binance.service.BinanceAccountService;
+import org.knowm.xchange.binance.service.BinanceAccountServiceRaw;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.FundingRecord;
@@ -14,6 +19,7 @@ import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
 import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.utils.StreamUtils;
 
@@ -88,6 +94,15 @@ public class AccountServiceIntegration extends BinanceExchangeIntegration {
             }
         }
     }
+    @Test
+    public void testFundingBalance() throws Exception{
+        List<BinanceBalance> binanceBalances = accountService.fundingAccount();
+        for (BinanceBalance binanceBalance : binanceBalances) {
+            log.info("Funding Account: {}",binanceBalance);
+        }
+    }
+
+
 
     @Test
     public void testWithdrawal() throws Exception {
@@ -128,4 +143,32 @@ public class AccountServiceIntegration extends BinanceExchangeIntegration {
                 accountService.getTransferHistory("no@email.com", null, null, 1, 10);
         Assert.assertNotNull(transferHistory);
     }
+    @Test
+    public void testTransferAllPurpose() throws Exception{
+        createExchange();
+        BinanceAccountServiceRaw accountServiceRaw = (BinanceAccountServiceRaw) exchange.getAccountService();
+        /**
+         * 23:24:44.242 [default] [main] INFO  o.k.x.b.s.a.AccountServiceIntegration - HARD Balance: 0.00000003
+         * 23:24:44.243 [default] [main] INFO  o.k.x.b.s.a.AccountServiceIntegration - BNB Balance: 0.10173887
+         * 23:24:44.243 [default] [main] INFO  o.k.x.b.s.a.AccountServiceIntegration - LDBTTC Balance: 499217.0
+         * 23:24:44.243 [default] [main] INFO  o.k.x.b.s.a.AccountServiceIntegration - USDT Balance: 559.57843636
+         */
+        Map<String,String> result = accountServiceRaw.transferAllPurpose(MAIN_FUNDING, "USDT", new BigDecimal(1),
+            null, null);
+        log.info("result: {} ",result);
+        /**
+         * 23:33:25.649 [default] [main] INFO  o.k.x.b.s.a.AccountServiceIntegration - USDT Balance: 558.57843636
+         */
+    }
+    @Test
+    public void testTransferAllPurposeHistory() throws Exception{
+        createExchange();
+        BinanceAccountServiceRaw accountServiceRaw = (BinanceAccountServiceRaw) exchange.getAccountService();
+        TransferAllPurposeResponse transferAllPurposeResponse = accountServiceRaw.transferAllPurposeHistory(
+            MAIN_FUNDING, null, null, 1, 10, null, null);
+
+        log.info("history: {} ",transferAllPurposeResponse);
+    }
+
+
 }

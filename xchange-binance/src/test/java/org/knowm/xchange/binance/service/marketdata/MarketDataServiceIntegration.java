@@ -1,6 +1,7 @@
 package org.knowm.xchange.binance.service.marketdata;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.knowm.xchange.binance.BinanceExchangeIntegration;
+import org.knowm.xchange.binance.dto.account.WithdrawResponse;
 import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
 import org.knowm.xchange.binance.dto.meta.BinanceConfig;
+import org.knowm.xchange.binance.service.BinanceAccountServiceRaw;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
 import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import org.knowm.xchange.currency.Currency;
@@ -76,6 +79,23 @@ public class MarketDataServiceIntegration extends BinanceExchangeIntegration {
             log.info("Network : {}", n);
           });
     });
+  }
+
+  @Test
+  public void testWithdraw1() throws Exception {
+    BinanceAccountServiceRaw accountService = (BinanceAccountServiceRaw) exchange.getAccountService();
+    WithdrawResponse withdraw = accountService.withdraw("USDT",
+        "", null, new BigDecimal(10), "BSC");
+    log.info("{}",withdraw.getId());
+
+  }
+
+  @Test
+  public void testWithdraw2() throws Exception {
+    BinanceAccountServiceRaw accountService = (BinanceAccountServiceRaw) exchange.getAccountService();
+    WithdrawResponse withdraw = accountService.withdraw("USDT",
+        "", "swap", new BigDecimal(10), "BSC");
+    log.info("{}",withdraw.getId());
 
   }
 

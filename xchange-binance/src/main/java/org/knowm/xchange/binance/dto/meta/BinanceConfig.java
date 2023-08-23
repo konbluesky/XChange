@@ -49,4 +49,12 @@ public class BinanceConfig {
     this.name = name;
     this.networkList = networkList;
   }
+  public String getNetworkNames() {
+    StringBuilder sb = new StringBuilder();
+    for (BinanceNetwork network : networkList) {
+      sb.append(network.getNetwork());
+      sb.append(",");
+    }
+    return sb.toString();
+  }
 }

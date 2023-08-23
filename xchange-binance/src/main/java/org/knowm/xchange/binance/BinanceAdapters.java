@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.knowm.xchange.binance.dto.account.AssetDetail;
 import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.BinanceBalance;
 import org.knowm.xchange.binance.dto.account.futures.BinanceFutureAccountInformation;
 import org.knowm.xchange.binance.dto.account.futures.BinancePosition;
 import org.knowm.xchange.binance.dto.marketdata.BinanceAggTrades;
@@ -327,6 +328,19 @@ public class BinanceAdapters {
             .features(Collections.singleton(Wallet.WalletFeature.TRADING))
             .build();
   }
+  public static Wallet adaptBinanceFundingWallet(List<BinanceBalance> binanceBalances){
+    List<Balance> balances =
+            binanceBalances.stream()
+                    .map(b -> new Balance(b.getCurrency(), b.getTotal(), b.getAvailable()))
+                    .collect(Collectors.toList());
+
+    return new Wallet.Builder()
+            .balances(balances)
+            .id("funding")
+            .features(Collections.singleton(Wallet.WalletFeature.FUNDING))
+            .build();
+  }
+
 
   public static List<OpenPosition> adaptOpenPositions(List<BinancePosition> binancePositions) {
     List<OpenPosition> openPositions = new ArrayList<>();

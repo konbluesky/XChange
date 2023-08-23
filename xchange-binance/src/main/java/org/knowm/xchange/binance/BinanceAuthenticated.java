@@ -271,6 +271,18 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam(SIGNATURE) ParamsDigest signature)
       throws IOException, BinanceException;
 
+  @POST
+  @Path("/sapi/v1/asset/get-funding-asset")
+  List<BinanceBalance> getFundingAccount(
+      @FormParam("asset") String asset,
+      @FormParam("needBtcValuation") Boolean needBtcValuation,
+      @FormParam("recvWindow") Long recvWindow,
+      @FormParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException, BinanceException;
+
+
   /**
    * Get trades for a specific account and symbol.
    *
@@ -354,6 +366,7 @@ public interface BinanceAuthenticated extends Binance {
       @FormParam("addressTag") String addressTag,
       @FormParam("amount") BigDecimal amount,
       @FormParam("name") String name,
+      @FormParam("network") String network,
       @FormParam("recvWindow") Long recvWindow,
       @FormParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,
@@ -437,6 +450,52 @@ public interface BinanceAuthenticated extends Binance {
       @HeaderParam(X_MBX_APIKEY) String apiKey,
       @QueryParam(SIGNATURE) ParamsDigest signature)
       throws IOException, BinanceException;
+
+
+  /**
+   * Universal transfer function
+   * @param type
+   * @param asset
+   * @param amount
+   * @param fromSymbol
+   * @param toSymbol
+   * @param recvWindow
+   * @param timestamp
+   * @param apiKey
+   * @param signature
+   * @return
+   * @throws IOException
+   * @throws BinanceException
+   */
+  @POST
+  @Path("/sapi/v1/asset/transfer")
+  Map<String,String> transferAllPurpose(
+      @FormParam("type") TransferType type,
+      @FormParam("asset") String asset,
+      @FormParam("amount")  BigDecimal amount,
+      @FormParam("fromSymbol") String fromSymbol,
+      @FormParam("toSymbol") String toSymbol,
+      @FormParam("recvWindow") Long recvWindow,
+      @FormParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+    throws IOException,BinanceException;
+
+  @GET
+  @Path("/sapi/v1/asset/transfer")
+  TransferAllPurposeResponse transferAllPurposeHistory(
+      @QueryParam("type") TransferType type,
+      @QueryParam("startTime") Long startTime,
+      @QueryParam("endTime") Long endTime,
+      @QueryParam("current")  int current,
+      @QueryParam("size") int size,
+      @QueryParam("fromSymbol") String fromSymbol,
+      @QueryParam("toSymbol") String toSymbol,
+      @QueryParam("recvWindow") Long recvWindow,
+      @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException,BinanceException;
 
   @GET
   @Path("/sapi/v1/sub-account/sub/transfer/history")

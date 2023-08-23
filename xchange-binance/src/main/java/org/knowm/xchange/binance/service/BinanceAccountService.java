@@ -110,6 +110,7 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
           openPositions.addAll(BinanceAdapters.adaptOpenPositions(futureAccountInformation.getPositions()));
         }
         wallets.add(BinanceAdapters.adaptBinanceSpotWallet(account()));
+        wallets.add(BinanceAdapters.adaptBinanceFundingWallet(fundingAccount()));
       }
       return new AccountInfo(
               exchange.getExchangeSpecification().getUserName(),
@@ -174,15 +175,16 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
                 rippleParams.getCurrency().getCurrencyCode(),
                 rippleParams.getAddress(),
                 rippleParams.getTag(),
-                rippleParams.getAmount());
+                rippleParams.getAmount(),null);
       } else {
-        DefaultWithdrawFundsParams p = (DefaultWithdrawFundsParams) params;
+        BinanceWithdrawFundsParams p = (BinanceWithdrawFundsParams) params;
         withdraw =
             super.withdraw(
                 p.getCurrency().getCurrencyCode(),
                 p.getAddress(),
                 p.getAddressTag(),
-                p.getAmount());
+                p.getAmount(),
+                p.getNetwork());
       }
       return withdraw.getId();
     } catch (BinanceException e) {
