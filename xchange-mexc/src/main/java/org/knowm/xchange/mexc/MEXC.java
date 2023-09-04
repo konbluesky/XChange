@@ -1,9 +1,11 @@
 package org.knowm.xchange.mexc;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -43,6 +45,31 @@ public interface MEXC {
       @QueryParam(SING_KEY) ParamsDigest signature
   ) throws IOException, MEXCException;
 
+  @GET
+  @Path("/userDataStream")
+  JsonNode getWsTokens(
+      @HeaderParam(API_KEY) String apiKey,
+      @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
+      @QueryParam(SING_KEY) ParamsDigest signature
+  ) throws IOException, MEXCException;
+
+  @DELETE
+  @Path("/userDataStream")
+  WebSocketToken deleteWsToken(
+      @HeaderParam(API_KEY) String apiKey,
+      @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam("listenKey") String listenKey
+  ) throws IOException, MEXCException;
+
+  @PUT
+  @Path("/userDataStream")
+  WebSocketToken putWsToken(
+      @HeaderParam(API_KEY) String apiKey,
+      @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam("listenKey") String listenKey
+  ) throws IOException, MEXCException;
 
   @GET
   @Path("/defaultSymbols")

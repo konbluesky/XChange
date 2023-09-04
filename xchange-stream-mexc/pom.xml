@@ -11,7 +11,7 @@
   <artifactId>xchange-stream-mexc</artifactId>
   <packaging>jar</packaging>
 
-  <name>XChange Mexc Stream</name>
+  <name>XChange MEXC Stream</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
