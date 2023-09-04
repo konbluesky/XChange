@@ -1,25 +1,17 @@
 package org.knowm.xchange.mexc.dto.account;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class MEXCBalance {
 
-  private final String frozen;
-  private final String available;
+  @JsonProperty("asset")
+  private String asset;
 
-  public MEXCBalance(
-          @JsonProperty("frozen") String frozen,
-          @JsonProperty("available") String available) {
-    this.frozen = frozen;
-    this.available = available;
-  }
+  @JsonProperty("free")
+  private String free;
 
-  public String getFrozen() {
-    return frozen;
-  }
-
-  public String getAvailable() {
-    return available;
-  }
+  @JsonProperty("locked")
+  private String locked;
 }

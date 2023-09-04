@@ -27,4 +27,19 @@ public class BaseWiremockTest {
         exchange.applySpecification(specification);
         return exchange;
     }
+
+
+    public Exchange createRawExchange() throws  IOException{
+        Exchange exchange =
+            ExchangeFactory.INSTANCE.createExchangeWithoutSpecification(MEXCExchange.class);
+        ExchangeSpecification specification = exchange.getDefaultExchangeSpecification();
+        specification.setHost("mexc.com");
+        specification.setSslUri("https://api.mexc.com");
+//    specification.setPort(443);
+        specification.setApiKey("mx0vglwc0kmhFDpdyy");
+        specification.setSecretKey("2ad10493b2f14f00ae1c8c0ede02e69d");
+        specification.setShouldLoadRemoteMetaData(false);
+        exchange.applySpecification(specification);
+        return exchange;
+    }
 }

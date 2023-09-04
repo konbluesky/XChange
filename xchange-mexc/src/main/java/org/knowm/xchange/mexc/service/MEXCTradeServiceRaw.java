@@ -1,29 +1,52 @@
 package org.knowm.xchange.mexc.service;
 
-import org.knowm.xchange.Exchange;
-import org.knowm.xchange.mexc.dto.MEXCResult;
-import org.knowm.xchange.mexc.dto.trade.MEXCOrder;
-import org.knowm.xchange.mexc.dto.trade.MEXCOrderRequestPayload;
-
 import java.io.IOException;
 import java.util.List;
+import org.knowm.xchange.Exchange;
+import org.knowm.xchange.mexc.dto.trade.MEXCOrder;
+import org.knowm.xchange.mexc.dto.trade.MEXCOrderCancelResponse;
+import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
+import org.knowm.xchange.mexc.dto.trade.MEXCOrderRequestPayload;
 
 public class MEXCTradeServiceRaw extends MEXCBaseService {
+
   public MEXCTradeServiceRaw(Exchange exchange) {
     super(exchange);
   }
 
-  public MEXCResult<String> placeOrder(MEXCOrderRequestPayload orderRequestPayload) throws IOException {
+  public MEXCOrder placeOrder(MEXCOrderRequestPayload request) throws IOException {
     return mexcAuthenticated.placeOrder(
-            apiKey,
-            nonceFactory,
-            signatureCreator,
-            orderRequestPayload
+        apiKey,
+        nonceFactory,
+        signatureCreator,
+        request.getSymbol(),
+        request.getSide(),
+        request.getType(),
+        request.getQuantity(),
+        request.getQuoteOrderQty(),
+        request.getPrice(),
+        request.getNewClientOrderId()
     );
   }
 
-  public MEXCResult<List<MEXCOrder>> getOrders(List<String> orderIds) throws IOException {
-    return mexcAuthenticated.getOrders(apiKey, nonceFactory, signatureCreator, orderIds);
+
+  public MEXCOrderCancelResponse cancelOrder(String symbol, String orderId) throws IOException {
+    return mexcAuthenticated.cancelOrder(
+        apiKey,
+        nonceFactory,
+        signatureCreator,
+        symbol,
+        orderId
+    );
   }
+
+  public MEXCOrderDetail getOrder(String symbol, String id) throws IOException {
+    return mexcAuthenticated.getOrder(apiKey, nonceFactory, signatureCreator, symbol, id);
+  }
+
+  public List<MEXCOrderDetail> getOpenOrders(String symbol) throws IOException {
+    return mexcAuthenticated.getOpenOrders(apiKey, nonceFactory, signatureCreator, symbol);
+  }
+
 
 }
