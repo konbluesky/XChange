@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.knowm.xchange.Exchange;
@@ -17,6 +18,7 @@ import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
+import org.knowm.xchange.mexc.dto.account.MEXCWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 
@@ -119,6 +121,22 @@ public class MEXCAccountServiceTest extends BaseWiremockTest {
     for (FundingRecord fundingRecord : fundingHistory) {
       log.info("fundting record :  {} ", fundingRecord);
     }
+  }
+
+  @Test
+  public void testWithdraw() throws IOException, InterruptedException {
+    Exchange exchange = createRawExchange();
+    MEXCAccountService accountService = (MEXCAccountService)exchange.getAccountService();
+//    MEXCWithdrawFundsParams mexcWithdrawFundsParams=MEXCWithdrawFundsParams
+    String s = accountService.withdrawFunds(
+        new MEXCWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT,
+            new BigDecimal("10"), "BEP20(BSC)"));
+    log.info("with result:{}",s);
+
+    TimeUnit.SECONDS.sleep(3);
+
+    String s1 = accountService.cancelWithdraw(s);
+    log.info("cancel with id : {}" ,s1);
 
 
   }

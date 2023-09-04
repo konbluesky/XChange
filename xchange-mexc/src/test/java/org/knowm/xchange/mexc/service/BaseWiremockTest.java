@@ -36,8 +36,8 @@ public class BaseWiremockTest {
         specification.setHost("mexc.com");
         specification.setSslUri("https://api.mexc.com");
 //    specification.setPort(443);
-        specification.setApiKey("mx0vglwc0kmhFDpdyy");
-        specification.setSecretKey("2ad10493b2f14f00ae1c8c0ede02e69d");
+        specification.setApiKey("");
+        specification.setSecretKey("");
         specification.setShouldLoadRemoteMetaData(false);
         exchange.applySpecification(specification);
         return exchange;

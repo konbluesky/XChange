@@ -1,5 +1,6 @@
 package org.knowm.xchange.mexc.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
 import org.knowm.xchange.Exchange;
@@ -18,6 +19,13 @@ public class MEXCAccountServiceRaw extends MEXCBaseService {
     return mexcAuthenticated.getWalletBalances(apiKey, nonceFactory, signatureCreator);
   }
 
+
+  public String cancelWithdraw(String withdrawId) throws IOException {
+    JsonNode jsonNode = mexcAuthenticated.cancelWithdraw(apiKey, nonceFactory, signatureCreator,
+        withdrawId);
+    return jsonNode.get("id").asText();
+  }
+
   public String withdraw(MEXCWithdrawApply apply) throws IOException {
 
     return mexcAuthenticated.withdraw(
@@ -31,7 +39,7 @@ public class MEXCAccountServiceRaw extends MEXCBaseService {
         apply.getMemo(),
         apply.getAmount(),
         apply.getRemark()
-    );
+    ).get("id").asText();
   }
 
 

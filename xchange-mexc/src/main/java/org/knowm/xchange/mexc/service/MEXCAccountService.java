@@ -18,7 +18,6 @@ import org.knowm.xchange.mexc.dto.account.MEXCWithdrawApply;
 import org.knowm.xchange.mexc.dto.account.MEXCWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
-import org.knowm.xchange.service.trade.params.RippleWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
@@ -42,6 +41,11 @@ public class MEXCAccountService extends MEXCAccountServiceRaw implements Account
     }
   }
 
+
+  public String cancelWithdraw(String withdrawId) throws IOException {
+    return super.cancelWithdraw(withdrawId);
+  }
+
   @Override
   public String withdrawFunds(WithdrawFundsParams params) throws IOException {
 
@@ -50,7 +54,7 @@ public class MEXCAccountService extends MEXCAccountServiceRaw implements Account
         throw new IllegalArgumentException("DefaultWithdrawFundsParams must be provided.");
       }
       String withdraw = "";
-      if (params instanceof RippleWithdrawFundsParams) {
+      if (params instanceof MEXCWithdrawFundsParams) {
         MEXCWithdrawFundsParams p = (MEXCWithdrawFundsParams) params;
         MEXCWithdrawApply apply = MEXCWithdrawApply.builder()
             .coin(p.getCurrency().getCurrencyCode())

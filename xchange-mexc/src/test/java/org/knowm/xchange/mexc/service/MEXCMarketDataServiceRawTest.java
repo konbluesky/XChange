@@ -1,12 +1,13 @@
 package org.knowm.xchange.mexc.service;
 
-import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.knowm.xchange.mexc.MEXCAdapters;
 import org.knowm.xchange.mexc.MEXCExchange;
+import org.knowm.xchange.mexc.dto.account.MEXCConfig;
+import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
 
 /**
@@ -23,9 +24,10 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
     MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
     List<String> supportApiSymbols = marketDataService.getSupportApiSymbols();
-    log.info("size:{}",supportApiSymbols.size());
+    log.info("size:{}", supportApiSymbols.size());
     for (String supportApiSymbol : supportApiSymbols) {
-      log.info("symbol: {}, currPair:{} ", supportApiSymbol, MEXCAdapters.extractCurrencyPairs(supportApiSymbol));
+      log.info("symbol: {}, currPair:{} ", supportApiSymbol,
+          MEXCAdapters.extractCurrencyPairs(supportApiSymbol));
 //      log.info("price:{}",marketDataService.getTickerPair(supportApiSymbol));
     }
   }
@@ -40,5 +42,22 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
       log.info("ticker: {} ", ticker);
     }
   }
+
+
+  @Test
+  public void testGetAll() throws IOException {
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    List<MEXCConfig> all = marketDataService.getAll();
+    //network = BEP20(BSC)
+    for (MEXCConfig config : all) {
+      log.info("coin  config : {} ", config.toString());
+      log.info("coin NetWork size:{} ",config.getNetworkList().size());
+      for (MEXCNetwork mexcNetwork : config.getNetworkList()) {
+        log.info("coin  network : {} ", mexcNetwork.toString());
+      }
+    }
+  }
+
 
 }
