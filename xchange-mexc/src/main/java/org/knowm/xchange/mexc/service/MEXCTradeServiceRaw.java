@@ -48,5 +48,18 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
     return mexcAuthenticated.getOpenOrders(apiKey, nonceFactory, signatureCreator, symbol);
   }
 
+  public List<MEXCOrderDetail> getAllOrders(String symbol,
+      String startTime,String endTime,String limit) throws IOException {
+    return mexcAuthenticated.getAllOrders(
+        apiKey,
+        nonceFactory,
+        signatureCreator,
+        symbol,
+        startTime,
+        endTime,
+        limit==null?"500":limit
+    );
+  }
+
 
 }

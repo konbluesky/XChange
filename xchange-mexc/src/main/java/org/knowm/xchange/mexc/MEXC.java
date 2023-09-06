@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 import org.knowm.xchange.mexc.dto.MEXCResult;
+import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
 import org.knowm.xchange.mexc.dto.ws.WebSocketToken;
 import org.knowm.xchange.mexc.service.MEXCException;
@@ -70,6 +71,11 @@ public interface MEXC {
       @QueryParam(SING_KEY) ParamsDigest signature,
       @QueryParam("listenKey") String listenKey
   ) throws IOException, MEXCException;
+
+  @GET
+  @Path("/exchangeInfo")
+  MEXCExchangeInfo getExchangeInfo() throws IOException, MEXCException;
+
 
   @GET
   @Path("/defaultSymbols")

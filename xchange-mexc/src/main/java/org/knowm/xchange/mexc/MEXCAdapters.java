@@ -6,7 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -17,16 +21,25 @@ import org.knowm.xchange.dto.account.FundingRecord.Status;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
+import org.knowm.xchange.dto.meta.InstrumentMetaData;
+import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.mexc.dto.account.MEXCBalance;
+import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCDepositHistory;
+import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
+import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfoSymbol;
+import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
 import org.knowm.xchange.mexc.dto.account.MEXCWithDrawHistory;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderRequestPayload;
 
+@Slf4j
 public class MEXCAdapters {
 
 
@@ -57,6 +70,47 @@ public class MEXCAdapters {
         .build();
   }
 
+  public static ExchangeMetaData adaptToExchangeMetaData(MEXCExchangeInfo info,
+      List<MEXCConfig> configs,String bscIdentity) {
+
+    Map<Currency, CurrencyMetaData> currencies = new HashMap<>();
+    Map<Instrument, InstrumentMetaData> instruments = new HashMap<>();
+
+    Map<Currency, MEXCNetwork> collect = configs.stream().filter(c -> c.getNetworkList().stream()
+        .anyMatch(n -> n.getNetwork().equalsIgnoreCase(bscIdentity))).collect(
+        Collectors.toMap(c -> Currency.getInstance(c.getCoin()), c -> c.getNetwork(bscIdentity)));
+
+    for (MEXCExchangeInfoSymbol symbol : info.getSymbols()) {
+
+      Instrument pair = extractOneCurrencyPairs(symbol.getSymbol());
+      Currency base = pair.getBase();
+      MEXCNetwork netConfig = collect.get(base);
+
+      //过滤状态开启，支持现货交易，支持市价单
+      if (!"ENABLED".equals(symbol.getStatus())
+          || !symbol.getOrderTypes().containsAll(Arrays.asList("MARKET","LIMIT_MAKER","LIMIT"))
+          || netConfig==null
+//          || !symbol.isSpotTradingAllowed()
+//          ||!symbol.isQuoteOrderQtyMarketAllowed()
+      ) {
+        continue;
+      }
+
+      instruments.put(pair, new InstrumentMetaData.Builder()
+          .minimumAmount(new BigDecimal(symbol.getBaseSizePrecision()))
+          .marketOrderEnabled(true)
+          .build());
+      currencies.put(pair.getBase(), new CurrencyMetaData(null,
+          new BigDecimal(netConfig.getWithdrawFee()),
+          new BigDecimal(netConfig.getWithdrawMin()),
+          netConfig.isDepositEnable() && netConfig.isWithdrawEnable() ? WalletHealth.ONLINE
+              : WalletHealth.OFFLINE
+      ));
+    }
+
+    return new ExchangeMetaData(instruments, currencies, null, null, null);
+  }
+
 
   /**
    * 根据/defaultSymbols 统计出目前支持的后缀，手动转换
@@ -66,7 +120,7 @@ public class MEXCAdapters {
    */
   public static List<CurrencyPair> extractCurrencyPairs(String... symbols) {
     List<CurrencyPair> currencyPairs = new ArrayList<>();
-    List<String> tokenSuffixes = Arrays.asList("USDC", "USDT", "ETH", "BUSD", "BTC");
+    List<String> tokenSuffixes = Arrays.asList("USDC", "USDT", "ETH", "BUSD", "BTC","TUSD");
     for (String token : symbols) {
       for (String suffix : tokenSuffixes) {
         if (token.contains(suffix)) {

@@ -76,6 +76,17 @@ public interface MEXCAuthenticated extends MEXC {
       @QueryParam(SING_KEY) ParamsDigest signature,
       @QueryParam("symbol") String symbol) throws IOException, MEXCException;
 
+  @GET
+  @Path("/allOrders")
+  List<MEXCOrderDetail> getAllOrders(
+      @HeaderParam(API_KEY) String apiKey,
+      @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam("symbol") String symbol,
+      @QueryParam("startTime") String startTime,
+      @QueryParam("endTime") String endTime,
+      @QueryParam("limit") String limit) throws IOException, MEXCException;
+
   @DELETE
   @Path("/capital/withdraw")
   JsonNode cancelWithdraw(

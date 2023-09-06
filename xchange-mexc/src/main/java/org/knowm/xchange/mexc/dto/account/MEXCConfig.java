@@ -29,4 +29,9 @@ public class MEXCConfig {
     this.name = name;
     this.networkList = networkList;
   }
+
+  public MEXCNetwork getNetwork(String chain){
+    return networkList.stream().filter(network -> network.getNetwork().equalsIgnoreCase(chain.toLowerCase())).findFirst().get();
+  }
+
 }
