@@ -8,6 +8,7 @@ import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
 
 import java.util.Date;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
 
 /**
  * <p> @Date : 2023/5/16 </p>
@@ -17,7 +18,8 @@ import java.util.Date;
  */
 @Builder
 @Getter
-public class OkexFundingHistoryParams implements HistoryParamsFundingType, TradeHistoryParamCurrency {
+public class OkexFundingHistoryParams implements HistoryParamsFundingType, TradeHistoryParamCurrency ,
+    TradeHistoryParamsTimeSpan {
     private FundingRecord.Type type;
     private Currency currency;
     private Date after;
@@ -41,5 +43,25 @@ public class OkexFundingHistoryParams implements HistoryParamsFundingType, Trade
     @Override
     public void setCurrency(Currency currency) {
         this.currency = currency;
+    }
+
+    @Override
+    public Date getStartTime() {
+        return after;
+    }
+
+    @Override
+    public void setStartTime(Date startTime) {
+      this.after=startTime;
+    }
+
+    @Override
+    public Date getEndTime() {
+        return before;
+    }
+
+    @Override
+    public void setEndTime(Date endTime) {
+        this.before=endTime;
     }
 }
