@@ -40,6 +40,11 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
     );
   }
 
+  public List<String> selfSymbols() throws IOException{
+    return mexcAuthenticated.getSelfSymbols(apiKey, nonceFactory, signatureCreator).getData();
+  }
+
+
   public MEXCOrderDetail getOrder(String symbol, String id) throws IOException {
     return mexcAuthenticated.getOrder(apiKey, nonceFactory, signatureCreator, symbol, id);
   }

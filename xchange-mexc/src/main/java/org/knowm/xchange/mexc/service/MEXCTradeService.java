@@ -82,6 +82,10 @@ public class MEXCTradeService extends MEXCTradeServiceRaw implements TradeServic
     }
   }
 
+  @Override
+  public OpenOrders getOpenOrders() throws IOException {
+    throw new MEXCException("Not supported OpenOrders",999);
+  }
 
   @Override
   public OpenOrders getOpenOrders(OpenOrdersParams params) throws IOException {

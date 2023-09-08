@@ -1,19 +1,19 @@
 package org.knowm.xchange.mexc.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.knowm.xchange.Exchange;
-import org.knowm.xchange.mexc.dto.MEXCResult;
-import org.knowm.xchange.mexc.dto.trade.MEXCOrder;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+import org.knowm.xchange.Exchange;
+import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
+@Slf4j
 public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 
   @Test
@@ -22,41 +22,41 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
     MEXCTradeServiceRaw mexcAccountServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
 
     String orderDetails = "{\n" +
-            "    \"code\": 200,\n" +
-            "    \"data\": [\n" +
-            "        {\n" +
-            "            \"id\": \"504feca6ba6349e39c82262caf0be3f4\",\n" +
-            "            \"symbol\": \"MX_ETH\",\n" +
-            "            \"price\": \"0.000901\",\n" +
-            "            \"quantity\": \"300000\",\n" +
-            "            \"state\": \"NEW\",\n" +
-            "            \"type\": \"BID\",\n" +
-            "            \"deal_quantity\": \"0\",\n" +
-            "            \"deal_amount\": \"0\",\n" +
-            "            \"create_time\": 1573117266000\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"72872b6ae721480ca4fe0f265d29dfee\",\n" +
-            "            \"symbol\": \"MX_ETH\",\n" +
-            "            \"price\": \"0.000907\",\n" +
-            "            \"quantity\": \"300000\",\n" +
-            "            \"state\": \"NEW\",\n" +
-            "            \"type\": \"ASK\",\n" +
-            "            \"deal_quantity\": \"0\",\n" +
-            "            \"deal_amount\": \"0\",\n" +
-            "            \"create_time\": 1573117267000\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+        "    \"code\": 200,\n" +
+        "    \"data\": [\n" +
+        "        {\n" +
+        "            \"id\": \"504feca6ba6349e39c82262caf0be3f4\",\n" +
+        "            \"symbol\": \"MX_ETH\",\n" +
+        "            \"price\": \"0.000901\",\n" +
+        "            \"quantity\": \"300000\",\n" +
+        "            \"state\": \"NEW\",\n" +
+        "            \"type\": \"BID\",\n" +
+        "            \"deal_quantity\": \"0\",\n" +
+        "            \"deal_amount\": \"0\",\n" +
+        "            \"create_time\": 1573117266000\n" +
+        "        },\n" +
+        "        {\n" +
+        "            \"id\": \"72872b6ae721480ca4fe0f265d29dfee\",\n" +
+        "            \"symbol\": \"MX_ETH\",\n" +
+        "            \"price\": \"0.000907\",\n" +
+        "            \"quantity\": \"300000\",\n" +
+        "            \"state\": \"NEW\",\n" +
+        "            \"type\": \"ASK\",\n" +
+        "            \"deal_quantity\": \"0\",\n" +
+        "            \"deal_amount\": \"0\",\n" +
+        "            \"create_time\": 1573117267000\n" +
+        "        }\n" +
+        "    ]\n" +
+        "}";
 
     stubFor(
-            get(urlPathEqualTo("/open/api/v2/order/query"))
-                    .willReturn(
-                            aResponse()
-                                    .withStatus(200)
-                                    .withHeader("Content-Type", "application/json")
-                                    .withBody(orderDetails)
-                    )
+        get(urlPathEqualTo("/open/api/v2/order/query"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(orderDetails)
+            )
     );
 //    MEXCResult<List<MEXCOrder>> order = mexcAccountServiceRaw.getOrder(Arrays.asList("1234567891011121314"));
 //
@@ -100,18 +100,18 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
     MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
 
     String orderPlacementResponse = "{\n" +
-            "    \"code\": 200,\n" +
-            "    \"data\": \"c8663a12a2fc457fbfdd55307b463495\"\n" +
-            "}";
+        "    \"code\": 200,\n" +
+        "    \"data\": \"c8663a12a2fc457fbfdd55307b463495\"\n" +
+        "}";
 
     stubFor(
-            post(urlPathEqualTo("/open/api/v2/order/place"))
-                    .willReturn(
-                            aResponse()
-                                    .withStatus(200)
-                                    .withHeader("Content-Type", "application/json")
-                                    .withBody(orderPlacementResponse)
-                    )
+        post(urlPathEqualTo("/open/api/v2/order/place"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(orderPlacementResponse)
+            )
     );
 //
 //    MEXCResult<String> orderPlacementResult = mexcTradeServiceRaw.placeOrder(new MEXCOrderRequestPayload(
@@ -132,6 +132,30 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 //
 //    assertThat(orderId).isEqualTo("c8663a12a2fc457fbfdd55307b463495");
 //    assertThat(responseObjectResult.textValue()).isEqualTo("c8663a12a2fc457fbfdd55307b463495");
+
+  }
+
+  @Test
+  public void testGetSelfSymbols() throws IOException{
+    Exchange mexcExchange = createRawExchange();
+    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    List<String> strings = mexcTradeServiceRaw.selfSymbols();
+
+    log.info("strings: {}", strings.size());
+    log.info("strings: {}", strings);
+
+
+  }
+
+
+  @Test
+  public void testGetAllOrders() throws IOException {
+    Exchange mexcExchange = createRawExchange();
+    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    List<MEXCOrderDetail> allOrders = mexcTradeServiceRaw.getOpenOrders(null);
+    log.info("allOrders: {}", allOrders.size());
+//    700004[null]:Mandatory parameter 'symbol' was not sent, was empty/null, or malformed.
+    allOrders.forEach(order -> log.info("order: {}", order));
 
   }
 

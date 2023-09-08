@@ -11,6 +11,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
+import org.knowm.xchange.mexc.dto.MEXCResult;
 import org.knowm.xchange.mexc.dto.account.MEXCAccount;
 import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCDepositHistory;
@@ -86,6 +87,15 @@ public interface MEXCAuthenticated extends MEXC {
       @QueryParam("startTime") String startTime,
       @QueryParam("endTime") String endTime,
       @QueryParam("limit") String limit) throws IOException, MEXCException;
+
+  @GET
+  @Path("/selfSymbols")
+  MEXCResult<List<String>> getSelfSymbols(
+      @HeaderParam(API_KEY) String apiKey,
+      @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
+      @QueryParam(SING_KEY) ParamsDigest signature
+  ) throws IOException, MEXCException;
+
 
   @DELETE
   @Path("/capital/withdraw")

@@ -24,7 +24,7 @@ public class MEXCOrderCancelResponse {
   /**
    * 订单ID
    */
-  private long orderId;
+  private String orderId;
 
   /**
    * OCO订单ID，否则为 -1
