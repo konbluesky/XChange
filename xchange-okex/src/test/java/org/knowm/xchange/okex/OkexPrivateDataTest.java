@@ -1,11 +1,14 @@
 package org.knowm.xchange.okex;
 
+import java.util.Collection;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.derivative.FuturesContract;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.AccountInfo;
@@ -18,6 +21,7 @@ import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.trade.params.DefaultCancelOrderByInstrumentAndIdParams;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamInstrument;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
+import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Ignore
+@Slf4j
 public class OkexPrivateDataTest {
 
     private final Logger LOG = LoggerFactory.getLogger(OkexPrivateDataTest.class);
@@ -51,7 +56,7 @@ public class OkexPrivateDataTest {
         spec.setApiKey(properties.getProperty("apikey"));
         spec.setSecretKey(properties.getProperty("secret"));
         spec.setExchangeSpecificParametersItem(OkexExchange.PARAM_PASSPHRASE, properties.getProperty("passphrase"));
-        spec.setExchangeSpecificParametersItem(OkexExchange.PARAM_SIMULATED, "1");
+//        spec.setExchangeSpecificParametersItem(OkexExchange.PARAM_SIMULATED, "1");
 
         exchange = ExchangeFactory.INSTANCE.createExchange(spec);
     }
@@ -110,6 +115,16 @@ public class OkexPrivateDataTest {
         LOG.info(openPositions.toString());
         openPositions.forEach(openPosition -> assertThat(openPosition.getSize()).isGreaterThan(BigDecimal.ZERO));
     }
+
+    @Test
+    public void testGetOrderId() throws  IOException {
+        String orderId = "621237955537408011";
+        Instrument currencyPair = new CurrencyPair("AZY", "usdt");
+        Collection<Order> order = exchange.getTradeService()
+            .getOrder(new DefaultQueryOrderParamInstrument(currencyPair, orderId));
+        log.info("{}", order);
+    }
+
 
     @Test
     public void checkWallet() throws IOException {

@@ -73,13 +73,25 @@ public class OkexAdapters {
         return new UserTrades(userTradeList, Trades.TradeSortType.SortByTimestamp);
     }
 
+    //写一个方法，传入多个价格值，返回第一个不为空的值
+    private static BigDecimal getFirstNotEmpty(String... values) {
+        for (String value : values) {
+            if (StringUtils.isNotEmpty(value)) {
+                return new BigDecimal(value);
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
     public static LimitOrder adaptOrder(OkexOrderDetails order, ExchangeMetaData exchangeMetaData) {
         Instrument instrument = adaptOkexInstrumentId(order.getInstrumentId());
         return new LimitOrder("buy".equals(order.getSide()) ? Order.OrderType.BID : Order.OrderType.ASK, convertContractSizeToVolume(order.getAmount(), instrument,
                                                                                                                                      exchangeMetaData.getInstruments()
                                                                                                                                                      .get(instrument)
                                                                                                                                                      .getContractValue()),
-                              instrument, order.getOrderId(), new Date(Long.parseLong(order.getCreationTime())), new BigDecimal(order.getPrice()),
+
+                              instrument, order.getOrderId(), new Date(Long.parseLong(order.getCreationTime())),
+            getFirstNotEmpty(order.getPrice(),order.getAverageFilledPrice()),
                               order.getAverageFilledPrice()
                                    .isEmpty() ? BigDecimal.ZERO : new BigDecimal(order.getAverageFilledPrice()), new BigDecimal(order.getAccumulatedFill()),
                               new BigDecimal(order.getFee()), "live".equals(order.getState()) ?
