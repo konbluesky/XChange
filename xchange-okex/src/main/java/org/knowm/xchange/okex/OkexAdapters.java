@@ -85,19 +85,26 @@ public class OkexAdapters {
 
     public static LimitOrder adaptOrder(OkexOrderDetails order, ExchangeMetaData exchangeMetaData) {
         Instrument instrument = adaptOkexInstrumentId(order.getInstrumentId());
-        return new LimitOrder("buy".equals(order.getSide()) ? Order.OrderType.BID : Order.OrderType.ASK, convertContractSizeToVolume(order.getAmount(), instrument,
-                                                                                                                                     exchangeMetaData.getInstruments()
-                                                                                                                                                     .get(instrument)
-                                                                                                                                                     .getContractValue()),
+        LimitOrder o = new LimitOrder(
+            "buy".equals(order.getSide()) ? Order.OrderType.BID : Order.OrderType.ASK,
+            convertContractSizeToVolume(order.getAmount(), instrument,
+                exchangeMetaData.getInstruments()
+                    .get(instrument)
+                    .getContractValue()),
+            instrument, order.getOrderId(), new Date(Long.parseLong(order.getCreationTime())),
+            getFirstNotEmpty(order.getPrice(), order.getAverageFilledPrice()),
+            order.getAverageFilledPrice()
+                .isEmpty() ? BigDecimal.ZERO : new BigDecimal(order.getAverageFilledPrice()),
+            new BigDecimal(order.getAccumulatedFill()),
+            new BigDecimal(order.getFee()), "live".equals(order.getState()) ?
+            Order.OrderStatus.OPEN :
+            Order.OrderStatus.valueOf(order.getState().toUpperCase(Locale.ENGLISH)), order.getClientOrderId());
 
-                              instrument, order.getOrderId(), new Date(Long.parseLong(order.getCreationTime())),
-            getFirstNotEmpty(order.getPrice(),order.getAverageFilledPrice()),
-                              order.getAverageFilledPrice()
-                                   .isEmpty() ? BigDecimal.ZERO : new BigDecimal(order.getAverageFilledPrice()), new BigDecimal(order.getAccumulatedFill()),
-                              new BigDecimal(order.getFee()), "live".equals(order.getState()) ?
-                                      Order.OrderStatus.OPEN :
-                                      Order.OrderStatus.valueOf(order.getState()
-                                                                     .toUpperCase(Locale.ENGLISH)), order.getClientOrderId());
+        //post_only
+        if (OkexOrderType.fromString(order.getOrderType()) == OkexOrderType.post_only) {
+            o.addOrderFlag(OkexOrderFlags.POST_ONLY);
+        }
+        return o;
     }
 
     public static OpenOrders adaptOpenOrders(List<OkexOrderDetails> orders, ExchangeMetaData exchangeMetaData) {

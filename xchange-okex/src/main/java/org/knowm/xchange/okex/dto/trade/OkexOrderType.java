@@ -5,6 +5,11 @@ public enum OkexOrderType {
     limit,
     post_only,
     fok,
-    iok,
-    optimal_limit_ioc
+    ioc,
+    optimal_limit_ioc,
+    mmp,
+    mmp_and_post_only;
+    public static OkexOrderType fromString(String s) {
+        return OkexOrderType.valueOf(s.toLowerCase());
+    }
 }
