@@ -2,6 +2,7 @@ package org.knowm.xchange.mexc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
@@ -33,7 +34,7 @@ public class MEXCStreamingMarketDataService implements StreamingMarketDataServic
     String topicName = "spot@public.limit.depth.v3.api";
     String symbol = MEXCAdapters.convertToMEXCSymbol(instrument.toString());
 
-    if (args == null) {
+    if (args == null || args.length == 0) {
       args = new Object[]{20};
     }
 

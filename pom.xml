@@ -213,6 +213,7 @@
     <module>xchange-stream-krakenfutures</module>
       <module>xchange-xt</module>
       <module>xchange-stream-xt</module>
+    <module>xchange-stream-mexc</module>
   </modules>
 
   <ciManagement>

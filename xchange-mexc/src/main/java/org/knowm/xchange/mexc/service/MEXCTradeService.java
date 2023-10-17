@@ -49,7 +49,9 @@ public class MEXCTradeService extends MEXCTradeServiceRaw implements TradeServic
       MEXCOrderDetail order = super.getOrder(
           MEXCAdapters.convertToMEXCSymbol(params.getInstrument().toString()),
           params.getOrderId());
-      return Collections.singletonList(MEXCAdapters.adaptOrder(order));
+      if(order != null){
+        return Collections.singletonList(MEXCAdapters.adaptOrder(order));
+      }
     }
     return new ArrayList<>(0);
   }
