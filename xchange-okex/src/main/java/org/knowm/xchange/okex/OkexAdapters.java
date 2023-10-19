@@ -2,6 +2,7 @@ package org.knowm.xchange.okex;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.text.DecimalFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.currency.Currency;
@@ -174,6 +175,7 @@ public class OkexAdapters {
     }
 
     public static OkexOrderRequest adaptOrder(LimitOrder order, ExchangeMetaData exchangeMetaData, String accountLevel) {
+        DecimalFormat decimalFormat=new DecimalFormat("###################.######################");
         return OkexOrderRequest.builder()
                                .instrumentId(adaptInstrument(order.getInstrument()))
                                .tradeMode(adaptTradeMode(order.getInstrument(), accountLevel))
@@ -186,8 +188,7 @@ public class OkexAdapters {
                                .orderType((order.hasFlag(OkexOrderFlags.POST_ONLY)) ? OkexOrderType.post_only.name() : (order.hasFlag(OkexOrderFlags.OPTIMAL_LIMIT_IOC)
                                        && order.getInstrument() instanceof FuturesContract) ? OkexOrderType.optimal_limit_ioc.name() : OkexOrderType.limit.name())
                                .amount(convertVolumeToContractSize(order, exchangeMetaData))
-                               .price(order.getLimitPrice()
-                                           .toString())
+                               .price(decimalFormat.format(order.getLimitPrice()))
                                .build();
     }
 
