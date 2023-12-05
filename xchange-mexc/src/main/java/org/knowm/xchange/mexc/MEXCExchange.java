@@ -34,20 +34,23 @@ public class MEXCExchange extends BaseExchange implements Exchange {
 
   @Override
   public ExchangeSpecification getDefaultExchangeSpecification() {
-    ExchangeSpecification exchangeSpecification = new ExchangeSpecification(this.getClass());
-    exchangeSpecification.setSslUri("https://api.mexc.com");
-    exchangeSpecification.setHost("mexc.com");
-    exchangeSpecification.setPort(80);
-    exchangeSpecification.setExchangeName("MEXC");
-    exchangeSpecification.setExchangeDescription("MEXC");
-//    exchangeSpecification.setShouldLoadRemoteMetaData(true);
+    if (this.exchangeSpecification == null) {
+      exchangeSpecification = new ExchangeSpecification(this.getClass());
+      exchangeSpecification.setSslUri("https://api.mexc.com");
+      exchangeSpecification.setHost("mexc.com");
+      exchangeSpecification.setPort(80);
+      exchangeSpecification.setExchangeName("MEXC");
+      exchangeSpecification.setExchangeDescription("MEXC");
+      exchangeSpecification.setShouldLoadRemoteMetaData(true);
+    }
     return exchangeSpecification;
   }
 
   @Override
   public void remoteInit() throws IOException, ExchangeException {
     // warn manually specify
-    Set<String> identites = Sets.newHashSet(MEXCNetwork.NETWORK_BSC1,MEXCNetwork.NETWORK_BSC2,MEXCNetwork.NETWORK_ARB);
+    Set<String> identites = Sets.newHashSet(MEXCNetwork.NETWORK_BSC1, MEXCNetwork.NETWORK_BSC2,
+        MEXCNetwork.NETWORK_ARB);
     List<MEXCConfig> coinConfig = ((MEXCMarketDataServiceRaw) this.marketDataService).getAll();
     MEXCExchangeInfo exchangeInfo = ((MEXCMarketDataServiceRaw) this.marketDataService).getExchangeInfo();
     log.info("Load BEP20(BSC) coin quantity:{}", coinConfig.size());

@@ -91,10 +91,10 @@ public class MEXCAccountService extends MEXCAccountServiceRaw implements Account
     if (params instanceof TradeHistoryParamsTimeSpan) {
       TradeHistoryParamsTimeSpan innerParams = (TradeHistoryParamsTimeSpan) params;
 
-      after = innerParams.getEndTime() == null ? null
-          : String.valueOf(innerParams.getEndTime().getTime());
-      before = innerParams.getStartTime() == null ? null
+      after = innerParams.getStartTime() == null ? null
           : String.valueOf(innerParams.getStartTime().getTime());
+      before = innerParams.getEndTime() == null ? null
+          : String.valueOf(innerParams.getEndTime().getTime());
     }
 
     List<FundingRecord> result = new ArrayList<>();

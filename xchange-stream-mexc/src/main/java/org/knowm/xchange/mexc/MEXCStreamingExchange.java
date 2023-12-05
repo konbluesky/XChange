@@ -19,6 +19,7 @@ public class MEXCStreamingExchange extends MEXCExchange implements StreamingExch
 
   public static final String API_BASE_PUBLIC_URI = "wss://wbs.mexc.com/ws";
   public static final String API_BASE_PRIVATE_URI = "wss://wbs.mexc.com/ws?listenKey=%s";
+  public static final String IS_PRIVATE = "isPrivate";
 
   private MEXCStreamingService streamingService;
   private MEXCStreamingService privateStreamingService;
@@ -32,23 +33,24 @@ public class MEXCStreamingExchange extends MEXCExchange implements StreamingExch
   @Override
   public Completable connect(ProductSubscription... args) {
     try {
-      String listenKey = this.getWsTokenService().getWsToken().getListenKey();
-      if (listenKey == null) {
-        throw new RuntimeException("Mexc ListenKey is null");
+      if (getDefaultExchangeSpecification().getExchangeSpecificParametersItem(IS_PRIVATE)==null) {
+        this.streamingService = new MEXCStreamingService(API_BASE_PUBLIC_URI);
+        this.streamingMarketDataService = new MEXCStreamingMarketDataService(streamingService);
+        return this.streamingService.connect();
+      }else {
+        String listenKey = this.getWsTokenService().getWsToken().getListenKey();
+        if (listenKey == null) {
+          throw new RuntimeException("Mexc ListenKey is null");
+        }
+        String privateURL = String.format(API_BASE_PRIVATE_URI, listenKey);
+        this.privateStreamingService = new MEXCStreamingService(privateURL);
+        this.streamingTradeService = new MEXCStreamingTradeService(privateStreamingService);
+        this.streamingAccountService = new MEXCStreamingAccountService(privateStreamingService);
+        return this.privateStreamingService.connect();
       }
-      String privateURL = String.format(API_BASE_PRIVATE_URI, listenKey);
-      this.privateStreamingService = new MEXCStreamingService(privateURL);
-//      this.streamingService = new MEXCStreamingService(API_BASE_PUBLIC_URI);
-      this.streamingMarketDataService = new MEXCStreamingMarketDataService(privateStreamingService);
-      this.streamingTradeService = new MEXCStreamingTradeService(privateStreamingService);
-      this.streamingAccountService = new MEXCStreamingAccountService(privateStreamingService);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
-//    String listenKey = (String) exchangeSpecification.getExchangeSpecificParametersItem(LISTEN_KEY);
-//    return this.streamingService.connect().andThen(this.privateStreamingService.connect());
-    return this.privateStreamingService.connect();
   }
 
   @Override

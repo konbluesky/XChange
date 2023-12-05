@@ -101,4 +101,39 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     }
   }
 
+
+  @Test
+  public void testGetAllPrintNetwork() throws IOException {
+    String bscIdentity = MEXCNetwork.NETWORK_BSC1;
+    String arbIdentity = MEXCNetwork.NETWORK_ARB;
+    String targetIdentity= arbIdentity;
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    List<MEXCConfig> all = marketDataService.getAll();
+//    Map<Currency, MEXCConfig> collect = all.stream().filter(c -> c.getNetworkList().stream()
+//        .anyMatch(n -> n.getNetwork().equalsIgnoreCase(bscIdentity))).collect(
+//        Collectors.toMap(c -> Currency.getInstance(c.getCoin()), c -> c));
+//
+//    log.info("size:{}",collect.keySet().size());
+//    collect.forEach((k,v)->{
+//      log.info("coin:{} ,{}",k,v);
+//    });
+
+    //network = BEP20(BSC)
+    for (MEXCConfig config : all) {
+
+      boolean present = config.getNetworkList().stream()
+          .filter(n -> n.getNetwork().equalsIgnoreCase(targetIdentity.toLowerCase())).findAny().isPresent();
+      if (present) {
+        log.info("coin  config : {} ", config);
+        log.info("coin NetWork size:{} ", config.getNetworkList().size());
+        for (MEXCNetwork mexcNetwork : config.getNetworkList()) {
+          log.info("coin  network : {} ", mexcNetwork.toString());
+        }
+      }
+    }
+  }
+
+
+
 }
