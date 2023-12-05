@@ -22,6 +22,11 @@ public class MEXCNetwork {
    * "withdrawTips": "Both a MEMO and an Address are required.", "depositTips": "Both a MEMO and an
    * Address are required."
    */
+  public static final String NETWORK_ARB="Arbitrum One(ARB)";
+  public static final String NETWORK_BSC1="BEP20(BSC)";
+  public static final String NETWORK_BSC2="BNB Smart Chain(BEP20)";
+
+
   private String coin;
   private String depositDesc;
   private boolean depositEnable;

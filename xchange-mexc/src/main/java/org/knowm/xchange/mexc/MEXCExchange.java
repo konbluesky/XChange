@@ -1,8 +1,10 @@
 package org.knowm.xchange.mexc;
 
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.Exchange;
@@ -10,6 +12,7 @@ import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
+import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.service.MEXCAccountService;
 import org.knowm.xchange.mexc.service.MEXCMarketDataService;
 import org.knowm.xchange.mexc.service.MEXCMarketDataServiceRaw;
@@ -43,13 +46,14 @@ public class MEXCExchange extends BaseExchange implements Exchange {
 
   @Override
   public void remoteInit() throws IOException, ExchangeException {
-    String bscIdentity = "BEP20(BSC)";
+    // warn manually specify
+    Set<String> identites = Sets.newHashSet(MEXCNetwork.NETWORK_BSC1,MEXCNetwork.NETWORK_BSC2,MEXCNetwork.NETWORK_ARB);
     List<MEXCConfig> coinConfig = ((MEXCMarketDataServiceRaw) this.marketDataService).getAll();
     MEXCExchangeInfo exchangeInfo = ((MEXCMarketDataServiceRaw) this.marketDataService).getExchangeInfo();
     log.info("Load BEP20(BSC) coin quantity:{}", coinConfig.size());
 
     this.exchangeMetaData = MEXCAdapters.adaptToExchangeMetaData(exchangeInfo,
-        coinConfig, bscIdentity);
+        coinConfig, identites);
 
   }
 
