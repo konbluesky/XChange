@@ -2,6 +2,7 @@ package org.knowm.xchange.mexc.service;
 
 import static org.knowm.xchange.utils.DigestUtils.bytesToHex;
 
+import com.google.common.net.PercentEscaper;
 import jakarta.ws.rs.QueryParam;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.Mac;
@@ -35,7 +36,14 @@ public class MEXCDigest extends BaseParamsDigest {
         .filter(e -> !MEXC.SING_KEY.equals(e.getKey()))
         .forEach(e -> p.add(e.getKey(), e.getValue()));
 
-    return p.asQueryString();
+//    guava 中自带的UrlEscapers.urlFragmentEscaper对()并不转义,所以需要通过干预PercentEscaper来实现
+    String URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS = "-._~" // Unreserved characters.
+        + "!$'*,;&=" // The subdelim characters (excluding '+').
+        + "@:"; // The gendelim characters permitted in paths.
+    PercentEscaper hasBracketEscaper = new PercentEscaper(URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS,
+        false);
+
+    return hasBracketEscaper.escape(p.toString());
 //    throw new NotYetImplementedForExchangeException("Only GET, DELETE and POST are supported in digest");
   }
 

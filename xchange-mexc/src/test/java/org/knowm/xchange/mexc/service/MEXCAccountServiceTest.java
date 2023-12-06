@@ -18,6 +18,7 @@ import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
+import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
@@ -130,7 +131,7 @@ public class MEXCAccountServiceTest extends BaseWiremockTest {
 //    MEXCWithdrawFundsParams mexcWithdrawFundsParams=MEXCWithdrawFundsParams
     String s = accountService.withdrawFunds(
         new MEXCWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT,
-            new BigDecimal("10"), "BEP20(BSC)"));
+            new BigDecimal("10"), MEXCNetwork.NETWORK_BSC2));
     log.info("with result:{}",s);
 
     TimeUnit.SECONDS.sleep(3);
