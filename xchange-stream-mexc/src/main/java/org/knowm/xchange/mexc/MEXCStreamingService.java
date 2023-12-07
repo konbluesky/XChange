@@ -51,6 +51,11 @@ public class MEXCStreamingService extends JsonNettyStreamingService {
         });
     }
 
+    public int getChannelSize(){
+        return this.channels.size();
+    }
+
+
     private boolean needGetToken() {
         return this.uri.getRawPath().contains("private");
     }

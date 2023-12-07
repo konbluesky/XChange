@@ -57,7 +57,6 @@ public class MEXCStreamingAdapters {
     return new Ticker.Builder()
         .instrument(MEXCAdapters.extractOneCurrencyPairs(asset))
         .last(new BigDecimal(ticker.getPrice()))
-        .volume(new BigDecimal(ticker.getQuantity()))
         .timestamp(new Date(timestamp))
         .build();
   }

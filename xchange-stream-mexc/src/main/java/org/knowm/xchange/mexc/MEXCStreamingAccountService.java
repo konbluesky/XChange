@@ -20,12 +20,17 @@ import org.knowm.xchange.mexc.dto.MEXCSendMessage;
 @Slf4j
 public class MEXCStreamingAccountService implements StreamingAccountService {
 
-  private final MEXCStreamingService streamingService;
+  // private final MEXCStreamingService streamingService;
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-  public MEXCStreamingAccountService(MEXCStreamingService streamingService) {
-    this.streamingService = streamingService;
+  private final MEXCStreamingPool pool;
+
+  public MEXCStreamingAccountService(MEXCStreamingPool pool) {
+    this.pool = pool;
   }
+  // public MEXCStreamingAccountService(MEXCStreamingService streamingService) {
+  //   this.streamingService = streamingService;
+  // }
 
   @Override
   public Observable<Balance> getBalanceChanges(Currency currency, Object... args) {
@@ -33,7 +38,7 @@ public class MEXCStreamingAccountService implements StreamingAccountService {
     MEXCSendMessage sendMessage = MEXCSendMessage.createSubMessage();
     sendMessage.putParam(topicName);
 
-    return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+    return pool.subscribeChannel(sendMessage.getChannelName(), sendMessage)
         .filter(message -> message.has("d"))
         .flatMap(
             jsonNode -> {

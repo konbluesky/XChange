@@ -16,17 +16,30 @@ public class MEXCTicker {
 
   /**
    * {
-   *                     "S":2,                             //交易类型tradeType
-   *                     "p":"20233.84",                    //成交价格price
-   *                     "t":1661927587825,                         //成交时间dealTime
-   *                     "v":"0.001028"}
+   *   "d":
+   *    {"s":"BTCUSDT",
+   *     "p":"36474.74",
+   *     "r":"0.0354",
+   *     "tr":"0.0354",
+   *     "h":"36549.72",
+   *     "l":"35101.68",
+   *     "v":"375173478.65",
+   *     "q":"10557.72895",
+   *     "lastRT":"-1",
+   *     "MT":"0",
+   *     "NV":"--",
+   *     "t":"1699502456050"},
+   *   "c":"spot@public.miniTicker.v3.api@BTCUSDT@UTC+8",
+   *   "t":1699502456051,
+   *   "s":"BTCUSDT"
+   * }
    */
 
   /**
    * 交易类型
    */
-  @JsonProperty("S")
-  private int tradeType;
+  @JsonProperty("s")
+  private String symbol;
 
   /**
    * 成交价格
@@ -39,11 +52,4 @@ public class MEXCTicker {
    */
   @JsonProperty("t")
   private long dealTime;
-
-  /**
-   * 成交量
-   */
-  @JsonProperty("v")
-  private String quantity;
-
 }

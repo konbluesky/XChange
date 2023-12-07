@@ -18,11 +18,16 @@ import org.knowm.xchange.mexc.dto.MEXCSendMessage;
 public class MEXCStreamingTradeService implements StreamingTradeService {
 
 
-  private final MEXCStreamingService streamingService;
+  private final MEXCStreamingPool pool;
+  // private final MEXCStreamingService streamingService;
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-  public MEXCStreamingTradeService(MEXCStreamingService streamingService) {
-    this.streamingService = streamingService;
+  // public MEXCStreamingTradeService(MEXCStreamingService streamingService) {
+  //   this.streamingService = streamingService;
+  // }
+
+  public MEXCStreamingTradeService(MEXCStreamingPool pool) {
+    this.pool = pool;
   }
 
   @Override
@@ -31,7 +36,7 @@ public class MEXCStreamingTradeService implements StreamingTradeService {
     MEXCSendMessage sendMessage = MEXCSendMessage.createSubMessage();
     sendMessage.putParam(topic);
 
-    return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+    return pool.subscribeChannel(sendMessage.getChannelName(), sendMessage)
         .filter(message -> message.has("d"))
         .flatMap(jsonNode -> {
           MEXCOrderDetail orderDetail = mapper.treeToValue(jsonNode.get("d"),
