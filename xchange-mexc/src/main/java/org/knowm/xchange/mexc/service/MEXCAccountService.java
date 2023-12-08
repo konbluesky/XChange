@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.mexc.MEXCAdapters;
+import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.dto.account.MEXCAccount;
 import org.knowm.xchange.mexc.dto.account.MEXCBalance;
 import org.knowm.xchange.mexc.dto.account.MEXCDepositHistory;
@@ -26,8 +27,8 @@ import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 @Slf4j
 public class MEXCAccountService extends MEXCAccountServiceRaw implements AccountService {
 
-  public MEXCAccountService(Exchange exchange) {
-    super(exchange);
+  public MEXCAccountService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {
+    super(exchange,resilienceRegistries);
   }
 
   @Override

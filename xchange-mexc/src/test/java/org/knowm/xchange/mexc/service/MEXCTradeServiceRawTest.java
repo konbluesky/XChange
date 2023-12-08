@@ -11,6 +11,8 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.mexc.MEXCExchange;
+import org.knowm.xchange.mexc.MEXCResilience;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
 
 @Slf4j
@@ -18,8 +20,9 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 
   @Test
   public void testGetMEXCTradeServiceRawOrder() throws IOException {
-    Exchange mexcExchange = createExchange();
-    MEXCTradeServiceRaw mexcAccountServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createExchange();
+    MEXCTradeServiceRaw mexcAccountServiceRaw = new MEXCTradeServiceRaw(mexcExchange,
+        MEXCResilience.createRegistries());
 
     String orderDetails = "{\n" +
         "    \"code\": 200,\n" +
@@ -96,8 +99,8 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 
   @Test
   public void testPlaceMEXCTradeServiceRawOrder() throws IOException {
-    Exchange mexcExchange = createExchange();
-    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createExchange();
+    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange,MEXCResilience.createRegistries());
 
     String orderPlacementResponse = "{\n" +
         "    \"code\": 200,\n" +
@@ -137,8 +140,8 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 
   @Test
   public void testGetSelfSymbols() throws IOException{
-    Exchange mexcExchange = createRawExchange();
-    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createRawExchange();
+    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange,MEXCResilience.createRegistries());
     List<String> strings = mexcTradeServiceRaw.selfSymbols();
 
     log.info("strings: {}", strings.size());
@@ -150,8 +153,8 @@ public class MEXCTradeServiceRawTest extends BaseWiremockTest {
 
   @Test
   public void testGetAllOrders() throws IOException {
-    Exchange mexcExchange = createRawExchange();
-    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createRawExchange();
+    MEXCTradeServiceRaw mexcTradeServiceRaw = new MEXCTradeServiceRaw(mexcExchange,MEXCResilience.createRegistries());
     List<MEXCOrderDetail> allOrders = mexcTradeServiceRaw.getOpenOrders(null);
     log.info("allOrders: {}", allOrders.size());
 //    700004[null]:Mandatory parameter 'symbol' was not sent, was empty/null, or malformed.

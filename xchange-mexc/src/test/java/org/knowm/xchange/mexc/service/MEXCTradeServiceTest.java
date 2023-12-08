@@ -18,6 +18,8 @@ import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
+import org.knowm.xchange.mexc.MEXCExchange;
+import org.knowm.xchange.mexc.MEXCResilience;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.DefaultCancelOrderByInstrumentAndIdParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
@@ -27,8 +29,8 @@ public class MEXCTradeServiceTest extends BaseWiremockTest {
 
   @Test
   public void testGetMEXCOrder() throws IOException {
-    Exchange mexcExchange = createExchange();
-    MEXCTradeService mexcAccountService = new MEXCTradeService(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createExchange();
+    MEXCTradeService mexcAccountService = new MEXCTradeService(mexcExchange, MEXCResilience.createRegistries());
 
     String orderDetails = "{\n" +
         "    \"code\": 200,\n" +
@@ -93,8 +95,8 @@ public class MEXCTradeServiceTest extends BaseWiremockTest {
 
   @Test
   public void testPlaceMEXCOrder() throws IOException {
-    Exchange mexcExchange = createExchange();
-    MEXCTradeService mexcTradeService = new MEXCTradeService(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createExchange();
+    MEXCTradeService mexcTradeService = new MEXCTradeService(mexcExchange, MEXCResilience.createRegistries());
 
     String orderPlacementResponse = "{\n" +
         "    \"code\": 200,\n" +
@@ -147,6 +149,23 @@ public class MEXCTradeServiceTest extends BaseWiremockTest {
     log.info("cancel result:{}", b);
 
   }
+
+  @Test
+  public void testGetOrderBy()throws IOException{
+
+    Exchange mexcExchange = createRawExchange();
+    TradeService tradeService = mexcExchange.getTradeService();
+    //BENQIUSDT
+    CurrencyPair instrument = new CurrencyPair("OOE", "USDT");
+
+    String s="C01__361365552591089665";
+    Collection<Order> orders = tradeService.getOrder(
+        new DefaultQueryOrderParamInstrument(instrument, s));
+    log.info("Query order size:{}", orders.size());
+    log.info("order details:{}", orders.stream().findFirst());
+
+  }
+
 
   @Test
   public void testMarketOrder() throws IOException {

@@ -18,6 +18,8 @@ import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
+import org.knowm.xchange.mexc.MEXCExchange;
+import org.knowm.xchange.mexc.MEXCResilience;
 import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
@@ -28,8 +30,8 @@ public class MEXCAccountServiceTest extends BaseWiremockTest {
 
   @Test
   public void testGetWalletBalances() throws IOException {
-    Exchange mexcExchange = createExchange();
-    MEXCAccountService mexcAccountService = new MEXCAccountService(mexcExchange);
+    MEXCExchange mexcExchange = (MEXCExchange) createExchange();
+    MEXCAccountService mexcAccountService = new MEXCAccountService(mexcExchange, MEXCResilience.createRegistries());
 
     String walletBalanceDetails = "{\n" +
         "    \"code\": 200,\n" +

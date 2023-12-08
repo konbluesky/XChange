@@ -2,16 +2,16 @@ package org.knowm.xchange.mexc.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.mexc.MEXCAdapters;
+import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrder;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderCancelResponse;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
@@ -26,8 +26,8 @@ import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
 
 public class MEXCTradeService extends MEXCTradeServiceRaw implements TradeService {
 
-  public MEXCTradeService(Exchange exchange) {
-    super(exchange);
+  public MEXCTradeService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {
+    super(exchange,resilienceRegistries);
   }
 
   @Override

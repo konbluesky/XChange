@@ -3,17 +3,19 @@ package org.knowm.xchange.mexc.service;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.mexc.MEXCAdapters;
+import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 @Slf4j
 public class MEXCMarketDataService extends MEXCMarketDataServiceRaw implements MarketDataService {
 
-  public MEXCMarketDataService(Exchange exchange) {
-    super(exchange);
+  public MEXCMarketDataService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {
+    super(exchange,resilienceRegistries);
   }
 
   @Override

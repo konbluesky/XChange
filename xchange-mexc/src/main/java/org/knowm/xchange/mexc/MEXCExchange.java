@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
@@ -22,18 +23,20 @@ import org.knowm.xchange.mexc.service.MEXCWsTokenService;
 @Slf4j
 public class MEXCExchange extends BaseExchange implements Exchange {
 
+  private static ResilienceRegistries RESILIENCE_REGISTRIES;
   protected MEXCWsTokenService wsTokenService;
 
   @Override
   protected void initServices() {
-    this.marketDataService = new MEXCMarketDataService(this);
-    this.tradeService = new MEXCTradeService(this);
-    this.accountService = new MEXCAccountService(this);
-    this.wsTokenService = new MEXCWsTokenService(this);
+    this.marketDataService = new MEXCMarketDataService(this, getResilienceRegistries());
+    this.tradeService = new MEXCTradeService(this,getResilienceRegistries());
+    this.accountService = new MEXCAccountService(this,getResilienceRegistries());
+    this.wsTokenService = new MEXCWsTokenService(this,getResilienceRegistries());
   }
 
   @Override
   public ExchangeSpecification getDefaultExchangeSpecification() {
+    super.applySpecification(exchangeSpecification);
     if (this.exchangeSpecification == null) {
       exchangeSpecification = new ExchangeSpecification(this.getClass());
       exchangeSpecification.setSslUri("https://api.mexc.com");
@@ -44,6 +47,14 @@ public class MEXCExchange extends BaseExchange implements Exchange {
       exchangeSpecification.setShouldLoadRemoteMetaData(true);
     }
     return exchangeSpecification;
+  }
+
+  @Override
+  public ResilienceRegistries getResilienceRegistries() {
+    if (RESILIENCE_REGISTRIES == null) {
+      RESILIENCE_REGISTRIES = MEXCResilience.createRegistries();
+    }
+    return RESILIENCE_REGISTRIES;
   }
 
   @Override

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
-import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
+import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.dto.ws.WebSocketToken;
 
 /**
@@ -20,8 +21,8 @@ public class MEXCWsTokenService extends MEXCBaseService {
    *
    * @param exchange
    */
-  public MEXCWsTokenService(Exchange exchange) {
-    super(exchange);
+  public MEXCWsTokenService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {
+    super(exchange,resilienceRegistries);
   }
 
   public List<String> getWsTokens() throws IOException {
