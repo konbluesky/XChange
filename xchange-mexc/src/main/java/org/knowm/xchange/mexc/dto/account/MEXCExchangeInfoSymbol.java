@@ -1,5 +1,6 @@
 package org.knowm.xchange.mexc.dto.account;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.ToString;
@@ -97,16 +98,19 @@ public class MEXCExchangeInfoSymbol {
   /**
    * 是否允许市价委托
    */
+  @JsonProperty("quoteOrderQtyMarketAllowed")
   private boolean quoteOrderQtyMarketAllowed;
 
   /**
    * 是否允许api现货交易
    */
+  @JsonProperty("isSpotTradingAllowed")
   private boolean isSpotTradingAllowed;
 
   /**
    * 是否允许api杠杆交易
    */
+  @JsonProperty("isMarginTradingAllowed")
   private boolean isMarginTradingAllowed;
 
   /**

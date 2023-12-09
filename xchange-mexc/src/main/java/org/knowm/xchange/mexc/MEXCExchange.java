@@ -36,7 +36,6 @@ public class MEXCExchange extends BaseExchange implements Exchange {
 
   @Override
   public ExchangeSpecification getDefaultExchangeSpecification() {
-    super.applySpecification(exchangeSpecification);
     if (this.exchangeSpecification == null) {
       exchangeSpecification = new ExchangeSpecification(this.getClass());
       exchangeSpecification.setSslUri("https://api.mexc.com");

@@ -32,6 +32,7 @@ import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.mexc.dto.OrderEnum;
 import org.knowm.xchange.mexc.dto.account.MEXCBalance;
 import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCDepositHistory;
@@ -97,8 +98,10 @@ public class MEXCAdapters {
       Currency base = pair.getBase();
       Collection<MEXCNetwork> mexcNetworks = currencyNetworks.get(base);
       //过滤状态开启，支持现货交易，支持市价单
+      //
       if (!"ENABLED".equals(symbol.getStatus())
           || !symbol.getOrderTypes().containsAll(Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT"))
+          || !symbol.isSpotTradingAllowed()
           || mexcNetworks == null
           || mexcNetworks.isEmpty()
 //          || !symbol.isSpotTradingAllowed()
@@ -250,14 +253,16 @@ public class MEXCAdapters {
   }
 
   public static MEXCOrderRequestPayload adaptOrder(LimitOrder limitOrder) {
-    MEXCOrderRequestPayload payload = MEXCOrderRequestPayload.builder()
+    MEXCOrderRequestPayload.MEXCOrderRequestPayloadBuilder builder = MEXCOrderRequestPayload.builder()
         .symbol(convertToMEXCSymbol(limitOrder.getInstrument().toString()))
         .price(limitOrder.getLimitPrice().toString())
         .quantity(limitOrder.getOriginalAmount().toString())
         .side(limitOrder.getType() == OrderType.BID ? "BUY" : "SELL")
-        .type("LIMIT")
-        .build();
-    return payload;
+        .type("LIMIT");
+    if (limitOrder.hasFlag(OrderEnum.OrderType.LIMIT_MAKER)) {
+      builder.type("LIMIT_MAKER");
+    }
+    return builder.build();
   }
 
   public static MEXCOrderRequestPayload adaptMarketOrder(MarketOrder marketOrder) {

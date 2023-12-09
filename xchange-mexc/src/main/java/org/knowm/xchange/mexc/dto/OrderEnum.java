@@ -1,5 +1,7 @@
 package org.knowm.xchange.mexc.dto;
 
+import org.knowm.xchange.dto.Order;
+
 /**
  * <p> @Date : 2023/9/6 </p>
  * <p> @Project : XChange</p>
@@ -25,7 +27,7 @@ public class OrderEnum {
    * IMMEDIATE_OR_CANCEL IOC单 (无法立即成交的部分就撤销,订单在失效前会尽量多的成交。)
    * FILL_OR_KILL FOK单 (无法全部立即成交就撤销,如果无法全部成交,订单会失效。)
    */
-  public enum OrderType{
+  public enum OrderType implements Order.IOrderFlags {
     LIMIT,MARKET,LIMIT_MAKER,IMMEDIATE_OR_CANCEL,FILL_OR_KILL
   }
 

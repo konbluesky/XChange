@@ -20,6 +20,7 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.MEXCResilience;
+import org.knowm.xchange.mexc.dto.OrderEnum;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.DefaultCancelOrderByInstrumentAndIdParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
@@ -149,6 +150,32 @@ public class MEXCTradeServiceTest extends BaseWiremockTest {
     log.info("cancel result:{}", b);
 
   }
+
+  @Test
+  public void testPlaceLimitOrderForLimitMaker() throws IOException {
+    Exchange mexcExchange = createRawExchange();
+    TradeService tradeService = mexcExchange.getTradeService();
+    //BENQIUSDT
+    CurrencyPair instrument = new CurrencyPair("OOE", "USDT");
+    LimitOrder limitOrder = new LimitOrder.Builder(OrderType.ASK, instrument)
+        .limitPrice(new BigDecimal("0.01988"))
+        .originalAmount(new BigDecimal("1231.353")).build();
+    // limitOrder.addOrderFlag(OrderEnum.OrderType.LIMIT_MAKER);
+
+    String s = tradeService.placeLimitOrder(limitOrder);
+    log.info("place Order : {} ", s);
+    //
+    // Collection<Order> orders = tradeService.getOrder(
+    //     new DefaultQueryOrderParamInstrument(instrument, s));
+    // log.info("Query order size:{}", orders.size());
+    // log.info("order details:{}", orders.stream().findFirst());
+    //
+    // boolean b = tradeService.cancelOrder(
+    //     new DefaultCancelOrderByInstrumentAndIdParams(instrument, s));
+    // log.info("cancel result:{}", b);
+
+  }
+
 
   @Test
   public void testGetOrderBy()throws IOException{
