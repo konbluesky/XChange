@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -39,6 +40,7 @@ import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfoSymbol;
 import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
 import org.knowm.xchange.mexc.dto.account.MEXCWithDrawHistory;
+import org.knowm.xchange.mexc.dto.market.MEXC24Ticker;
 import org.knowm.xchange.mexc.dto.market.MEXCCurrencyMetaData;
 import org.knowm.xchange.mexc.dto.market.MEXCExchangeMetaData;
 import org.knowm.xchange.mexc.dto.trade.MEXCOrderDetail;
@@ -65,6 +67,18 @@ public class MEXCAdapters {
 
   public static String convertToMEXCSymbol(String instrumentName) {
     return instrumentName.replace("/", "").toUpperCase();
+  }
+
+  public static List<Ticker> adaptTickers(List<MEXC24Ticker> tickers) {
+    return tickers.stream().map(ticker -> {
+      return new Ticker.Builder()
+          .instrument(extractOneCurrencyPairs(ticker.getSymbol()))
+          .last(new BigDecimal(ticker.getLastPrice()))
+          .volume(new BigDecimal(ticker.getVolume()))
+          .quoteVolume(new BigDecimal(ticker.getQuoteVolume()))
+          .timestamp(new Date())
+          .build();
+    }).collect(Collectors.toList());
   }
 
   public static Ticker adaptTicker(MEXCPricePair tickerPair) {

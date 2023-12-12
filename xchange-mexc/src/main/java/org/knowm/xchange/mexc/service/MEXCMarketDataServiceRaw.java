@@ -9,6 +9,7 @@ import org.knowm.xchange.mexc.MEXCExchange;
 import org.knowm.xchange.mexc.dto.account.MEXCConfig;
 import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
+import org.knowm.xchange.mexc.dto.market.MEXC24Ticker;
 
 public class MEXCMarketDataServiceRaw extends MEXCBaseService {
 
@@ -66,4 +67,15 @@ public class MEXCMarketDataServiceRaw extends MEXCBaseService {
       throw new RuntimeException(e);
     }
   }
+
+  public List<MEXC24Ticker> getTickers24() {
+    try {
+      return decorateApiCall(() -> mexc.getTicker24hr())
+         .withRateLimiter(rateLimiter(REST_IP_RATE_LIMITER))
+         .call();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

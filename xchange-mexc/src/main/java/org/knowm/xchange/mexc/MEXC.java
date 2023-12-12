@@ -15,6 +15,7 @@ import java.util.List;
 import org.knowm.xchange.mexc.dto.MEXCResult;
 import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
+import org.knowm.xchange.mexc.dto.market.MEXC24Ticker;
 import org.knowm.xchange.mexc.dto.ws.WebSocketToken;
 import org.knowm.xchange.mexc.service.MEXCException;
 import si.mazi.rescu.ParamsDigest;
@@ -91,4 +92,7 @@ public interface MEXC {
   @Path("/ticker/price")
   List<MEXCPricePair> getTickersPrice() throws IOException, MEXCException;
 
+  @GET
+  @Path("/ticker/24hr")
+  List<MEXC24Ticker> getTicker24hr() throws IOException, MEXCException;
 }
