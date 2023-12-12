@@ -1,9 +1,13 @@
 package org.knowm.xchange.mexc.dto.market;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.Table;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
@@ -22,30 +26,41 @@ import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 @Getter
 public class MEXCExchangeMetaData extends ExchangeMetaData {
 
-  private Table<Currency,String,MEXCNetwork> currencyNetwork = HashBasedTable.create();
+  private Table<Currency, String, MEXCNetwork> currencyNetwork = HashBasedTable.create();
+  private MEXCCurrencyNetworkMapping currencyNetworkMapping;
 
   /**
    * Constructor
    *
    * @param instruments       Map of {@link Instrument} -> {@link InstrumentMetaData}
-   * @param currency          Map of currency -> {@link CurrencyMetaData}
+   * @param currencies        Map of currencies -> {@link CurrencyMetaData}
    * @param publicRateLimits
    * @param privateRateLimits
    * @param shareRateLimits
    */
   public MEXCExchangeMetaData(
       Map<Instrument, InstrumentMetaData> instruments,
-      Map<Currency, CurrencyMetaData> currency,
+      Map<Currency, CurrencyMetaData> currencies,
       RateLimit[] publicRateLimits,
       RateLimit[] privateRateLimits, Boolean shareRateLimits) {
-    super(instruments, currency, publicRateLimits, privateRateLimits, shareRateLimits);
+    super(instruments, currencies, publicRateLimits, privateRateLimits, shareRateLimits);
   }
 
   public MEXCExchangeMetaData(Map<Instrument, InstrumentMetaData> instruments,
       Map<Currency, CurrencyMetaData> currency, RateLimit[] publicRateLimits,
       RateLimit[] privateRateLimits, Boolean shareRateLimits,
-      Table<Currency,String,MEXCNetwork> networks) {
+      Table<Currency, String, MEXCNetwork> networks) {
     super(instruments, currency, publicRateLimits, privateRateLimits, shareRateLimits);
     this.currencyNetwork = networks;
+    this.currencyNetworkMapping = new MEXCCurrencyNetworkMapping(networks);
   }
+
+  public Collection<Currency> getCurrenciesByNetwork(String network) {
+    Set<Currency> collect = currencyNetworkMapping.getCurrenciesForNetwork(
+        network).stream().map(a -> Currency.getInstance(a)).collect(Collectors.toSet());
+    // 返回在currenciesForNetwork中存在的币种
+    SetView<Currency> intersection = Sets.intersection(getCurrencies().keySet(), collect);
+    return intersection.immutableCopy();
+  }
+
 }

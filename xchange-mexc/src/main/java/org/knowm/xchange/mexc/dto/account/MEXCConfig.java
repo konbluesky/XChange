@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
+ * 网络配置信息;
  * <p> @Date : 2023/9/4 </p>
  * <p> @Project : XChange</p>
  *

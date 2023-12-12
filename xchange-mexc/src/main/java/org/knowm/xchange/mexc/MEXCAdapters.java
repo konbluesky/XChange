@@ -1,6 +1,7 @@
 package org.knowm.xchange.mexc;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,7 +27,6 @@ import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
-import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.instrument.Instrument;
@@ -95,15 +95,15 @@ public class MEXCAdapters {
 
       Instrument pair = extractOneCurrencyPairs(symbol.getSymbol());
       Currency base = pair.getBase();
-      // warn me 默认将bsc链的信息放入currencyMeta中
-      MEXCNetwork mexcNetwork = currencyNetworks.get(base, MEXCNetwork.NETWORK_BSC2);
+      // // warn me 默认将bsc链的信息放入currencyMeta中
+      // currencyNetworks.row(base).keySet().containsAll(identities)
       // 过滤状态开启，支持现货交易，支持市价单
       //
       if (!"ENABLED".equals(symbol.getStatus())
           || !symbol.getOrderTypes().containsAll(Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT"))
           || !symbol.isSpotTradingAllowed()
-          || mexcNetwork == null
-//          ||!symbol.isQuoteOrderQtyMarketAllowed()
+          || currencyNetworks.row(base).isEmpty()
+          || Sets.intersection(identities, currencyNetworks.row(base).keySet()).isEmpty()
       ) {
         continue;
       }
@@ -112,15 +112,14 @@ public class MEXCAdapters {
           .minimumAmount(new BigDecimal(symbol.getBaseSizePrecision()))
           .marketOrderEnabled(true)
           .build());
-      // 包装类,将可提现,可充值等信息存入实体
-      MEXCCurrencyMetaData currencyMetaData = new MEXCCurrencyMetaData(null,
-          new BigDecimal(mexcNetwork.getWithdrawFee()),
-          new BigDecimal(mexcNetwork.getWithdrawMin()),
-          mexcNetwork.isDepositEnable() && mexcNetwork.isWithdrawEnable() ? WalletHealth.ONLINE
-              : WalletHealth.OFFLINE
+      // 包装类,使用默认网络(BSC),将可提现,可充值等信息存入实体
+      MEXCCurrencyMetaData currencyMetaData = new MEXCCurrencyMetaData(
+          symbol.getBaseAssetPrecision(),
+          null,
+          null,
+          null
       );
       currencyMetaData.setNetworks(currencyNetworks.row(base).values());
-
       currencies.put(pair.getBase(), currencyMetaData);
     }
 
