@@ -1,8 +1,11 @@
 package org.knowm.xchange.mexc.service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -16,6 +19,7 @@ import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfo;
 import org.knowm.xchange.mexc.dto.account.MEXCExchangeInfoSymbol;
 import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 import org.knowm.xchange.mexc.dto.account.MEXCPricePair;
+import org.knowm.xchange.mexc.dto.market.MEXCCurrencyNetworkMapping;
 import org.knowm.xchange.mexc.dto.market.MEXCCurrencyMetaData;
 import org.knowm.xchange.mexc.dto.market.MEXCExchangeMetaData;
 import org.knowm.xchange.service.marketdata.MarketDataService;
@@ -66,12 +70,51 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     }
   }
 
+
+
+  @Test
+  public void testShowIsSpotTradingAllowed() throws IOException {
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    MEXCExchangeInfo exchangeInfo = marketDataService.getExchangeInfo();
+    log.info("exchange symbol size:{}", exchangeInfo.getSymbols().size());
+    List<MEXCExchangeInfoSymbol> isSpotTradingAllowedList= exchangeInfo.getSymbols().stream()
+        .filter(f -> f.isSpotTradingAllowed())
+        .filter(f->f.getOrderTypes().containsAll(
+            Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT")))
+        .filter(f->f.getStatus().equalsIgnoreCase("ENABLED")).collect(Collectors.toList());
+
+    log.info("isSpotTradingAllowed size:{}", isSpotTradingAllowedList.size());
+    // isSpotTradingAllowed size:1028
+
+    MEXCExchangeMetaData exchangeMetaData = (MEXCExchangeMetaData) exchange.getExchangeMetaData();
+    // network = BEP20(BSC)
+    for (MEXCExchangeInfoSymbol symbol : isSpotTradingAllowedList) {
+      log.info("symbol config: {} ", symbol.toString());
+      log.info("order types:{} ", symbol.getOrderTypes());
+    }
+  }
+
+
+
+
   @Test
   public void testExchangeMetaData() throws IOException {
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
-    ExchangeMetaData exchangeMetaData = exchange.getExchangeMetaData();
+    MEXCExchangeMetaData exchangeMetaData = (MEXCExchangeMetaData) exchange.getExchangeMetaData();
     log.info("instrument size: {} ", exchangeMetaData.getInstruments().size());
     log.info("currency size: {} ", exchangeMetaData.getCurrencies().size());
+    MEXCCurrencyNetworkMapping currencyNetworkMapping = new MEXCCurrencyNetworkMapping(
+        exchangeMetaData.getCurrencyNetwork());
+
+    Collection<String> currenciesForNetworkBSC = currencyNetworkMapping.getCurrenciesForNetwork(
+        MEXCNetwork.NETWORK_BSC2);
+    log.info(" BNB Smart Chain(BEP20) size:  {}", currenciesForNetworkBSC.size());
+    log.info(" \t BNB content:  {}", currenciesForNetworkBSC);
+    Collection<String> currenciesForNetworkARB = currencyNetworkMapping.getCurrenciesForNetwork(
+        MEXCNetwork.NETWORK_ARB);
+    log.info(" ARB  size:  {}", currenciesForNetworkARB.size());
+    log.info(" \t ARB content:  {}", currenciesForNetworkARB);
   }
 
   @Test
@@ -79,6 +122,23 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     String bscIdentity = MEXCNetwork.NETWORK_BSC2;
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
     MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+
+    //过滤可以api交易的
+    MEXCExchangeInfo exchangeInfo = marketDataService.getExchangeInfo();
+    log.info("exchange symbol size:{}", exchangeInfo.getSymbols().size());
+    List<MEXCExchangeInfoSymbol> isSpotTradingAllowedList = exchangeInfo.getSymbols().stream()
+        .filter(f -> f.isSpotTradingAllowed())
+        .filter(f->f.getOrderTypes().containsAll(
+            Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT")))
+        .filter(f->f.getStatus().equalsIgnoreCase("ENABLED")).collect(Collectors.toList());
+
+    //isSpotTradingAllowedList 转成map
+    Map<String, MEXCExchangeInfoSymbol> symbolMap = isSpotTradingAllowedList.stream()
+       .collect(Collectors.toMap(
+           symbol -> MEXCAdapters.extractOneCurrencyPairs(symbol.getSymbol()).getBase().getCurrencyCode(),
+           symbol -> symbol,
+           (existing, replacement) -> existing));
+
     List<MEXCConfig> all = marketDataService.getAll();
     // network = BEP20(BSC)
     int count = 0;
@@ -89,18 +149,30 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
           .isPresent();
       if (present) {
         // log.info("coin  config : {} ,coin NetWork size:{} ", config,config.getNetworkList().size());
-        for (MEXCNetwork mexcNetwork : config.getNetworkList().stream()
+        List<MEXCNetwork> mexcNetworks = config.getNetworkList().stream()
             .filter(n -> n.getNetwork().equalsIgnoreCase(bscIdentity.toLowerCase()))
-            .filter(n -> n.isDepositEnable() && n.isWithdrawEnable())
-            .collect(Collectors.toList())) {
+            .filter(n -> n.isDepositEnable() &&  n.isWithdrawEnable())  // both : 506
+            // .filter(n -> n.isWithdrawEnable())  //withdraw: 901
+            // .filter(n -> n.isDepositEnable()) //deposit: 524
+            .collect(Collectors.toList());
+        log.info("mexcNetworks : {}",mexcNetworks.size());
+        for (MEXCNetwork mexcNetwork : mexcNetworks) {
           log.info("{},{},{}", config.getCoin(), mexcNetwork.getNetwork(),
               mexcNetwork.getContract());
-          count++;
+          if(symbolMap.containsKey(config.getCoin())) {
+            count++;
+          }
           // log.info("coin  network : {} ", mexcNetwork.toString());
         }
       }
     }
     log.info("find coin:{}", count);
+    //isSpotTradingAllowed:  261
+
+
+
+
+
   }
 
 
@@ -110,9 +182,11 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
     MEXCExchangeMetaData exchangeMetaData = (MEXCExchangeMetaData) exchange.getExchangeMetaData();
     Map<Currency, CurrencyMetaData> currencies = exchangeMetaData.getCurrencies();
+    log.info("size:{}",currencies.size());
     currencies.forEach((k, v) -> {
           MEXCCurrencyMetaData mexcCurrencyMetaData=(MEXCCurrencyMetaData) v;
           // log.info("{}",mexcCurrencyMetaData.getDefaultNetwork());
+      log.info("coin:{}",k);
 
       if (mexcCurrencyMetaData.getNetworks().size()>1){
         log.info("default:{}",mexcCurrencyMetaData.getDefaultNetwork());
@@ -180,9 +254,9 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
           .isPresent();
       if (present) {
         log.info("coin  config : {} ", config);
-        log.info("coin NetWork size:{} ", config.getNetworkList().size());
+        log.info("\tNetWork size:{} ", config.getNetworkList().size());
         for (MEXCNetwork mexcNetwork : config.getNetworkList()) {
-          log.info("coin  network : {} ", mexcNetwork.toString());
+          log.info("\t\tnetwork : {} ", mexcNetwork.toString());
         }
       }
     }
