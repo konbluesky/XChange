@@ -25,6 +25,8 @@ public class MEXCExchange extends BaseExchange implements Exchange {
 
   private static ResilienceRegistries RESILIENCE_REGISTRIES;
   protected MEXCWsTokenService wsTokenService;
+  public static final String defaultNetwork = MEXCNetwork.NETWORK_BSC2;
+  public static final String DEFAULT_NETWORK_KEY = "DEFAULT_NETWORK_KEY";
 
   @Override
   protected void initServices() {

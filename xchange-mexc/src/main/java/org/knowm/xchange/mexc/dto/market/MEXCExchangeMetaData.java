@@ -1,6 +1,8 @@
 package org.knowm.xchange.mexc.dto.market;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import java.util.Map;
 import lombok.Getter;
 import org.knowm.xchange.currency.Currency;
@@ -20,7 +22,7 @@ import org.knowm.xchange.mexc.dto.account.MEXCNetwork;
 @Getter
 public class MEXCExchangeMetaData extends ExchangeMetaData {
 
-  private Multimap<Currency, MEXCNetwork> currencyNetwork;
+  private Table<Currency,String,MEXCNetwork> currencyNetwork = HashBasedTable.create();
 
   /**
    * Constructor
@@ -42,7 +44,7 @@ public class MEXCExchangeMetaData extends ExchangeMetaData {
   public MEXCExchangeMetaData(Map<Instrument, InstrumentMetaData> instruments,
       Map<Currency, CurrencyMetaData> currency, RateLimit[] publicRateLimits,
       RateLimit[] privateRateLimits, Boolean shareRateLimits,
-      Multimap<Currency, MEXCNetwork> networks) {
+      Table<Currency,String,MEXCNetwork> networks) {
     super(instruments, currency, publicRateLimits, privateRateLimits, shareRateLimits);
     this.currencyNetwork = networks;
   }

@@ -1,19 +1,17 @@
 package org.knowm.xchange.mexc;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -82,12 +80,13 @@ public class MEXCAdapters {
 
     Map<Currency, CurrencyMetaData> currencies = new HashMap<>();
     Map<Instrument, InstrumentMetaData> instruments = new HashMap<>();
+    Table<Currency, String, MEXCNetwork> currencyNetworks = HashBasedTable.create();
 
-    Multimap<Currency, MEXCNetwork> currencyNetworks = ArrayListMultimap.create();
     for (MEXCConfig config : configs) {
       for (MEXCNetwork networkConfig : config.getNetworkList()) {
         if (identities.contains(networkConfig.getNetwork())) {
-          currencyNetworks.put(Currency.getInstance(config.getCoin()), networkConfig);
+          currencyNetworks.put(Currency.getInstance(config.getCoin()), networkConfig.getNetwork(),
+              networkConfig);
         }
       }
     }
@@ -96,35 +95,31 @@ public class MEXCAdapters {
 
       Instrument pair = extractOneCurrencyPairs(symbol.getSymbol());
       Currency base = pair.getBase();
-      Collection<MEXCNetwork> mexcNetworks = currencyNetworks.get(base);
-      //过滤状态开启，支持现货交易，支持市价单
+      // warn me 默认将bsc链的信息放入currencyMeta中
+      MEXCNetwork mexcNetwork = currencyNetworks.get(base, MEXCNetwork.NETWORK_BSC2);
+      // 过滤状态开启，支持现货交易，支持市价单
       //
       if (!"ENABLED".equals(symbol.getStatus())
           || !symbol.getOrderTypes().containsAll(Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT"))
           || !symbol.isSpotTradingAllowed()
-          || mexcNetworks == null
-          || mexcNetworks.isEmpty()
-//          || !symbol.isSpotTradingAllowed()
+          || mexcNetwork == null
 //          ||!symbol.isQuoteOrderQtyMarketAllowed()
       ) {
         continue;
       }
 
-      MEXCNetwork netConfig = mexcNetworks.stream().findFirst().get();
       instruments.put(pair, new InstrumentMetaData.Builder()
           .minimumAmount(new BigDecimal(symbol.getBaseSizePrecision()))
           .marketOrderEnabled(true)
           .build());
-      //包装类,将可提现,可充值等信息存入实体
+      // 包装类,将可提现,可充值等信息存入实体
       MEXCCurrencyMetaData currencyMetaData = new MEXCCurrencyMetaData(null,
-          new BigDecimal(netConfig.getWithdrawFee()),
-          new BigDecimal(netConfig.getWithdrawMin()),
-          netConfig.isDepositEnable() && netConfig.isWithdrawEnable() ? WalletHealth.ONLINE
+          new BigDecimal(mexcNetwork.getWithdrawFee()),
+          new BigDecimal(mexcNetwork.getWithdrawMin()),
+          mexcNetwork.isDepositEnable() && mexcNetwork.isWithdrawEnable() ? WalletHealth.ONLINE
               : WalletHealth.OFFLINE
       );
-      currencyMetaData.setCanDeposit(netConfig.isDepositEnable());
-      currencyMetaData.setCanWithdraw(netConfig.isWithdrawEnable());
-      currencyMetaData.setNetwork(netConfig.getNetwork());
+      currencyMetaData.setNetworks(currencyNetworks.row(base).values());
 
       currencies.put(pair.getBase(), currencyMetaData);
     }
