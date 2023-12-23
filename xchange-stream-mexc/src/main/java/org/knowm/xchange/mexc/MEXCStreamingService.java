@@ -27,11 +27,11 @@ public class MEXCStreamingService extends JsonNettyStreamingService {
     private String listenKey;
 
     public MEXCStreamingService(String apiUrl) {
-        super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 20);
+        super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
     }
 
     public MEXCStreamingService(String apiUrl, String listenKey) {
-        super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 20);
+        super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
         this.listenKey = listenKey;
     }
 
