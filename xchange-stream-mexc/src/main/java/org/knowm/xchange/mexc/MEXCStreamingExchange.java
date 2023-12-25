@@ -6,7 +6,6 @@ import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.core.StreamingTradeService;
 import io.reactivex.Completable;
-import java.io.IOException;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 
 /**
@@ -22,7 +21,6 @@ public class MEXCStreamingExchange extends MEXCExchange implements StreamingExch
   public static final String IS_PRIVATE = "isPrivate";
 
   private MEXCStreamingService streamingService;
-  private MEXCStreamingService privateStreamingService;
   private StreamingMarketDataService streamingMarketDataService;
   private StreamingTradeService streamingTradeService;
   private MEXCStreamingAccountService streamingAccountService;
@@ -32,26 +30,17 @@ public class MEXCStreamingExchange extends MEXCExchange implements StreamingExch
 
   @Override
   public Completable connect(ProductSubscription... args) {
-    try {
-      if (getDefaultExchangeSpecification().getExchangeSpecificParametersItem(IS_PRIVATE) == null) {
-        this.streamingService = new MEXCStreamingService(API_BASE_PUBLIC_URI);
-        MEXCStreamingPool mexcStreamingPool = new MEXCStreamingPool(3, 28, API_BASE_PUBLIC_URI);
-        this.streamingMarketDataService = new MEXCStreamingMarketDataService(mexcStreamingPool);
-        return mexcStreamingPool.initializeServices();
-      } else {
-        String listenKey = this.getWsTokenService().getWsToken().getListenKey();
-        if (listenKey == null) {
-          throw new RuntimeException("Mexc ListenKey is null");
-        }
-        String privateURL = String.format(API_BASE_PRIVATE_URI, listenKey);
-        MEXCStreamingPool mexcStreamingPool = new MEXCStreamingPool(1, 28, privateURL);
-        this.privateStreamingService = new MEXCStreamingService(privateURL);
-        this.streamingTradeService = new MEXCStreamingTradeService(mexcStreamingPool);
-        this.streamingAccountService = new MEXCStreamingAccountService(mexcStreamingPool);
-        return mexcStreamingPool.initializeServices();
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (getDefaultExchangeSpecification().getExchangeSpecificParametersItem(IS_PRIVATE) == null) {
+      this.streamingService = new MEXCStreamingService(API_BASE_PUBLIC_URI);
+      MEXCStreamingPool mexcStreamingPool = new MEXCStreamingPool(3, 28, API_BASE_PUBLIC_URI);
+      this.streamingMarketDataService = new MEXCStreamingMarketDataService(mexcStreamingPool);
+      return mexcStreamingPool.initializeServices();
+    } else {
+      MEXCStreamingPool mexcStreamingPool = new MEXCStreamingPool(1, 28, API_BASE_PRIVATE_URI,
+          this.getWsTokenService());
+      this.streamingTradeService = new MEXCStreamingTradeService(mexcStreamingPool);
+      this.streamingAccountService = new MEXCStreamingAccountService(mexcStreamingPool);
+      return mexcStreamingPool.initializeServices();
     }
   }
 

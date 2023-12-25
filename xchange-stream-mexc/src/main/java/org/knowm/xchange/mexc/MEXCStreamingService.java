@@ -1,5 +1,7 @@
 package org.knowm.xchange.mexc;
 
+import static org.knowm.xchange.mexc.MEXCStreamingExchange.API_BASE_PRIVATE_URI;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
 import io.reactivex.Completable;
@@ -7,10 +9,12 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import java.io.IOException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.mexc.dto.MEXCSendMessage;
+import org.knowm.xchange.mexc.service.MEXCWsTokenService;
 
 /**
  * <p> @Date : 2023/7/11 </p>
@@ -21,20 +25,40 @@ import org.knowm.xchange.mexc.dto.MEXCSendMessage;
 @Slf4j
 public class MEXCStreamingService extends JsonNettyStreamingService {
 
-    private final Observable<Long> pingPongSrc = Observable.interval(10, 15, TimeUnit.SECONDS);
+    private final Observable<Long> pingPongSrc = Observable.interval(5, 15, TimeUnit.SECONDS);
     private Disposable pingPongSubscription;
-
-    private String listenKey;
+    private MEXCWsTokenService wsTokenService;
 
     public MEXCStreamingService(String apiUrl) {
         super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
     }
 
-    public MEXCStreamingService(String apiUrl, String listenKey) {
+    /**
+     * private 订阅的构造
+     * 优雅的通过BeforeConnectionHandler重置token
+     * @param apiUrl
+     * @param wsTokenService
+     */
+    public MEXCStreamingService(String apiUrl, MEXCWsTokenService wsTokenService) {
         super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
-        this.listenKey = listenKey;
+        this.setBeforeConnectionHandler(()->{
+          try {
+              if(!isSocketOpen()) {
+                  this.uri = URI.create(
+                      String.format(API_BASE_PRIVATE_URI,
+                          wsTokenService.getWsToken().getListenKey()));
+              }
+          } catch (IOException e) {
+              log.error("get wsToken error:{}",e.getMessage());
+          }
+        });
     }
 
+    /**
+     *  beforeConnectionHandler.run();
+     *     return openConnection();
+     * @return
+     */
     @Override
     public Completable connect() {
         Completable conn = super.connect();
@@ -53,11 +77,6 @@ public class MEXCStreamingService extends JsonNettyStreamingService {
 
     public int getChannelSize(){
         return this.channels.size();
-    }
-
-
-    private boolean needGetToken() {
-        return this.uri.getRawPath().contains("private");
     }
 
     @Override
@@ -117,9 +136,6 @@ public class MEXCStreamingService extends JsonNettyStreamingService {
     @Override
     public String getSubscribeMessage(String channelName, Object... args) throws IOException {
         MEXCSendMessage sendMessages = (MEXCSendMessage) args[0];
-        if (needGetToken()) {
-            sendMessages.setListenKey(listenKey);
-        }
         return sendMessages.toString();
     }
 

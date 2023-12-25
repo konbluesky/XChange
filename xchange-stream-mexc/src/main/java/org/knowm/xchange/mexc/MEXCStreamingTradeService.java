@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import info.bitrich.xchangestream.core.StreamingTradeService;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
+import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.mexc.dto.MEXCOrderDetail;
@@ -19,12 +21,7 @@ public class MEXCStreamingTradeService implements StreamingTradeService {
 
 
   private final MEXCStreamingPool pool;
-  // private final MEXCStreamingService streamingService;
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
-
-  // public MEXCStreamingTradeService(MEXCStreamingService streamingService) {
-  //   this.streamingService = streamingService;
-  // }
 
   public MEXCStreamingTradeService(MEXCStreamingPool pool) {
     this.pool = pool;
@@ -45,5 +42,26 @@ public class MEXCStreamingTradeService implements StreamingTradeService {
           Order order = MEXCStreamingAdapters.adaptOrder(orderDetail, symbol);
           return Observable.just(order);
         });
+  }
+
+  /**
+   * 客户端调用兼容
+   * @param currencyPair Currency pair of the order changes.
+   * @param args
+   * @return
+   */
+  @Override
+  public Observable<Order> getOrderChanges(CurrencyPair currencyPair, Object... args) {
+    return getOrderChanges(new Instrument() {
+      @Override
+      public Currency getBase() {
+        return null;
+      }
+
+      @Override
+      public Currency getCounter() {
+        return null;
+      }
+    }, args);
   }
 }
