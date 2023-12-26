@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -293,6 +294,8 @@ public class MEXCAdapters {
         String.valueOf(mexcOrder.getOrderId()),
         new Date(mexcOrder.getUpdateTime()),
         new BigDecimal(mexcOrder.getPrice()));
+    //MEXC不返回平均价格, 手动计算
+    limitOrder.setAveragePrice(limitOrder.getCumulativeAmount().divide(limitOrder.getOriginalAmount(),new MathContext(8, RoundingMode.HALF_DOWN)));
     limitOrder.setOrderStatus(Order.OrderStatus.valueOf(mexcOrder.getStatus()));
     return limitOrder;
   }
