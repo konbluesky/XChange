@@ -19,7 +19,7 @@ public class MEXCAccountServiceRaw extends MEXCBaseService {
   }
 
   public MEXCAccount getWalletBalances() throws IOException {
-    return decorateApiCall(() -> mexcAuthenticated.getWalletBalances(apiKey, nonceFactory, signatureCreator))
+    return decorateApiCall(() -> mexcAuthenticated.getWalletBalances(apiKey, nonceFactory, signatureCreator,DEFAULT_RECV_WINDOW))
         .withRateLimiter(rateLimiter(REST_UID_RATE_LIMITER))
         .call();
   }

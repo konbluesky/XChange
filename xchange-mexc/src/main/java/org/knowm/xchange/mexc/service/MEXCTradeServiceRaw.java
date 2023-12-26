@@ -23,6 +23,7 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
         apiKey,
         nonceFactory,
         signatureCreator,
+        DEFAULT_RECV_WINDOW,
         request.getSymbol(),
         request.getSide(),
         request.getType(),
@@ -39,6 +40,7 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
         apiKey,
         nonceFactory,
         signatureCreator,
+        DEFAULT_RECV_WINDOW,
         symbol,
         orderId))
         .withRateLimiter(rateLimiter(REST_UID_RATE_LIMITER))
@@ -59,6 +61,7 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
         apiKey,
         nonceFactory,
         signatureCreator,
+        DEFAULT_RECV_WINDOW,
         symbol,
         id))
         .withRateLimiter(rateLimiter(REST_UID_RATE_LIMITER))
@@ -70,6 +73,7 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
         apiKey,
         nonceFactory,
         signatureCreator,
+        DEFAULT_RECV_WINDOW,
         symbol))
         .withRateLimiter(rateLimiter(REST_UID_RATE_LIMITER))
         .call();
@@ -81,6 +85,7 @@ public class MEXCTradeServiceRaw extends MEXCBaseService {
         apiKey,
         nonceFactory,
         signatureCreator,
+        DEFAULT_RECV_WINDOW,
         symbol,
         startTime,
         endTime,

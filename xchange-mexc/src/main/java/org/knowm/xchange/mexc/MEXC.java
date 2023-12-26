@@ -34,6 +34,7 @@ public interface MEXC {
   String API_KEY = "X-MEXC-APIKEY";
   String SING_KEY = "signature";
   String REQ_TIME = "timestamp";
+  String RECV_WINDOW = "recvWindow";
 
   @GET
   @Path("/time")

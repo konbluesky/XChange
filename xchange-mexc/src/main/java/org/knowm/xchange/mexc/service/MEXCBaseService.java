@@ -1,7 +1,6 @@
 package org.knowm.xchange.mexc.service;
 
 import java.util.concurrent.TimeUnit;
-import org.knowm.xchange.Exchange;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.mexc.MEXC;
@@ -19,10 +18,11 @@ public class MEXCBaseService extends BaseResilientExchangeService<MEXCExchange> 
   protected final ParamsDigest signatureCreator;
   protected final SynchronizedValueFactory<Long> nonceFactory = new CurrentTimeIncrementalNonceFactory(
       TimeUnit.MILLISECONDS);
+  protected final long DEFAULT_RECV_WINDOW = 10000L;
   protected final String apiKey;
 
   public MEXCBaseService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {
-    super(exchange,resilienceRegistries);
+    super(exchange, resilienceRegistries);
     mexc = ExchangeRestProxyBuilder.forInterface(MEXC.class, exchange.getExchangeSpecification())
         .build();
     mexcAuthenticated = ExchangeRestProxyBuilder.forInterface(MEXCAuthenticated.class,

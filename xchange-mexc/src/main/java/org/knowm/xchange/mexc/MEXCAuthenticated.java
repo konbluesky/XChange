@@ -32,7 +32,8 @@ public interface MEXCAuthenticated extends MEXC {
   MEXCAccount getWalletBalances(
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
-      @QueryParam(SING_KEY) ParamsDigest signature
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow
   ) throws IOException, MEXCException;
 
   @POST
@@ -41,6 +42,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("symbol") String symbol,
       @QueryParam("side") String side,
       @QueryParam("type") String type,
@@ -56,6 +58,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("symbol") String symbol,
       @QueryParam("orderId") String orderId
   ) throws IOException, MEXCException;
@@ -66,6 +69,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("symbol") String symbol,
       @QueryParam("orderId") String orderId) throws IOException, MEXCException;
 
@@ -75,6 +79,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("symbol") String symbol) throws IOException, MEXCException;
 
   @GET
@@ -83,6 +88,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("symbol") String symbol,
       @QueryParam("startTime") String startTime,
       @QueryParam("endTime") String endTime,
@@ -126,7 +132,8 @@ public interface MEXCAuthenticated extends MEXC {
   List<MEXCConfig> getCoinConfig(
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
-      @QueryParam(SING_KEY) ParamsDigest signature
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow
   ) throws IOException, MEXCException;
 
 

@@ -20,8 +20,11 @@ public class MEXCMarketDataServiceRaw extends MEXCBaseService {
 
   public List<MEXCConfig> getAll() {
     try {
-      return decorateApiCall(() -> mexcAuthenticated.getCoinConfig(apiKey, nonceFactory,
-          signatureCreator)).withRateLimiter(rateLimiter(REST_IP_RATE_LIMITER)).call();
+      return decorateApiCall(() -> mexcAuthenticated.getCoinConfig(
+          apiKey, nonceFactory,
+          signatureCreator,
+          DEFAULT_RECV_WINDOW
+      )).withRateLimiter(rateLimiter(REST_IP_RATE_LIMITER)).call();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
