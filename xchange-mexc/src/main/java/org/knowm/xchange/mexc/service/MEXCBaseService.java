@@ -18,7 +18,7 @@ public class MEXCBaseService extends BaseResilientExchangeService<MEXCExchange> 
   protected final ParamsDigest signatureCreator;
   protected final SynchronizedValueFactory<Long> nonceFactory = new CurrentTimeIncrementalNonceFactory(
       TimeUnit.MILLISECONDS);
-  protected final long DEFAULT_RECV_WINDOW = 10000L;
+  protected final long DEFAULT_RECV_WINDOW = 15000L;
   protected final String apiKey;
 
   public MEXCBaseService(MEXCExchange exchange, ResilienceRegistries resilienceRegistries) {

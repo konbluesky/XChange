@@ -80,6 +80,7 @@ public class MEXCAccountServiceRaw extends MEXCBaseService {
             apiKey,
             nonceFactory,
             signatureCreator,
+            DEFAULT_RECV_WINDOW,
             coinId,
             status,
             startTime,

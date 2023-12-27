@@ -27,7 +27,7 @@ public class MEXCWsTokenService extends MEXCBaseService {
 
   public List<String> getWsTokens() throws IOException {
 
-    JsonNode data = mexc.getWsTokens(apiKey, nonceFactory, signatureCreator);
+    JsonNode data = mexc.getWsTokens(apiKey, nonceFactory, signatureCreator,DEFAULT_RECV_WINDOW);
     JsonNode listenKeys = data.get("listenKey");
     ObjectMapper mapper = new ObjectMapper();
     List<String> keys = mapper.treeToValue(listenKeys, mapper.getTypeFactory()
@@ -50,7 +50,8 @@ public class MEXCWsTokenService extends MEXCBaseService {
     return mexc.getWsToken(
         apiKey,
         nonceFactory,
-        signatureCreator
+        signatureCreator,
+        DEFAULT_RECV_WINDOW
     );
   }
 

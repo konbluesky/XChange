@@ -45,7 +45,8 @@ public interface MEXC {
   WebSocketToken getWsToken(
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
-      @QueryParam(SING_KEY) ParamsDigest signature
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow
   ) throws IOException, MEXCException;
 
   @GET
@@ -53,7 +54,8 @@ public interface MEXC {
   JsonNode getWsTokens(
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
-      @QueryParam(SING_KEY) ParamsDigest signature
+      @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow
   ) throws IOException, MEXCException;
 
   @DELETE

@@ -155,6 +155,7 @@ public interface MEXCAuthenticated extends MEXC {
       @HeaderParam(API_KEY) String apiKey,
       @QueryParam(REQ_TIME) SynchronizedValueFactory<Long> timestamp,
       @QueryParam(SING_KEY) ParamsDigest signature,
+      @QueryParam(RECV_WINDOW) long recvWindow,
       @QueryParam("coin") String coinId,
       @QueryParam("status") String status,
       @QueryParam("startTime") String startTime,
