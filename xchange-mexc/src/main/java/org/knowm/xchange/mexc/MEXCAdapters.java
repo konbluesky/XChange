@@ -295,7 +295,7 @@ public class MEXCAdapters {
         new Date(mexcOrder.getUpdateTime()),
         new BigDecimal(mexcOrder.getPrice()));
     //MEXC不返回平均价格, 手动计算
-    limitOrder.setAveragePrice(limitOrder.getCumulativeAmount().divide(limitOrder.getOriginalAmount(),new MathContext(8, RoundingMode.HALF_DOWN)));
+    limitOrder.setAveragePrice(new BigDecimal(mexcOrder.getCummulativeQuoteQty()).divide(limitOrder.getOriginalAmount(),new MathContext(8, RoundingMode.HALF_DOWN)));
     limitOrder.setOrderStatus(Order.OrderStatus.valueOf(mexcOrder.getStatus()));
     return limitOrder;
   }
