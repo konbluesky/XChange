@@ -289,7 +289,7 @@ public class MEXCAdapters {
     LimitOrder limitOrder = new LimitOrder(
         mexcOrder.getSide().equalsIgnoreCase("buy") ? OrderType.BID : OrderType.ASK,
         new BigDecimal(mexcOrder.getOrigQty()),
-        new BigDecimal(mexcOrder.getCummulativeQuoteQty()),
+        new BigDecimal(mexcOrder.getExecutedQty()),
         extractOneCurrencyPairs(mexcOrder.getSymbol()),
         String.valueOf(mexcOrder.getOrderId()),
         new Date(mexcOrder.getUpdateTime()),
