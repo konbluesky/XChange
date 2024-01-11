@@ -264,8 +264,8 @@ public class MEXCAdapters {
   public static MEXCOrderRequestPayload adaptOrder(LimitOrder limitOrder) {
     MEXCOrderRequestPayload.MEXCOrderRequestPayloadBuilder builder = MEXCOrderRequestPayload.builder()
         .symbol(convertToMEXCSymbol(limitOrder.getInstrument().toString()))
-        .price(limitOrder.getLimitPrice().toString())
-        .quantity(limitOrder.getOriginalAmount().toString())
+        .price(limitOrder.getLimitPrice().toPlainString())
+        .quantity(limitOrder.getOriginalAmount().toPlainString())
         .side(limitOrder.getType() == OrderType.BID ? "BUY" : "SELL")
         .type("LIMIT");
     if (limitOrder.hasFlag(OrderEnum.OrderType.LIMIT_MAKER)) {
@@ -277,7 +277,7 @@ public class MEXCAdapters {
   public static MEXCOrderRequestPayload adaptMarketOrder(MarketOrder marketOrder) {
     MEXCOrderRequestPayload payload = MEXCOrderRequestPayload.builder()
         .symbol(convertToMEXCSymbol(marketOrder.getInstrument().toString()))
-        .quantity(marketOrder.getOriginalAmount().toString())
+        .quantity(marketOrder.getOriginalAmount().toPlainString())
         .side(marketOrder.getType() == OrderType.BID ? "BUY" : "SELL")
         .type("MARKET")
         .build();
