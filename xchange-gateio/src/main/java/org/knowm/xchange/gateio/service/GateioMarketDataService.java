@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
@@ -27,9 +28,9 @@ public class GateioMarketDataService extends GateioMarketDataServiceRaw
    *
    * @param exchange
    */
-  public GateioMarketDataService(GateioExchange exchange) {
-
-    super(exchange);
+  public GateioMarketDataService(GateioExchange exchange,
+      ResilienceRegistries resilienceRegistries) {
+    super(exchange, resilienceRegistries);
   }
 
   @Override
@@ -84,9 +85,9 @@ public class GateioMarketDataService extends GateioMarketDataServiceRaw
     GateioTradeHistory tradeHistory =
         (args != null && args.length > 0 && args[0] != null && args[0] instanceof String)
             ? super.getBTERTradeHistorySince(
-                currencyPair.base.getCurrencyCode(),
-                currencyPair.counter.getCurrencyCode(),
-                (String) args[0])
+            currencyPair.base.getCurrencyCode(),
+            currencyPair.counter.getCurrencyCode(),
+            (String) args[0])
             : super.getBTERTradeHistory(
                 currencyPair.base.getCurrencyCode(), currencyPair.counter.getCurrencyCode());
 

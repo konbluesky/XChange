@@ -1,59 +1,37 @@
 package org.knowm.xchange.gateio.dto.marketdata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
 public class GateioCoin {
 
-  boolean delisted;
-  boolean withdrawDisabled;
-  boolean withdrawDelayed;
-  boolean depositDisabled;
-  boolean tradeDisabled;
+  @JsonProperty("currency")
+  private String currency;
 
-  public GateioCoin(
-      boolean delisted,
-      boolean withdrawDisabled,
-      boolean withdrawDelayed,
-      boolean depositDisabled,
-      boolean tradeDisabled) {
-    this.delisted = delisted;
-    this.withdrawDisabled = withdrawDisabled;
-    this.withdrawDelayed = withdrawDelayed;
-    this.depositDisabled = depositDisabled;
-    this.tradeDisabled = tradeDisabled;
-  }
+  @JsonProperty("delisted")
+  private boolean delisted;
 
-  @Override
-  public String toString() {
-    return "GateioCoin{"
-        + "delisted="
-        + delisted
-        + ", withdrawDisabled="
-        + withdrawDisabled
-        + ", withdrawDelayed="
-        + withdrawDelayed
-        + ", depositDisabled="
-        + depositDisabled
-        + ", tradeDisabled="
-        + tradeDisabled
-        + '}';
-  }
+  @JsonProperty("withdraw_disabled")
+  private boolean withdrawDisabled;
 
-  public boolean isDelisted() {
-    return delisted;
-  }
+  @JsonProperty("withdraw_delayed")
+  private boolean withdrawDelayed;
 
-  public boolean isWithdrawDisabled() {
-    return withdrawDisabled;
-  }
+  @JsonProperty("deposit_disabled")
+  private boolean depositDisabled;
 
-  public boolean isWithdrawDelayed() {
-    return withdrawDelayed;
-  }
+  @JsonProperty("trade_disabled")
+  private boolean tradeDisabled;
 
-  public boolean isDepositDisabled() {
-    return depositDisabled;
-  }
+  @JsonProperty("fixed_rate")
+  private String fixedRate;
 
-  public boolean isTradeDisabled() {
-    return tradeDisabled;
-  }
+  @JsonProperty("chain")
+  private String chain;
+
+
+
 }

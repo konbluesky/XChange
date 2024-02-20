@@ -1,55 +1,91 @@
 package org.knowm.xchange.gateio.service;
 
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.exceptions.ExchangeException;
+import org.knowm.xchange.gateio.Gateio;
 import org.knowm.xchange.gateio.GateioAdapters;
 import org.knowm.xchange.gateio.GateioExchange;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCandlestickHistory;
-import org.knowm.xchange.gateio.dto.marketdata.GateioCoinInfoWrapper;
+import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
 import org.knowm.xchange.gateio.dto.marketdata.GateioDepth;
-import org.knowm.xchange.gateio.dto.marketdata.GateioFeeInfo;
 import org.knowm.xchange.gateio.dto.marketdata.GateioKline;
 import org.knowm.xchange.gateio.dto.marketdata.GateioKlineInterval;
-import org.knowm.xchange.gateio.dto.marketdata.GateioMarketInfoWrapper;
+import org.knowm.xchange.gateio.dto.marketdata.GateioPair;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTicker;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTradeHistory;
 import org.knowm.xchange.instrument.Instrument;
 
-public class GateioMarketDataServiceRaw extends GateioBaseService {
+public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeService {
 
   /**
    * Constructor
    *
    * @param exchange
    */
-  public GateioMarketDataServiceRaw(GateioExchange exchange) {
-
-    super(exchange);
+  public GateioMarketDataServiceRaw(GateioExchange exchange,
+      ResilienceRegistries resilienceRegistries) {
+    super(exchange, resilienceRegistries);
   }
 
-  public Map<CurrencyPair, GateioMarketInfoWrapper.GateioMarketInfo> getGateioMarketInfo()
+  public Map<CurrencyPair, GateioPair> getGateioMarketInfo()
       throws IOException {
 
-    GateioMarketInfoWrapper bterMarketInfo = gateio.getMarketInfo();
+    try {
+      List<GateioPair> marketInfo = decorateApiCall(() -> gateio.getMarketInfo()).withRateLimiter(
+          rateLimiter(Gateio.PUBLIC_RULE)).call();
 
-    return bterMarketInfo.getMarketInfoMap();
+      Map<CurrencyPair, GateioPair> result = Maps.newHashMap();
+      for (GateioPair gateioPair : marketInfo) {
+        result.put(new CurrencyPair(gateioPair.getBase(), gateioPair.getQuote()), gateioPair);
+      }
+      return result;
+
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
-  public GateioCoinInfoWrapper getGateioCoinInfo() throws IOException {
-    return gateio.getCoinInfo();
+  public Map<String, GateioCoin> getGateioCoinInfo() throws IOException {
+    try {
+
+      List<GateioCoin> call = decorateApiCall(() -> gateio.getCoinInfo()).withRateLimiter(
+          rateLimiter(Gateio.PUBLIC_RULE)).call();
+
+      return call
+          .stream()
+          .collect(Collectors.toMap(GateioCoin::getCurrency, Function.identity()));
+
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
-  public Map<String, GateioFeeInfo> getGateioFees() throws IOException {
-    return gateioAuthenticated.getFeeList(apiKey, signatureCreator);
+  public Map<String, GateioWithdrawStatus> getGateioWithDrawFees(String currency)
+      throws IOException {
+    try {
+      List<GateioWithdrawStatus> result = decorateApiCall(
+          () -> gateioAuthenticated.getWithDrawConfig(apiKey, signatureCreator, nonceFactory,
+              currency))
+          .withRateLimiter(
+              rateLimiter(Gateio.PUBLIC_RULE)).call();
+      return result.stream()
+          .collect(Collectors.toMap(GateioWithdrawStatus::getCurrency, Function.identity()));
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
   public Map<CurrencyPair, Ticker> getGateioTickers() throws IOException {
@@ -126,8 +162,9 @@ public class GateioMarketDataServiceRaw extends GateioBaseService {
   public List<GateioKline> getKlines(CurrencyPair pair, GateioKlineInterval interval, Integer hours)
       throws IOException {
 
-    if (hours != null && hours < 1)
+    if (hours != null && hours < 1) {
       throw new ExchangeException("Variable 'hours' should be more than 0!");
+    }
 
     GateioCandlestickHistory candlestickHistory =
         handleResponse(

@@ -1,9 +1,11 @@
 package org.knowm.xchange.gateio.service;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
+import com.google.common.hash.Hashing;
+import jakarta.ws.rs.HeaderParam;
 import javax.crypto.Mac;
 import org.knowm.xchange.service.BaseParamsDigest;
+import org.knowm.xchange.utils.DigestUtils;
+import si.mazi.rescu.Params;
 import si.mazi.rescu.RestInvocation;
 
 /**
@@ -22,7 +24,7 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
    *
    * @param secretKeyBase64
    * @throws IllegalArgumentException if key is invalid (cannot be base-64-decoded or the decoded
-   *     key is invalid).
+   *                                  key is invalid).
    */
   private GateioHmacPostBodyDigest(String secretKeyBase64) {
 
@@ -37,24 +39,35 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
   @Override
   public String digestParams(RestInvocation restInvocation) {
 
-    try {
-      String postBody = restInvocation.getRequestBody();
+    // little hack here. the post body to create the signature mus not contain the url-encoded
+    // parameters, they must be in plain form
+    // passing ie the white space inside the withdraw method (required for XLM and XRP ... to pass
+    // the tag) results in a plus sing '+', which is the correct encoding, but in this case the
+    // signature is not created correctly.
+    // the expected signature must be created using plain parameters. here we simply replace the +
+    // by a white space, should be fine for now
+    // see https://support.gate.io/hc/en-us/articles/360000808354-How-to-Withdraw-XRP
 
-      // little hack here. the post body to create the signature mus not contain the url-encoded
-      // parameters, they must be in plain form
-      // passing ie the white space inside the withdraw method (required for XLM and XRP ... to pass
-      // the tag) results in a plus sing '+', which is the correct encoding, but in this case the
-      // signature is not created correctly.
-      // the expected signature must be created using plain parameters. here we simply replace the +
-      // by a white space, should be fine for now
-      // see https://support.gate.io/hc/en-us/articles/360000808354-How-to-Withdraw-XRP
-      postBody = postBody.replace('+', ' ');
-      Mac mac = getMac();
-      mac.update(postBody.getBytes("UTF-8"));
-      return String.format("%0128x", new BigInteger(1, mac.doFinal()));
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("Illegal encoding, check the code.", e);
-    }
-    // return Base64.encodeBytes(mac.doFinal()).trim();
+    /**
+     * String ts = String.valueOf(System.currentTimeMillis() / 1000);
+     * String bodyString = this.bodyToString(request.body());
+     * String queryString = (request.url().query() == null) ? "" : request.url().query();
+     * String signatureString = String.format("%s\n%s\n%s\n%s\n%s", request.method(), request.url().encodedPath(), queryString,
+     *                                        DigestUtils.sha512Hex(bodyString), ts);
+     */
+
+    Params headParams = restInvocation.getParamsMap().get(HeaderParam.class);
+    Long ts = (Long) headParams.getParamValue("Timestamp");
+    String bodyString = restInvocation.getRequestBody();
+    String queryString = restInvocation.getQueryString();
+
+    Mac mac = getMac();
+    String signatureString = String.format("%s\n%s\n%s\n%s\n%s",
+        restInvocation.getHttpMethod(),
+        "/" + restInvocation.getPath(),
+        queryString,
+        Hashing.sha512().hashBytes(bodyString.getBytes()).toString(), ts);
+
+    return DigestUtils.bytesToHex(mac.doFinal((signatureString.getBytes())));
   }
 }

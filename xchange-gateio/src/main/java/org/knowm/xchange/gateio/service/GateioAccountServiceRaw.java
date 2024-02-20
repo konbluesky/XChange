@@ -1,34 +1,57 @@
 package org.knowm.xchange.gateio.service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.exceptions.ExchangeException;
+import org.knowm.xchange.gateio.GateioAuthenticated;
 import org.knowm.xchange.gateio.GateioExchange;
-import org.knowm.xchange.gateio.dto.GateioBaseResponse;
+import org.knowm.xchange.gateio.dto.account.GateioCancelWithdrawalResponse;
 import org.knowm.xchange.gateio.dto.account.GateioDepositAddress;
 import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
-import org.knowm.xchange.gateio.dto.account.GateioFunds;
+import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
+import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawalResponse;
 
-public class GateioAccountServiceRaw extends GateioBaseService {
+public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService {
 
   /**
    * Constructor
    *
    * @param exchange
    */
-  public GateioAccountServiceRaw(GateioExchange exchange) {
-
-    super(exchange);
+  public GateioAccountServiceRaw(GateioExchange exchange,
+      ResilienceRegistries resilienceRegistries) {
+    super(exchange, resilienceRegistries);
   }
 
-  public GateioFunds getGateioAccountInfo() throws IOException {
+  public List<GateioSpotBalanceResponse> getGateioAccountInfo() throws IOException {
+    return getGateioSpotAccount();
+  }
 
-    GateioFunds gateioFunds =
-        gateioAuthenticated.getFunds(
-            exchange.getExchangeSpecification().getApiKey(), signatureCreator);
-    return handleResponse(gateioFunds);
+  public GateioUnifiedAccount getGateioUnifiedAccount() throws IOException {
+    try {
+      return decorateApiCall(
+          () -> gateioAuthenticated.getUnifiedAccount(this.apiKey, signatureCreator,
+              nonceFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_UNIFIED_ACCOUNTS))
+          .call();
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  public List<GateioSpotBalanceResponse> getGateioSpotAccount() throws IOException {
+    try {
+      return decorateApiCall(
+          () -> gateioAuthenticated.getSpotAccount(this.apiKey, signatureCreator,
+              nonceFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ACCOUNTS))
+          .call();
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
   public GateioDepositAddress getGateioDepositAddress(Currency currency) throws IOException {
@@ -38,16 +61,6 @@ public class GateioAccountServiceRaw extends GateioBaseService {
             signatureCreator,
             currency.getCurrencyCode());
     return depositAddress;
-  }
-
-  public String withdraw(
-      Currency currency, BigDecimal amount, String baseAddress, String addressTag)
-      throws IOException {
-    String withdrawAddress = baseAddress;
-    if (addressTag != null && addressTag.length() > 0) {
-      withdrawAddress = withdrawAddress + " " + addressTag;
-    }
-    return withdraw(currency.getCurrencyCode(), amount, withdrawAddress);
   }
 
   public GateioDepositsWithdrawals getDepositsWithdrawals(Date start, Date end) throws IOException {
@@ -60,18 +73,40 @@ public class GateioAccountServiceRaw extends GateioBaseService {
     return handleResponse(gateioDepositsWithdrawals);
   }
 
-  public String withdraw(String currency, BigDecimal amount, String address) throws IOException {
-    GateioBaseResponse withdraw =
-        gateioAuthenticated.withdraw(
-            exchange.getExchangeSpecification().getApiKey(),
-            signatureCreator,
-            currency,
-            amount,
-            address);
-    if (!withdraw.isResult()) {
-      throw new ExchangeException(withdraw.getMessage());
+  public GateioWithdrawalResponse withdraw(GateioWithdrawalPayload payload) throws IOException {
+    try {
+      GateioWithdrawalResponse response = decorateApiCall(
+          () -> gateioAuthenticated.withdrawals(
+              exchange.getExchangeSpecification().getApiKey(),
+              signatureCreator,
+              nonceFactory,
+              payload
+          )).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_WITHDRAWALS))
+          .call();
+      return response;
+    } catch (Exception e) {
+      throw new ExchangeException(e.getMessage());
     }
     // unfortunatelly gate.io does not return any id for the withdrawal
-    return null;
+//    return null;
   }
+
+  public GateioCancelWithdrawalResponse cancelWithdraw(String withdrawal_id) throws IOException {
+    try {
+      GateioCancelWithdrawalResponse result = decorateApiCall(
+          () -> gateioAuthenticated.cancelWithdrawals(
+              exchange.getExchangeSpecification().getApiKey(),
+              signatureCreator,
+              nonceFactory,
+              withdrawal_id
+          )).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_WITHDRAWALS_CANCEL))
+          .call();
+      return result;
+    } catch (Exception e) {
+      throw new ExchangeException(e.getMessage());
+    }
+    // unfortunatelly gate.io does not return any id for the withdrawal
+//    return null;
+  }
+
 }

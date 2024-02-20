@@ -1,34 +1,118 @@
 package org.knowm.xchange.gateio;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.gateio.dto.GateioBaseResponse;
+import org.knowm.xchange.gateio.dto.account.GateioCancelWithdrawalResponse;
+import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
+import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
 import org.knowm.xchange.gateio.dto.account.GateioDepositAddress;
 import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
 import org.knowm.xchange.gateio.dto.account.GateioFunds;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawalResponse;
 import org.knowm.xchange.gateio.dto.marketdata.GateioFeeInfo;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
 import org.knowm.xchange.gateio.dto.trade.GateioOrderStatus;
 import org.knowm.xchange.gateio.dto.trade.GateioPlaceOrderReturn;
 import org.knowm.xchange.gateio.dto.trade.GateioTradeHistoryReturn;
 import si.mazi.rescu.ParamsDigest;
+import si.mazi.rescu.SynchronizedValueFactory;
 
-@Path("api2/1")
+@Path("api/v4")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.APPLICATION_JSON)
 public interface GateioAuthenticated {
 
+
+  String PATH_UNIFIED_ACCOUNTS = "/unified/accounts";
+  String PATH_SPOT_ACCOUNTS = "/spot/accounts";
+  String PATH_WITHDRAWALS = "/withdrawals";
+  String PATH_WITHDRAWALS_CANCEL = "/withdrawals/{withdrawal_id}";
+  String PATH_WALLET_WITHDRAW_STATUS= "/wallet/withdraw_status";
+
+  Map<String, List<Integer>> privatePathRateLimits =
+      new HashMap<String, List<Integer>>() {
+        {
+          put(PATH_UNIFIED_ACCOUNTS, Arrays.asList(80,10));
+          put(PATH_SPOT_ACCOUNTS, Arrays.asList(80, 10));
+          put(PATH_WITHDRAWALS_CANCEL, Arrays.asList(80, 10));
+          put(PATH_WALLET_WITHDRAW_STATUS, Arrays.asList(80, 10));
+//          put(instrumentsPath, Arrays.asList(8, 1));
+        }
+      };
+
+
+  @GET
+  @Path(PATH_UNIFIED_ACCOUNTS)
+  GateioUnifiedAccount getUnifiedAccount(
+      @HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp
+  ) throws IOException;
+
+  @GET
+  @Path(PATH_SPOT_ACCOUNTS)
+  List<GateioSpotBalanceResponse> getSpotAccount(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp);
+
+  @POST
+  @Path(PATH_WITHDRAWALS)
+  @Consumes(MediaType.APPLICATION_JSON)
+  GateioWithdrawalResponse withdrawals(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      GateioWithdrawalPayload withdrawalPayload) throws IOException;
+
+
+  @DELETE
+  @Path(PATH_WITHDRAWALS_CANCEL)
+  GateioCancelWithdrawalResponse cancelWithdrawals(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      @PathParam("withdrawal_id") String withdrawal_id) throws IOException;
+
+
+  /**
+   * 官方叫查询提现状态， 实际是查询提现配置
+   * @param apiKey
+   * @param signer
+   * @param timestamp
+   * @param currency
+   * @return
+   * @throws IOException
+   */
+  @GET
+  @Path(PATH_WALLET_WITHDRAW_STATUS)
+  List<GateioWithdrawStatus> getWithDrawConfig(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      @FormParam("currency") String currency) throws IOException;
+
+
   @POST
   @Path("private/balances")
-  GateioFunds getFunds(@HeaderParam("KEY") String apiKey, @HeaderParam("SIGN") ParamsDigest signer)
+  GateioFunds getFunds(
+      @HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp
+      )
       throws IOException;
 
   @POST
@@ -124,4 +208,5 @@ public interface GateioAuthenticated {
   Map<String, GateioFeeInfo> getFeeList(
       @HeaderParam("KEY") String apiKey, @HeaderParam("SIGN") ParamsDigest signer)
       throws IOException;
+
 }

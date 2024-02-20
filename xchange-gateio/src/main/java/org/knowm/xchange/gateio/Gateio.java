@@ -7,22 +7,39 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCandlestickHistory;
-import org.knowm.xchange.gateio.dto.marketdata.GateioCoinInfoWrapper;
+import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCurrencyPairs;
 import org.knowm.xchange.gateio.dto.marketdata.GateioDepth;
-import org.knowm.xchange.gateio.dto.marketdata.GateioMarketInfoWrapper;
+import org.knowm.xchange.gateio.dto.marketdata.GateioPair;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTicker;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTradeHistory;
 
-@Path("api2/1")
+@Path("api/v4")
 @Produces(MediaType.APPLICATION_JSON)
 public interface Gateio {
 
+  String PUBLIC_RULE = "public_rule";
+  Map<String, List<Integer>> publicPathRateLimits =
+      new HashMap<String, List<Integer>>() {
+        {
+          put(PUBLIC_RULE, Arrays.asList(200, 10));
+        }
+      };
+
+
   @GET
-  @Path("marketinfo")
-  GateioMarketInfoWrapper getMarketInfo() throws IOException;
+  @Path("/spot/currency_pairs")
+  List<GateioPair> getMarketInfo() throws IOException;
+
+  @GET
+  @Path("/spot/currencies")
+  List<GateioCoin> getCoinInfo() throws IOException;
+
 
   @GET
   @Path("pairs")
@@ -35,10 +52,6 @@ public interface Gateio {
   @GET
   @Path("tickers")
   Map<String, GateioTicker> getTickers() throws IOException;
-
-  @GET
-  @Path("coininfo")
-  GateioCoinInfoWrapper getCoinInfo() throws IOException;
 
   @GET
   @Path("ticker/{ident}_{currency}")
