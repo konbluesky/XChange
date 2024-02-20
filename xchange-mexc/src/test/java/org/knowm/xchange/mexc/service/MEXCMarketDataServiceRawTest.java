@@ -101,6 +101,7 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
   @Test
   public void testExchangeMetaData() throws IOException {
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    exchange.remoteInit();
     MEXCExchangeMetaData exchangeMetaData = (MEXCExchangeMetaData) exchange.getExchangeMetaData();
     log.info("instrument size: {} ", exchangeMetaData.getInstruments().size());
     log.info("currency size: {} ", exchangeMetaData.getCurrencies().size());

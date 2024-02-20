@@ -25,6 +25,12 @@ public class MEXCNetwork {
   public static final String NETWORK_ARB="Arbitrum One(ARB)";
   public static final String NETWORK_BSC1="BEP20(BSC)";
   public static final String NETWORK_BSC2="BNB Smart Chain(BEP20)";
+  public static final String NETWORK_ERC20="Ethereum(ERC20)";
+  public static final String NETWORK_TRC20="Tron(TRC20)";
+  public static final String NETWORK_SOLANA="Solana(SOL)";
+  public static final String NETWORK_AVAX_C="Avalanche C Chain(AVAX CCHAIN)";
+  public static final String NETWORK_POLYGON_MATIC="Polygon(MATIC)";
+
 
 
   private String coin;

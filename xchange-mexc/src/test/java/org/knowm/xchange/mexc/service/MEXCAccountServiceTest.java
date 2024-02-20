@@ -132,14 +132,14 @@ public class MEXCAccountServiceTest extends BaseWiremockTest {
     MEXCAccountService accountService = (MEXCAccountService)exchange.getAccountService();
 //    MEXCWithdrawFundsParams mexcWithdrawFundsParams=MEXCWithdrawFundsParams
     String s = accountService.withdrawFunds(
-        new MEXCWithdrawFundsParams("0x7D57C886F058413783ab19DE1165ec736BD88e3a", Currency.USDT,
-            new BigDecimal("10"), MEXCNetwork.NETWORK_BSC2));
+        new MEXCWithdrawFundsParams("TQoYmW2dt3chYnoYPSErwHX818pNN1hWHb", Currency.USDT,
+            new BigDecimal("900"), MEXCNetwork.NETWORK_TRC20));
     log.info("with result:{}",s);
 
-    TimeUnit.SECONDS.sleep(3);
+//    TimeUnit.SECONDS.sleep(3);
 
-    String s1 = accountService.cancelWithdraw(s);
-    log.info("cancel with id : {}" ,s1);
+//    String s1 = accountService.cancelWithdraw(s);
+//    log.info("cancel with id : {}" ,s1);
 
 
   }
