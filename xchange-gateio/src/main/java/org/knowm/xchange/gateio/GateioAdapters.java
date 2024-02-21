@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.FundingRecord;
@@ -28,9 +29,10 @@ import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
 import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
+import org.knowm.xchange.gateio.dto.GateioEnums;
+import org.knowm.xchange.gateio.dto.GateioEnums.OrderSide;
 import org.knowm.xchange.gateio.dto.GateioOrderType;
 import org.knowm.xchange.gateio.dto.account.GateioBalanceItem;
 import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
@@ -42,21 +44,27 @@ import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCurrencyMetaData;
 import org.knowm.xchange.gateio.dto.marketdata.GateioDepth;
 import org.knowm.xchange.gateio.dto.marketdata.GateioPair;
-import org.knowm.xchange.gateio.dto.marketdata.GateioPublicOrder;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTicker;
 import org.knowm.xchange.gateio.dto.marketdata.GateioTradeHistory;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrder;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
+import org.knowm.xchange.gateio.dto.trade.GateioOrder;
+import org.knowm.xchange.gateio.dto.trade.GateioOrder.FinishAs;
 import org.knowm.xchange.gateio.dto.trade.GateioTrade;
 import org.knowm.xchange.gateio.service.GateioMarketDataServiceRaw;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.utils.DateUtils;
 
-/** Various adapters for converting from Bter DTOs to XChange DTOs */
+/**
+ * Various adapters for converting from Bter DTOs to XChange DTOs
+ */
 public final class GateioAdapters {
 
-  /** private Constructor */
-  private GateioAdapters() {}
+  /**
+   * private Constructor
+   */
+  private GateioAdapters() {
+  }
 
   public static CurrencyPair adaptCurrencyPair(String pair) {
 
@@ -89,33 +97,103 @@ public final class GateioAdapters {
         .build();
   }
 
-  public static LimitOrder adaptOrder(
-      GateioPublicOrder order, CurrencyPair currencyPair, OrderType orderType) {
-
-    return new LimitOrder(orderType, order.getAmount(), currencyPair, "", null, order.getPrice());
+  public static LimitOrder adaptLimitOrder(GateioOrder order) {
+    LimitOrder limitOrder = new LimitOrder(
+        order.getSide() == OrderSide.BUY ? OrderType.BID : OrderType.ASK,
+        order.getAmount(),
+        order.getAmount().subtract(order.getLeft()),
+        GateioUtils.toCurrencyPair(order.getCurrencyPair()),
+        order.getId(),
+        new Date(order.getUpdateTimeMs()),
+        order.getPrice());
+    limitOrder.setAveragePrice(
+        order.getAvgDealPrice() == null ? BigDecimal.ZERO : order.getAvgDealPrice());
+    limitOrder.setOrderStatus(convertOrderStatus(order.getStatus(), order.getFinishAs()));
+    return limitOrder;
   }
 
-  public static List<LimitOrder> adaptOrders(
-      List<GateioPublicOrder> orders, CurrencyPair currencyPair, OrderType orderType) {
 
-    List<LimitOrder> limitOrders = new ArrayList<>();
+  /**
+   * cexStatus 订单状态。 - open: 等待处理 - closed: 全部成交 - cancelled: 订单撤销
+   * <p>
+   * finishAs 订单结束方式，包括： - open: 等待处理 - filled: 完全成交 - cancelled: 用户撤销 - ioc: 未立即完全成交，因为 tif 设置为 io
+   * - stp: 订单发生自成交限制而被撤销
+   *
+   * @param cexStatus
+   * @param finishAs
+   * @return
+   */
+  private static OrderStatus convertOrderStatus(GateioEnums.OrderStatus cexStatus,
+      FinishAs finishAs) {
+    switch (cexStatus) {
+      case OPEN:
+        switch (finishAs) {
+          case OPEN:
+            return OrderStatus.PENDING_NEW;
+          case FILLED:
+            return OrderStatus.FILLED;
+          case CANCELLED:
+            return OrderStatus.CANCELED;
+          case IOC:
+            return OrderStatus.PARTIALLY_FILLED; // Assuming IOC means partially filled
+          case STP:
+            return OrderStatus.CANCELED;
+          default:
+            return OrderStatus.UNKNOWN;
+        }
 
-    for (GateioPublicOrder bterOrder : orders) {
-      limitOrders.add(adaptOrder(bterOrder, currencyPair, orderType));
+      case CLOSED:
+        switch (finishAs) {
+          case OPEN:
+            return OrderStatus.PENDING_CANCEL;
+          case FILLED:
+            return OrderStatus.CLOSED;
+          case CANCELLED:
+            return OrderStatus.CANCELED;
+          case IOC:
+            return OrderStatus.PARTIALLY_CANCELED;
+          case STP:
+            return OrderStatus.CANCELED;
+          default:
+            return OrderStatus.UNKNOWN;
+        }
+
+      case CANCELLED:
+        return OrderStatus.CANCELED;
+
+      default:
+        return OrderStatus.UNKNOWN;
     }
+  }
 
+  public static List<LimitOrder> adaptOpenOrders(List<GateioOpenOrders> orderList) {
+    List<LimitOrder> limitOrders = new ArrayList<>();
+    for (GateioOpenOrders openOrders : orderList) {
+      limitOrders.addAll(adaptOrders(openOrders.getOrders()));
+    }
+    return limitOrders;
+  }
+
+
+  public static List<LimitOrder> adaptOrders(
+      List<GateioOrder> orders) {
+    List<LimitOrder> limitOrders = new ArrayList<>();
+    for (GateioOrder order : orders) {
+      limitOrders.add(adaptLimitOrder(order));
+    }
     return limitOrders;
   }
 
   public static OrderBook adaptOrderBook(GateioDepth depth, CurrencyPair currencyPair) {
 
-    List<LimitOrder> asks =
-        GateioAdapters.adaptOrders(depth.getAsks(), currencyPair, OrderType.ASK);
-    Collections.reverse(asks);
-    List<LimitOrder> bids =
-        GateioAdapters.adaptOrders(depth.getBids(), currencyPair, OrderType.BID);
+//    List<LimitOrder> asks =
+//        GateioAdapters.adaptOrders(depth.getAsks(), currencyPair, OrderType.ASK);
+//    Collections.reverse(asks);
+//    List<LimitOrder> bids =
+//        GateioAdapters.adaptOrders(depth.getBids(), currencyPair, OrderType.BID);
 
-    return new OrderBook(null, asks, bids);
+//    return new OrderBook(null, asks, bids);
+    return null;
   }
 
   public static LimitOrder adaptOrder(GateioOpenOrder order, Collection<Instrument> currencyPairs) {
@@ -129,17 +207,6 @@ public final class GateioAdapters {
         order.getOrderNumber(),
         null,
         order.getRate());
-  }
-
-  public static OpenOrders adaptOpenOrders(
-      GateioOpenOrders openOrders, Collection<Instrument> currencyPairs) {
-
-    List<LimitOrder> adaptedOrders = new ArrayList<>();
-    for (GateioOpenOrder openOrder : openOrders.getOrders()) {
-      adaptedOrders.add(adaptOrder(openOrder, currencyPairs));
-    }
-
-    return new OpenOrders(adaptedOrders);
   }
 
   public static OrderType adaptOrderType(GateioOrderType cryptoTradeOrderType) {
@@ -182,7 +249,7 @@ public final class GateioAdapters {
     return new Trades(tradeList, lastTradeId, TradeSortType.SortByTimestamp);
   }
 
-  public static Wallet adaptWalletForUnifiedAccount(GateioUnifiedAccount account){
+  public static Wallet adaptWalletForUnifiedAccount(GateioUnifiedAccount account) {
     List<Balance> balances = new ArrayList<>();
     for (Entry<String, GateioBalanceItem> item : account.getBalances()
         .entrySet()) {
@@ -196,11 +263,12 @@ public final class GateioAdapters {
     return Wallet.Builder.from(balances).build();
   }
 
-  public static Wallet adaptWalletForSpotAccount(List<GateioSpotBalanceResponse> items){
+  public static Wallet adaptWalletForSpotAccount(List<GateioSpotBalanceResponse> items) {
     List<Balance> balances = new ArrayList<>();
     for (GateioSpotBalanceResponse item : items) {
       Currency currency = Currency.getInstance(item.getCurrency().toUpperCase());
-      Balance balance = new Balance(currency, item.getTotal(), item.getAvailable(), item.getLocked());
+      Balance balance = new Balance(currency, item.getTotal(), item.getAvailable(),
+          item.getLocked());
       balances.add(balance);
     }
     return Wallet.Builder.from(balances).features(Collections.singleton(WalletFeature.TRADING))
@@ -264,12 +332,13 @@ public final class GateioAdapters {
     Map<String, GateioWithdrawStatus> gateioWithDrawFees = marketDataService.getGateioWithDrawFees(
         null);
 
-    marketDataService.getGateioMarketInfo().forEach((k,v)->{
+    marketDataService.getGateioMarketInfo().forEach((k, v) -> {
       CurrencyPair currencyPair = k;
       GateioPair gateioPair = v;
 
-      if(gateioPair.getMaxQuoteAmount()==null || gateioPair.getMinQuoteAmount()==null)
+      if (gateioPair.getMaxQuoteAmount() == null || gateioPair.getMinQuoteAmount() == null) {
         return;
+      }
 
       currencyPairs.put(
           currencyPair,
@@ -287,7 +356,8 @@ public final class GateioAdapters {
         GateioCoin gateioCoin = coins.get(coin);
         GateioWithdrawStatus gateioWithdrawStatus = gateioWithDrawFees.get(coin);
         if (gateioCoin != null && gateioWithdrawStatus != null) {
-          currencies.put(new Currency(coin), adaptCurrencyMetaData(gateioCoin, gateioWithdrawStatus));
+          currencies.put(new Currency(coin),
+              adaptCurrencyMetaData(gateioCoin, gateioWithdrawStatus));
         }
       }
     }

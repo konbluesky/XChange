@@ -77,7 +77,7 @@ public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeServi
       throws IOException {
     try {
       List<GateioWithdrawStatus> result = decorateApiCall(
-          () -> gateioAuthenticated.getWithDrawConfig(apiKey, signatureCreator, nonceFactory,
+          () -> gateioAuthenticated.getWithDrawConfig(apiKey, signatureCreator, timestampFactory,
               currency))
           .withRateLimiter(
               rateLimiter(Gateio.PUBLIC_RULE)).call();

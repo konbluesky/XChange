@@ -2,37 +2,18 @@ package org.knowm.xchange.gateio.dto.trade;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import org.knowm.xchange.gateio.dto.GateioBaseResponse;
+import lombok.Getter;
+import lombok.ToString;
 
-/** Created by David Henry on 2/19/14. */
-public class GateioOpenOrders extends GateioBaseResponse {
+@Getter
+@ToString
+public class GateioOpenOrders {
 
-  private final List<GateioOpenOrder> orders;
+  @JsonProperty("currency_pair")
+  private String currencyPair;
+  @JsonProperty("total")
+  private int total;
+  @JsonProperty("orders")
+  private List<GateioOrder> orders;
 
-  /**
-   * Constructor
-   *
-   * @param result
-   * @param orders
-   * @param msg
-   */
-  public GateioOpenOrders(
-      @JsonProperty("result") Boolean result,
-      @JsonProperty("orders") List<GateioOpenOrder> orders,
-      @JsonProperty("msg") String msg) {
-
-    super(result, msg);
-    this.orders = orders;
-  }
-
-  public List<GateioOpenOrder> getOrders() {
-
-    return orders;
-  }
-
-  @Override
-  public String toString() {
-
-    return "BTEROpenOrdersReturn [orders=" + orders + "]";
-  }
 }

@@ -1,134 +1,125 @@
 package org.knowm.xchange.gateio.service;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.Order;
-import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.gateio.GateioAuthenticated;
 import org.knowm.xchange.gateio.GateioExchange;
 import org.knowm.xchange.gateio.GateioUtils;
-import org.knowm.xchange.gateio.dto.GateioBaseResponse;
-import org.knowm.xchange.gateio.dto.GateioOrderType;
+import org.knowm.xchange.gateio.dto.GateioEnums;
+import org.knowm.xchange.gateio.dto.GateioEnums.AccountType;
+import org.knowm.xchange.gateio.dto.GateioEnums.OrderType;
+import org.knowm.xchange.gateio.dto.GateioEnums.TimeInForce;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
-import org.knowm.xchange.gateio.dto.trade.GateioOrderStatus;
-import org.knowm.xchange.gateio.dto.trade.GateioPlaceOrderReturn;
+import org.knowm.xchange.gateio.dto.trade.GateioOrder;
+import org.knowm.xchange.gateio.dto.trade.GateioPlaceOrderPayload;
 import org.knowm.xchange.gateio.dto.trade.GateioTradeHistoryReturn;
-import org.knowm.xchange.service.trade.params.CancelOrderByCurrencyPair;
-import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 
-public class GateioTradeServiceRaw extends GateioBaseService {
+public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
 
   /**
    * Constructor
    *
    * @param exchange
    */
-  public GateioTradeServiceRaw(GateioExchange exchange) {
+  public GateioTradeServiceRaw(GateioExchange exchange, ResilienceRegistries resilienceRegistries) {
 
-    super(exchange);
+    super(exchange, resilienceRegistries);
   }
 
-  /**
-   * Submits a Limit Order to be executed on the Gateio Exchange for the desired market defined by
-   * {@code CurrencyPair}. WARNING - Gateio will return true regardless of whether or not an order
-   * actually gets created. The reason for this is that orders are simply submitted to a queue in
-   * their back-end. One example for why an order might not get created is because there are
-   * insufficient funds. The best attempt you can make to confirm that the order was created is to
-   * poll {@link #getGateioOpenOrders}. However if the order is created and executed before it is
-   * caught in its open state from calling {@link #getGateioOpenOrders} then the only way to confirm
-   * would be confirm the expected difference in funds available for your account.
-   *
-   * @param limitOrder
-   * @return String order id of submitted request.
-   * @throws IOException
-   */
-  public String placeGateioLimitOrder(LimitOrder limitOrder) throws IOException {
-
-    GateioOrderType type =
-        (limitOrder.getType() == Order.OrderType.BID) ? GateioOrderType.BUY : GateioOrderType.SELL;
-
-    return placeGateioLimitOrder(
-        limitOrder.getCurrencyPair(),
-        type,
-        limitOrder.getLimitPrice(),
-        limitOrder.getOriginalAmount());
-  }
-
-  /**
-   * Submits a Limit Order to be executed on the Gateio Exchange for the desired market defined by
-   * {@code currencyPair}. WARNING - Gateio will return true regardless of whether or not an order
-   * actually gets created. The reason for this is that orders are simply submitted to a queue in
-   * their back-end. One example for why an order might not get created is because there are
-   * insufficient funds. The best attempt you can make to confirm that the order was created is to
-   * poll {@link #getGateioOpenOrders}. However if the order is created and executed before it is
-   * caught in its open state from calling {@link #getGateioOpenOrders} then the only way to confirm
-   * would be confirm the expected difference in funds available for your account.
-   *
-   * @param currencyPair
-   * @param orderType
-   * @param rate
-   * @param amount
-   * @return String order id of submitted request.
-   * @throws IOException
-   */
-  public String placeGateioLimitOrder(
-      CurrencyPair currencyPair, GateioOrderType orderType, BigDecimal rate, BigDecimal amount)
+  public GateioOrder placeLimitOrder(CurrencyPair currencyPair,
+      GateioEnums.OrderSide orderSide, BigDecimal price, BigDecimal amount, TimeInForce timeInForce)
       throws IOException {
-
-    String pair = formatCurrencyPair(currencyPair);
-
-    GateioPlaceOrderReturn orderId;
-    if (orderType.equals(GateioOrderType.BUY)) {
-      orderId = gateioAuthenticated.buy(pair, rate, amount, apiKey, signatureCreator);
-    } else {
-      orderId = gateioAuthenticated.sell(pair, rate, amount, apiKey, signatureCreator);
-    }
-
-    return handleResponse(orderId).getOrderId();
+    GateioPlaceOrderPayload payload = new GateioPlaceOrderPayload();
+    payload.setCurrencyPair(GateioUtils.toPairString(currencyPair).toUpperCase());
+    payload.setType(OrderType.LIMIT);
+    payload.setSide(orderSide);
+    payload.setAccount(AccountType.SPOT.name());
+    payload.setAmount(amount.toPlainString());
+    payload.setPrice(price.toPlainString());
+    payload.setTimeInForce(timeInForce);
+    return placeOrder(payload);
   }
 
-  public boolean cancelOrder(String orderId, CurrencyPair currencyPair) throws IOException {
-
-    GateioBaseResponse cancelOrderResult =
-        gateioAuthenticated.cancelOrder(
-            orderId, GateioUtils.toPairString(currencyPair), apiKey, signatureCreator);
-
-    return handleResponse(cancelOrderResult).isResult();
+  public GateioOrder placeMarketOrder(
+      CurrencyPair currencyPair,
+      GateioEnums.OrderSide orderSide, BigDecimal amount, TimeInForce timeInForce)
+      throws IOException {
+    GateioPlaceOrderPayload payload = new GateioPlaceOrderPayload();
+    payload.setCurrencyPair(GateioUtils.toPairString(currencyPair).toUpperCase());
+    payload.setType(OrderType.MARKET);
+    payload.setSide(orderSide);
+    payload.setAccount(AccountType.SPOT.name());
+    payload.setAmount(amount.toPlainString());
+    payload.setTimeInForce(timeInForce);
+    return placeOrder(payload);
   }
 
   /**
-   * Cancels all orders. See https://gate.io/api2.
+   * 最终下单方法
    *
-   * @param type order type(0:sell,1:buy,-1:all)
-   * @param currencyPair currency pair
+   * @param payload
    * @return
-   * @throws IOException
    */
-  public boolean cancelAllOrders(String type, CurrencyPair currencyPair) throws IOException {
+  public GateioOrder placeOrder(GateioPlaceOrderPayload payload) throws IOException {
+    try {
 
-    GateioBaseResponse cancelAllOrdersResult =
-        gateioAuthenticated.cancelAllOrders(
-            type, formatCurrencyPair(currencyPair), apiKey, signatureCreator);
+      ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
+      objectNode.put("text", payload.getText());
+      objectNode.put("currency_pair", payload.getCurrencyPair());
+      objectNode.put("type", payload.getType().name().toLowerCase());
+      objectNode.put("account", payload.getAccount().toLowerCase());
+      objectNode.put("side", payload.getSide().name().toLowerCase());
+      objectNode.put("amount", payload.getAmount());
+      objectNode.put("price", payload.getPrice());
+      objectNode.put("time_in_force", payload.getTimeInForce().name().toLowerCase());
 
-    return handleResponse(cancelAllOrdersResult).isResult();
+      return decorateApiCall(
+          () -> gateioAuthenticated.placeOrder(apiKey, signatureCreator, timestampFactory,
+              objectNode)).
+          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS)).
+          call();
+
+//      return decorateApiCall(
+//          () -> gateioAuthenticated.placeOrder(apiKey, signatureCreator, timestampFactory,
+//              payload)).
+//          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS)).
+//          call();
+
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
-  public GateioOpenOrders getGateioOpenOrders() throws IOException {
-
-    GateioOpenOrders gateioOpenOrdersReturn =
-        gateioAuthenticated.getOpenOrders(apiKey, signatureCreator);
-
-    return handleResponse(gateioOpenOrdersReturn);
+  public GateioOrder cancelOrder(String orderId, CurrencyPair currencyPair) throws IOException {
+    GateioOrder order = decorateApiCall(
+        () -> gateioAuthenticated.cancelOrder(apiKey, signatureCreator, timestampFactory,
+            orderId, GateioUtils.toPairString(currencyPair))).
+        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+        call();
+    return order;
   }
 
-  public GateioOrderStatus getGateioOrderStatus(String orderId, CurrencyPair currencyPair)
-      throws IOException {
+  public GateioOrder getOrder(String orderId, CurrencyPair currencyPair) throws IOException {
+    GateioOrder order = decorateApiCall(
+        () -> gateioAuthenticated.getOrder(apiKey, signatureCreator, timestampFactory,
+            orderId, GateioUtils.toPairString(currencyPair))).
+        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+        call();
+    return order;
+  }
 
-    GateioOrderStatus orderStatus =
-        gateioAuthenticated.getOrderStatus(
-            orderId, GateioUtils.toPairString(currencyPair), apiKey, signatureCreator);
-
-    return handleResponse(orderStatus);
+  public List<GateioOpenOrders> getGateioOpenOrders() throws IOException {
+    List<GateioOpenOrders> orders = decorateApiCall(
+        () -> gateioAuthenticated.getOpenList(apiKey, signatureCreator, timestampFactory,
+            null, null, "spot")).
+        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+        call();
+    return orders;
   }
 
   public GateioTradeHistoryReturn getGateioTradeHistory(CurrencyPair currencyPair)
@@ -141,30 +132,4 @@ public class GateioTradeServiceRaw extends GateioBaseService {
     return handleResponse(gateioTradeHistoryReturn);
   }
 
-  private String formatCurrencyPair(CurrencyPair currencyPair) {
-    return String.format(
-            "%s_%s", currencyPair.base.getCurrencyCode(), currencyPair.counter.getCurrencyCode())
-        .toLowerCase();
-  }
-
-  public static class GateioCancelOrderParams
-      implements CancelOrderByIdParams, CancelOrderByCurrencyPair {
-    public final CurrencyPair currencyPair;
-    public final String orderId;
-
-    public GateioCancelOrderParams(CurrencyPair currencyPair, String orderId) {
-      this.currencyPair = currencyPair;
-      this.orderId = orderId;
-    }
-
-    @Override
-    public String getOrderId() {
-      return orderId;
-    }
-
-    @Override
-    public CurrencyPair getCurrencyPair() {
-      return currencyPair;
-    }
-  }
 }

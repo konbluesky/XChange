@@ -36,7 +36,7 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     try {
       return decorateApiCall(
           () -> gateioAuthenticated.getUnifiedAccount(this.apiKey, signatureCreator,
-              nonceFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_UNIFIED_ACCOUNTS))
+              timestampFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_UNIFIED_ACCOUNTS))
           .call();
     } catch (Exception e) {
       throw e;
@@ -47,7 +47,7 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     try {
       return decorateApiCall(
           () -> gateioAuthenticated.getSpotAccount(this.apiKey, signatureCreator,
-              nonceFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ACCOUNTS))
+              timestampFactory)).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ACCOUNTS))
           .call();
     } catch (Exception e) {
       throw e;
@@ -79,7 +79,7 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
           () -> gateioAuthenticated.withdrawals(
               exchange.getExchangeSpecification().getApiKey(),
               signatureCreator,
-              nonceFactory,
+              timestampFactory,
               payload
           )).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_WITHDRAWALS))
           .call();
@@ -87,8 +87,6 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     } catch (Exception e) {
       throw new ExchangeException(e.getMessage());
     }
-    // unfortunatelly gate.io does not return any id for the withdrawal
-//    return null;
   }
 
   public GateioCancelWithdrawalResponse cancelWithdraw(String withdrawal_id) throws IOException {
@@ -97,7 +95,7 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
           () -> gateioAuthenticated.cancelWithdrawals(
               exchange.getExchangeSpecification().getApiKey(),
               signatureCreator,
-              nonceFactory,
+              timestampFactory,
               withdrawal_id
           )).withRateLimiter(rateLimiter(GateioAuthenticated.PATH_WITHDRAWALS_CANCEL))
           .call();
@@ -105,8 +103,6 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     } catch (Exception e) {
       throw new ExchangeException(e.getMessage());
     }
-    // unfortunatelly gate.io does not return any id for the withdrawal
-//    return null;
   }
 
 }

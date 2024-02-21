@@ -20,7 +20,7 @@ public class GateioExchange extends BaseExchange implements Exchange {
   protected void initServices() {
     this.marketDataService = new GateioMarketDataService(this, getResilienceRegistries());
     this.accountService = new GateioAccountService(this, getResilienceRegistries());
-    this.tradeService = new GateioTradeService(this);
+    this.tradeService = new GateioTradeService(this, getResilienceRegistries());
   }
 
   @Override
@@ -33,13 +33,6 @@ public class GateioExchange extends BaseExchange implements Exchange {
 
     return exchangeSpecification;
   }
-
-  @Override
-  public SynchronizedValueFactory<Long> getNonceFactory() {
-
-    throw new ExchangeException("Gate.io does not require a nonce factory.");
-  }
-
 
   @Override
   public ResilienceRegistries getResilienceRegistries() {
