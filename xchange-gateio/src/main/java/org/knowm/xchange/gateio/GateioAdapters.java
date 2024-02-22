@@ -35,11 +35,13 @@ import org.knowm.xchange.gateio.dto.GateioEnums;
 import org.knowm.xchange.gateio.dto.GateioEnums.OrderSide;
 import org.knowm.xchange.gateio.dto.GateioOrderType;
 import org.knowm.xchange.gateio.dto.account.GateioBalanceItem;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
+import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
+import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawalsRequest;
 import org.knowm.xchange.gateio.dto.account.GateioFunds;
 import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
+import org.knowm.xchange.gateio.dto.account.GateioWithdrawalResponse;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCurrencyMetaData;
 import org.knowm.xchange.gateio.dto.marketdata.GateioDepth;
@@ -384,58 +386,84 @@ public final class GateioAdapters {
         walletHealth, gateioCoin.getChain());
   }
 
+
   public static List<FundingRecord> adaptDepositsWithdrawals(
-      GateioDepositsWithdrawals depositsWithdrawals) {
+      List<GateioDepositResponse> depositResponses,
+      List<GateioWithdrawalResponse> withdrawalResponses){
     List<FundingRecord> result = new ArrayList<>();
-
-    depositsWithdrawals
-        .getDeposits()
-        .forEach(
-            d -> {
-              FundingRecord r =
-                  new FundingRecord(
-                      d.address,
-                      d.getTimestamp(),
-                      Currency.getInstance(d.currency),
-                      d.amount,
-                      d.id,
-                      d.txid,
-                      FundingRecord.Type.DEPOSIT,
-                      status(d.status),
-                      null,
-                      null,
-                      null);
-              result.add(r);
-            });
-    depositsWithdrawals
-        .getWithdraws()
-        .forEach(
-            w -> {
-              FundingRecord r =
-                  new FundingRecord(
-                      w.address,
-                      w.getTimestamp(),
-                      Currency.getInstance(w.currency),
-                      w.amount,
-                      w.id,
-                      w.txid,
-                      FundingRecord.Type.WITHDRAWAL,
-                      status(w.status),
-                      null,
-                      null,
-                      null);
-              result.add(r);
-            });
-
+    depositResponses.forEach(d -> {
+      FundingRecord r = new FundingRecord(
+          d.getAddress(),
+          new Date(Long.valueOf(d.getTimestamp())),
+          Currency.getInstance(d.getCurrency()),
+          d.getAmount(),
+          d.getId(),
+          d.getTransferHash(),
+          FundingRecord.Type.DEPOSIT,
+          status(d.getStatus()),
+          null,
+          null,
+          null);
+      result.add(r);
+    });
+    withdrawalResponses.forEach(w -> {
+      FundingRecord r = new FundingRecord(
+          w.getAddress(),
+          new Date(Long.valueOf(w.getTimestamp())),
+          Currency.getInstance(w.getCurrency()),
+          w.getAmount(),
+          w.getId(),
+          w.getTransferHash(),
+          FundingRecord.Type.WITHDRAWAL,
+          status(w.getStatus()),
+          null,
+          null,
+          null);
+      result.add(r);
+    });
     return result;
+
   }
 
+  /**
+   * 交易状态
+   *
+   * - DONE: 完成
+   * - CANCEL: 已取消
+   * - REQUEST: 请求中
+   * - MANUAL: 待人工审核
+   * - BCODE: 充值码操作
+   * - EXTPEND: 已经发送等待确认
+   * - FAIL: 链上失败等待确认
+   * - INVALID: 无效订单
+   * - VERIFY: 验证中
+   * - PROCES: 处理中
+   * - PEND: 处理中
+   * - DMOVE: 待人工审核
+   * - SPLITPEND: cny提现大于5w,自动分单
+   * @param gateioStatus
+   * @return
+   */
   private static FundingRecord.Status status(String gateioStatus) {
-    switch (gateioStatus) {
+
+    switch (gateioStatus){
       case "DONE":
         return Status.COMPLETE;
-      default:
-        return Status.PROCESSING; // @TODO which statusses are possible at gate.io?
+      case "CANCEL":
+        return Status.CANCELLED;
+      case "REQUEST":
+      case "MANUAL":
+      case "BCODE":
+      case "EXTPEND":
+      case "FAIL":
+      case "INVALID":
+      case "VERIFY":
+      case "PROCES":
+      case "PEND":
+      case "DMOVE":
+      case "SPLITPEND":
+        return Status.PROCESSING;
     }
+    return Status.PROCESSING;
   }
 }

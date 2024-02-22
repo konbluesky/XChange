@@ -1,7 +1,6 @@
 package org.knowm.xchange.gateio.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
@@ -10,7 +9,7 @@ import org.knowm.xchange.gateio.GateioAuthenticated;
 import org.knowm.xchange.gateio.GateioExchange;
 import org.knowm.xchange.gateio.dto.account.GateioCancelWithdrawalResponse;
 import org.knowm.xchange.gateio.dto.account.GateioDepositAddress;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
+import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
 import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
@@ -54,6 +53,46 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     }
   }
 
+
+  public List<GateioWithdrawalResponse> getGateioWithdrawls(Long start,Long to) throws IOException {
+    try {
+      return decorateApiCall(
+          () -> gateioAuthenticated.getWithdrawals(
+              this.apiKey,
+              signatureCreator,
+              timestampFactory,
+              null,
+              start,
+              to,
+              null,
+              null
+          ))
+          .withRateLimiter(rateLimiter(GateioAuthenticated.PATH_QUERY_WALLET_WITHDRAWALS)).call();
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  public List<GateioDepositResponse> getGateioDeposits(Long start,Long to) throws IOException {
+    try {
+      return decorateApiCall(
+          () -> gateioAuthenticated.getDeposits(
+              this.apiKey,
+              signatureCreator,
+              timestampFactory,
+              null,
+              start,
+              to,
+              null,
+              null
+          ))
+          .withRateLimiter(rateLimiter(GateioAuthenticated.PATH_QUERY_WALLET_DEPOSITS)).call();
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+
   public GateioDepositAddress getGateioDepositAddress(Currency currency) throws IOException {
     GateioDepositAddress depositAddress =
         gateioAuthenticated.getDepositAddress(
@@ -63,15 +102,6 @@ public class GateioAccountServiceRaw extends GateioBaseResilientExchangeService 
     return depositAddress;
   }
 
-  public GateioDepositsWithdrawals getDepositsWithdrawals(Date start, Date end) throws IOException {
-    GateioDepositsWithdrawals gateioDepositsWithdrawals =
-        gateioAuthenticated.getDepositsWithdrawals(
-            exchange.getExchangeSpecification().getApiKey(),
-            signatureCreator,
-            start == null ? null : start.getTime() / 1000,
-            end == null ? null : end.getTime() / 1000);
-    return handleResponse(gateioDepositsWithdrawals);
-  }
 
   public GateioWithdrawalResponse withdraw(GateioWithdrawalPayload payload) throws IOException {
     try {

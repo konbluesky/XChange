@@ -1,24 +1,21 @@
 package org.knowm.xchange.gateio.service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
-import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.gateio.GateioAdapters;
 import org.knowm.xchange.gateio.GateioExchange;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
+import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawalResponse;
 import org.knowm.xchange.gateio.params.GateioDefaultWithdrawFundsParams;
 import org.knowm.xchange.service.account.AccountService;
+import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamsTimeSpan;
 import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
-import org.knowm.xchange.service.trade.params.MoneroWithdrawFundsParams;
-import org.knowm.xchange.service.trade.params.RippleWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
@@ -31,7 +28,7 @@ public class GateioAccountService extends GateioAccountServiceRaw implements Acc
    * @param exchange
    */
   public GateioAccountService(GateioExchange exchange, ResilienceRegistries resilienceRegistries) {
-    super(exchange,resilienceRegistries);
+    super(exchange, resilienceRegistries);
   }
 
   @Override
@@ -67,7 +64,7 @@ public class GateioAccountService extends GateioAccountServiceRaw implements Acc
 
   @Override
   public TradeHistoryParams createFundingHistoryParams() {
-    throw new NotAvailableFromExchangeException();
+    return new DefaultTradeHistoryParamsTimeSpan();
   }
 
   @Override
@@ -79,7 +76,15 @@ public class GateioAccountService extends GateioAccountServiceRaw implements Acc
       start = timeSpan.getStartTime();
       end = timeSpan.getEndTime();
     }
-    GateioDepositsWithdrawals depositsWithdrawals = getDepositsWithdrawals(start, end);
-    return GateioAdapters.adaptDepositsWithdrawals(depositsWithdrawals);
+
+    List<GateioWithdrawalResponse> gateioWithdrawls = super.getGateioWithdrawls(
+        start.getTime() / 1000,
+        end.getTime() / 1000);
+    List<GateioDepositResponse> gateioDeposits = super.getGateioDeposits(start.getTime() / 1000,
+        end.getTime() / 1000);
+
+    List<FundingRecord> fundingRecords = GateioAdapters.adaptDepositsWithdrawals(gateioDeposits,
+        gateioWithdrawls);
+    return fundingRecords;
   }
 }

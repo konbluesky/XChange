@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.gateio.dto.GateioBaseResponse;
 import org.knowm.xchange.gateio.dto.account.GateioCancelWithdrawalResponse;
+import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
 import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
 import org.knowm.xchange.gateio.dto.account.GateioDepositAddress;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawals;
+import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawalsRequest;
 import org.knowm.xchange.gateio.dto.account.GateioFunds;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
@@ -51,6 +52,9 @@ public interface GateioAuthenticated {
   String PATH_SPOT_ORDERS_PARAM_ID = "/spot/orders/{order_id}";
   String PATH_WITHDRAWALS = "/withdrawals";
   String PATH_WITHDRAWALS_CANCEL = "/withdrawals/{withdrawal_id}";
+  String PATH_QUERY_WALLET_WITHDRAWALS = "/wallet/withdrawals";
+  String PATH_QUERY_WALLET_DEPOSITS = "/wallet/deposits";
+
   String PATH_WALLET_WITHDRAW_STATUS = "/wallet/withdraw_status";
 
   Map<String, List<Integer>> privatePathRateLimits =
@@ -103,6 +107,28 @@ public interface GateioAuthenticated {
       @HeaderParam("SIGN") ParamsDigest signer,
       @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
       GateioWithdrawalPayload withdrawalPayload) throws IOException;
+
+  @GET
+  @Path(PATH_QUERY_WALLET_WITHDRAWALS)
+  List<GateioWithdrawalResponse> getWithdrawals(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      @QueryParam("currency") String currency,
+      @QueryParam("from") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("limit") Integer limit,
+      @QueryParam("offset") Integer offset) throws IOException;
+
+  @GET
+  @Path(PATH_QUERY_WALLET_DEPOSITS)
+  List<GateioDepositResponse> getDeposits(@HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      @QueryParam("currency") String currency,
+      @QueryParam("from") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("limit") Integer limit,
+      @QueryParam("offset") Integer offset) throws IOException;
 
 
   /**
@@ -290,7 +316,7 @@ public interface GateioAuthenticated {
 
   @POST
   @Path("private/depositsWithdrawals")
-  GateioDepositsWithdrawals getDepositsWithdrawals(
+  GateioDepositsWithdrawalsRequest getDepositsWithdrawals(
       @HeaderParam("KEY") String apiKey,
       @HeaderParam("SIGN") ParamsDigest signer,
       @FormParam("start") Long startUnixTime,
