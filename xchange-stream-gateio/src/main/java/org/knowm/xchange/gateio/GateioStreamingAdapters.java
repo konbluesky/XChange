@@ -8,6 +8,7 @@ import java.util.List;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.marketdata.OrderBook;
@@ -123,11 +124,11 @@ public class GateioStreamingAdapters {
           amount,
           symbol,
           orderDetail.getId(),
-          new Date(orderDetail.getCreateTime()),
+          new Date(Long.valueOf(orderDetail.getUpdateTimeMs())),
           new BigDecimal(orderDetail.getAvgDealPrice()),
           amount.subtract(left),
           new BigDecimal(orderDetail.getFee()),
-          Order.OrderStatus.valueOf(orderDetail.getFinishAs()));
+          convertOrderStatus(orderDetail.getFinishAs()));
     } else {
       order = new LimitOrder(
           "buy".equalsIgnoreCase(orderDetail.getSide()) ? Order.OrderType.BID
@@ -135,13 +136,35 @@ public class GateioStreamingAdapters {
           amount,
           symbol,
           orderDetail.getId(),
-          new Date(orderDetail.getCreateTime()),
+          new Date(Long.valueOf(orderDetail.getUpdateTimeMs())),
           new BigDecimal(orderDetail.getPrice()),
           new BigDecimal(orderDetail.getAvgDealPrice()),
           left,
           new BigDecimal(orderDetail.getFee()),
-          Order.OrderStatus.valueOf(orderDetail.getFinishAs()));
+          convertOrderStatus(orderDetail.getFinishAs()));
     }
     return order;
+  }
+
+  /**
+   *  OPEN,
+   *     FILLED,
+   *     CANCELLED,
+   *     IOC,
+   *     STP
+   * @param status
+   * @return
+   */
+  public static OrderStatus convertOrderStatus(String status) {
+    switch (status) {
+      case "open":
+        return OrderStatus.NEW;
+      case "closed":
+        return OrderStatus.FILLED;
+      case "cancelled":
+        return OrderStatus.CANCELED;
+      default:
+        return OrderStatus.UNKNOWN;
+    }
   }
 }

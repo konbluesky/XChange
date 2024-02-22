@@ -41,8 +41,13 @@ public class ChannelNameHelper {
             GateioConst.SPOT_ORDER_BOOK + "_" + node.path("result").path("s").asText();
         break;
       case GateioConst.SPOT_ORDERS:
-        resultIdentifier =
-            GateioConst.SPOT_ORDERS + "_" + node.path("result").path("currency_pair").asText();
+        if (node.path("result").isArray()) {
+          resultIdentifier =
+              GateioConst.SPOT_ORDERS + "_" + node.path("result").get(0).path("currency_pair").asText();
+        }else {
+          resultIdentifier =
+              GateioConst.SPOT_ORDERS + "_" + node.path("result").path("currency_pair").asText();
+        }
         break;
       case GateioConst.SPOT_USERTRADES:
         resultIdentifier =
