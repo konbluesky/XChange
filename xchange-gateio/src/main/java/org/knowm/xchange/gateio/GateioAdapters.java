@@ -77,12 +77,12 @@ public final class GateioAdapters {
     BigDecimal ask = gateioTicker.getLowestAsk();
     BigDecimal bid = gateioTicker.getHighestBid();
     BigDecimal last = gateioTicker.getLast();
-    BigDecimal low = gateioTicker.getLow24hr();
-    BigDecimal high = gateioTicker.getHigh24hr();
+    BigDecimal low = gateioTicker.getLow24h();
+    BigDecimal high = gateioTicker.getHigh24h();
     // Looks like gate.io vocabulary is inverted...
     BigDecimal baseVolume = gateioTicker.getQuoteVolume();
     BigDecimal quoteVolume = gateioTicker.getBaseVolume();
-    BigDecimal percentageChange = gateioTicker.getPercentChange();
+    BigDecimal percentageChange = gateioTicker.getChangePercentage();
 
     return new Ticker.Builder()
         .currencyPair(currencyPair)

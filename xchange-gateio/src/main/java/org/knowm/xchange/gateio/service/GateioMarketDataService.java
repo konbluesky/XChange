@@ -45,6 +45,10 @@ public class GateioMarketDataService extends GateioMarketDataServiceRaw
 
   @Override
   public List<Ticker> getTickers(Params params) throws IOException {
+    if (params == null) {
+      return getGateioTickers().values().stream().collect(Collectors.toList());
+    }
+
     final List<CurrencyPair> currencyPairs = new ArrayList<>();
     if (params instanceof CurrencyPairsParam) {
       currencyPairs.addAll(((CurrencyPairsParam) params).getCurrencyPairs());

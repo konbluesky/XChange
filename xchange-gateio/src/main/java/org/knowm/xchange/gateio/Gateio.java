@@ -24,6 +24,7 @@ import org.knowm.xchange.gateio.dto.marketdata.GateioTradeHistory;
 public interface Gateio {
 
   String PUBLIC_RULE = "public_rule";
+  public static final String PATH_SPOT_TICKERS = "/spot/tickers";
   Map<String, List<Integer>> publicPathRateLimits =
       new HashMap<String, List<Integer>>() {
         {
@@ -40,6 +41,10 @@ public interface Gateio {
   @Path("/spot/currencies")
   List<GateioCoin> getCoinInfo() throws IOException;
 
+  @GET
+  @Path("/spot/tickers")
+  List<GateioTicker> getTickers() throws IOException;
+
 
   @GET
   @Path("pairs")
@@ -48,10 +53,6 @@ public interface Gateio {
   @GET
   @Path("orderBooks")
   Map<String, GateioDepth> getDepths() throws IOException;
-
-  @GET
-  @Path("tickers")
-  Map<String, GateioTicker> getTickers() throws IOException;
 
   @GET
   @Path("ticker/{ident}_{currency}")

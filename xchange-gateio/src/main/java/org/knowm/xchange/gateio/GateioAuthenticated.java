@@ -45,7 +45,8 @@ public interface GateioAuthenticated {
 
   String PATH_UNIFIED_ACCOUNTS = "/unified/accounts";
   String PATH_SPOT_ACCOUNTS = "/spot/accounts";
-  String PATH_SPOT_ORDERS = "/spot/orders";
+  String PATH_QUERY_SPOT_ORDERS = "/spot/orders";
+  String PATH_POST_SPOT_ORDER = "/spot/orders";
   String PATH_SPOT_OPEN_ORDERS = "/spot/open_orders";
   String PATH_SPOT_ORDERS_PARAM_ID = "/spot/orders/{order_id}";
   String PATH_WITHDRAWALS = "/withdrawals";
@@ -57,6 +58,8 @@ public interface GateioAuthenticated {
         {
           put(PATH_UNIFIED_ACCOUNTS, Arrays.asList(80,10));
           put(PATH_SPOT_ACCOUNTS, Arrays.asList(80, 10));
+          put(PATH_QUERY_SPOT_ORDERS, Arrays.asList(150, 10));
+          put(PATH_POST_SPOT_ORDER, Arrays.asList(10, 1));
           put(PATH_WITHDRAWALS_CANCEL, Arrays.asList(80, 10));
           put(PATH_WALLET_WITHDRAW_STATUS, Arrays.asList(80, 10));
         }
@@ -129,24 +132,13 @@ public interface GateioAuthenticated {
 
 
   @GET
-  @Path(PATH_SPOT_ORDERS)
+  @Path(PATH_QUERY_SPOT_ORDERS)
   @Consumes(MediaType.APPLICATION_JSON)
   GateioOrder getOrderList(
       @HeaderParam("KEY") String apiKey,
       @HeaderParam("SIGN") ParamsDigest signer,
       @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
       JsonNode payload
-  ) throws IOException;
-
-  @GET
-  @Path(PATH_SPOT_OPEN_ORDERS)
-  List<GateioOpenOrders> getOpenList(
-      @HeaderParam("KEY") String apiKey,
-      @HeaderParam("SIGN") ParamsDigest signer,
-      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
-      @QueryParam("page") Integer page,
-      @QueryParam("limit") Integer limit,
-      @QueryParam("account") String account
   ) throws IOException;
 
   /**
@@ -159,7 +151,7 @@ public interface GateioAuthenticated {
    * @throws IOException
    */
   @POST
-  @Path(PATH_SPOT_ORDERS)
+  @Path(PATH_POST_SPOT_ORDER)
   @Consumes(MediaType.APPLICATION_JSON)
   GateioOrder placeOrder(
       @HeaderParam("KEY") String apiKey,
@@ -167,6 +159,20 @@ public interface GateioAuthenticated {
       @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
       JsonNode payload
       ) throws IOException;
+
+
+  @GET
+  @Path(PATH_SPOT_OPEN_ORDERS)
+  List<GateioOpenOrders> getOpenList(
+      @HeaderParam("KEY") String apiKey,
+      @HeaderParam("SIGN") ParamsDigest signer,
+      @HeaderParam("Timestamp") SynchronizedValueFactory<Long> timestamp,
+      @QueryParam("page") Integer page,
+      @QueryParam("limit") Integer limit,
+      @QueryParam("account") String account
+  ) throws IOException;
+
+
 
   @DELETE
   @Path(PATH_SPOT_ORDERS_PARAM_ID)

@@ -19,6 +19,7 @@ import si.mazi.rescu.RestInvocation;
  */
 public class GateioHmacPostBodyDigest extends BaseParamsDigest {
 
+  private String apiKey;
   /**
    * Constructor
    *
@@ -27,14 +28,23 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
    *                                  key is invalid).
    */
   private GateioHmacPostBodyDigest(String secretKeyBase64) {
-
     super(secretKeyBase64, HMAC_SHA_512);
   }
 
-  public static GateioHmacPostBodyDigest createInstance(String secretKeyBase64) {
+  private  GateioHmacPostBodyDigest(String apiKey, String secretKeyBase64) {
+    super(secretKeyBase64, HMAC_SHA_512);
+    this.apiKey = apiKey;
+  }
 
+  public static GateioHmacPostBodyDigest createInstance(String secretKeyBase64) {
     return secretKeyBase64 == null ? null : new GateioHmacPostBodyDigest(secretKeyBase64);
   }
+
+  public static GateioHmacPostBodyDigest createInstance(String apiKey,String secretKeyBase64) {
+    return secretKeyBase64 == null || apiKey == null ? null
+        : new GateioHmacPostBodyDigest(apiKey, secretKeyBase64);
+  }
+
 
   @Override
   public String digestParams(RestInvocation restInvocation) {
@@ -70,4 +80,19 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
 
     return DigestUtils.bytesToHex(mac.doFinal((signatureString.getBytes())));
   }
+
+  /**
+   * 获取socket的签名
+   * @param channel
+   * @param event
+   * @param timestamp
+   * @return
+   */
+  public String socketSign(String channel, String event, long timestamp) {
+    String signTmpl = String.format("channel=%s&event=%s&time=%d", channel, event, timestamp);
+    Mac mac = getMac();
+    String sign = DigestUtils.bytesToHex(mac.doFinal((signTmpl.getBytes())));
+    return "{'method':'api_key','KEY':"+apiKey+",'SIGN':"+sign+"}";
+  }
+
 }

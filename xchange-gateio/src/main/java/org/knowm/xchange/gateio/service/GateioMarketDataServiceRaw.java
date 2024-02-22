@@ -17,6 +17,7 @@ import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.gateio.Gateio;
 import org.knowm.xchange.gateio.GateioAdapters;
 import org.knowm.xchange.gateio.GateioExchange;
+import org.knowm.xchange.gateio.GateioUtils;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCandlestickHistory;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
@@ -89,19 +90,12 @@ public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeServi
   }
 
   public Map<CurrencyPair, Ticker> getGateioTickers() throws IOException {
-
-    Map<String, GateioTicker> gateioTickers = gateio.getTickers();
-    Map<CurrencyPair, Ticker> adaptedTickers = new HashMap<>(gateioTickers.size());
-    gateioTickers.forEach(
-        (currencyPairString, gateioTicker) -> {
-          String[] currencyPairStringSplit = currencyPairString.split("_");
-          CurrencyPair currencyPair =
-              new CurrencyPair(
-                  Currency.getInstance(currencyPairStringSplit[0].toUpperCase()),
-                  Currency.getInstance(currencyPairStringSplit[1].toUpperCase()));
-          adaptedTickers.put(currencyPair, GateioAdapters.adaptTicker(currencyPair, gateioTicker));
-        });
-
+    List<GateioTicker> tickers = gateio.getTickers();
+    Map<CurrencyPair, Ticker> adaptedTickers = Maps.newHashMap();
+    for (GateioTicker gateioTicker : tickers) {
+      CurrencyPair currencyPair = GateioUtils.toCurrencyPair(gateioTicker.getCurrencyPair());
+      adaptedTickers.put(currencyPair, GateioAdapters.adaptTicker(currencyPair, gateioTicker));
+    }
     return adaptedTickers;
   }
 
@@ -121,11 +115,7 @@ public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeServi
   }
 
   public GateioTicker getBTERTicker(String tradableIdentifier, String currency) throws IOException {
-
-    GateioTicker gateioTicker =
-        gateio.getTicker(tradableIdentifier.toLowerCase(), currency.toLowerCase());
-
-    return handleResponse(gateioTicker);
+    return gateio.getTicker(tradableIdentifier.toLowerCase(), currency.toLowerCase());
   }
 
   public GateioDepth getBTEROrderBook(String tradeableIdentifier, String currency)

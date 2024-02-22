@@ -2,117 +2,100 @@ package org.knowm.xchange.gateio.dto.marketdata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
-import org.knowm.xchange.gateio.dto.GateioBaseResponse;
+import lombok.Getter;
+import lombok.ToString;
 
-public class GateioTicker extends GateioBaseResponse {
-  private BigDecimal highestBid;
+@Getter
+@ToString
+public class GateioTicker {
 
-  private boolean result;
+  /**
+   * 交易对
+   */
+  @JsonProperty("currency_pair")
+  private String currencyPair;
 
-  private BigDecimal low24hr;
-
+  /**
+   * 最新成交价
+   */
+  @JsonProperty("last")
   private BigDecimal last;
 
-  private BigDecimal high24hr;
-
-  private BigDecimal percentChange;
-
+  /**
+   * 最新卖方最低价
+   */
+  @JsonProperty("lowest_ask")
   private BigDecimal lowestAsk;
 
-  private BigDecimal quoteVolume;
+  /**
+   * 最新买方最高价
+   */
+  @JsonProperty("highest_bid")
+  private BigDecimal highestBid;
 
+  /**
+   * 最近24小时涨跌百分比，跌用负数标识，如 -7.45
+   */
+  @JsonProperty("change_percentage")
+  private BigDecimal changePercentage;
+
+  /**
+   * UTC0时区，最近24小时涨跌百分比，跌用负数标识，如 -7.45
+   */
+  @JsonProperty("change_utc0")
+  private String changeUtc0;
+
+  /**
+   * UTC8时区，最近24小时涨跌百分比，跌用负数标识，如 -7.45
+   */
+  @JsonProperty("change_utc8")
+  private String changeUtc8;
+
+  /**
+   * 最近24小时交易货币成交量
+   */
+  @JsonProperty("base_volume")
   private BigDecimal baseVolume;
 
-  public GateioTicker(
-      @JsonProperty("result") boolean result,
-      @JsonProperty("message") String message,
-      @JsonProperty("highestBid") BigDecimal highestBid,
-      @JsonProperty("low24hr") BigDecimal low24hr,
-      @JsonProperty("last") BigDecimal last,
-      @JsonProperty("high24hr") BigDecimal high24hr,
-      @JsonProperty("percentChange") BigDecimal percentChange,
-      @JsonProperty("lowestAsk") BigDecimal lowestAsk,
-      @JsonProperty("quoteVolume") BigDecimal quoteVolume,
-      @JsonProperty("baseVolume") BigDecimal baseVolume) {
-    super(result, message);
-    this.highestBid = highestBid;
-    this.result = result;
-    this.low24hr = low24hr;
-    this.last = last;
-    this.high24hr = high24hr;
-    this.percentChange = percentChange;
-    this.lowestAsk = lowestAsk;
-    this.quoteVolume = quoteVolume;
-    this.baseVolume = baseVolume;
-  }
+  /**
+   * 最近24小时计价货币成交量
+   */
+  @JsonProperty("quote_volume")
+  private BigDecimal quoteVolume;
 
-  public BigDecimal getHighestBid() {
-    return highestBid;
-  }
+  /**
+   * 24小时最高价
+   */
+  @JsonProperty("high_24h")
+  private BigDecimal high24h;
 
-  @Override
-  public boolean isResult() {
-    return result;
-  }
+  /**
+   * 24小时最低价
+   */
+  @JsonProperty("low_24h")
+  private BigDecimal low24h;
 
-  public BigDecimal getLow24hr() {
-    return low24hr;
-  }
+  /**
+   * ETF净值
+   */
+  @JsonProperty("etf_net_value")
+  private String etfNetValue;
 
-  public BigDecimal getLast() {
-    return last;
-  }
+  /**
+   * ETF前一再平衡点净值
+   */
+  @JsonProperty("etf_pre_net_value")
+  private String etfPreNetValue;
 
-  public BigDecimal getHigh24hr() {
-    return high24hr;
-  }
+  /**
+   * ETF前一再平衡时间
+   */
+  @JsonProperty("etf_pre_timestamp")
+  private Long etfPreTimestamp;
 
-  public BigDecimal getPercentChange() {
-    return percentChange;
-  }
-
-  public BigDecimal getLowestAsk() {
-    return lowestAsk;
-  }
-
-  public BigDecimal getQuoteVolume() {
-    return quoteVolume;
-  }
-
-  public BigDecimal getBaseVolume() {
-    return baseVolume;
-  }
-
-  @Override
-  public String toString() {
-    return "GateioTicker{"
-        + "highestBid='"
-        + highestBid
-        + '\''
-        + ", result='"
-        + result
-        + '\''
-        + ", low24hr='"
-        + low24hr
-        + '\''
-        + ", last='"
-        + last
-        + '\''
-        + ", high24hr='"
-        + high24hr
-        + '\''
-        + ", percentChange='"
-        + percentChange
-        + '\''
-        + ", lowestAsk='"
-        + lowestAsk
-        + '\''
-        + ", quoteVolume='"
-        + quoteVolume
-        + '\''
-        + ", baseVolume='"
-        + baseVolume
-        + '\''
-        + '}';
-  }
+  /**
+   * ETF当前杠杆率
+   */
+  @JsonProperty("etf_leverage")
+  private String etfLeverage;
 }

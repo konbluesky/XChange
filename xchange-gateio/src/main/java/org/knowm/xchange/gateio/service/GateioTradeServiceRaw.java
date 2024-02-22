@@ -81,7 +81,7 @@ public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
       return decorateApiCall(
           () -> gateioAuthenticated.placeOrder(apiKey, signatureCreator, timestampFactory,
               objectNode)).
-          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS)).
+          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_POST_SPOT_ORDER)).
           call();
 
 //      return decorateApiCall(
