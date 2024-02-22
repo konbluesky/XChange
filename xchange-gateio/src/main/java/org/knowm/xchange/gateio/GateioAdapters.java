@@ -36,7 +36,6 @@ import org.knowm.xchange.gateio.dto.GateioEnums.OrderSide;
 import org.knowm.xchange.gateio.dto.GateioOrderType;
 import org.knowm.xchange.gateio.dto.account.GateioBalanceItem;
 import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawalsRequest;
 import org.knowm.xchange.gateio.dto.account.GateioFunds;
 import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;

@@ -24,7 +24,6 @@ import org.knowm.xchange.gateio.dto.account.GateioDepositResponse;
 import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.dto.account.GateioUnifiedAccount;
 import org.knowm.xchange.gateio.dto.account.GateioDepositAddress;
-import org.knowm.xchange.gateio.dto.account.GateioDepositsWithdrawalsRequest;
 import org.knowm.xchange.gateio.dto.account.GateioFunds;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawStatus;
 import org.knowm.xchange.gateio.dto.account.GateioWithdrawalPayload;
@@ -314,14 +313,6 @@ public interface GateioAuthenticated {
       @FormParam("currencyPair") String currencyPair)
       throws IOException;
 
-  @POST
-  @Path("private/depositsWithdrawals")
-  GateioDepositsWithdrawalsRequest getDepositsWithdrawals(
-      @HeaderParam("KEY") String apiKey,
-      @HeaderParam("SIGN") ParamsDigest signer,
-      @FormParam("start") Long startUnixTime,
-      @FormParam("end") Long endUnixTime)
-      throws IOException;
 
   @POST
   @Path("private/getorder")
