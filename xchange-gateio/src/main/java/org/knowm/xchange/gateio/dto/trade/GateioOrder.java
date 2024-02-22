@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.ToString;
 import org.knowm.xchange.gateio.dto.GateioEnums.ActionMode;
+import org.knowm.xchange.gateio.dto.GateioEnums.FinishAs;
 import org.knowm.xchange.gateio.dto.GateioEnums.OrderSide;
 import org.knowm.xchange.gateio.dto.GateioEnums.OrderStatus;
 import org.knowm.xchange.gateio.dto.GateioEnums.OrderType;
@@ -20,23 +21,6 @@ import org.knowm.xchange.gateio.dto.GateioEnums.TimeInForce;
 @Getter
 @ToString
 public class GateioOrder {
-
-  /**
-   * 订单结束方式，包括：
-   *
-   * - open: 等待处理
-   * - filled: 完全成交
-   * - cancelled: 用户撤销
-   * - ioc: 未立即完全成交，因为 tif 设置为 ioc
-   * - stp: 订单发生自成交限制而被撤销
-   */
-  public enum FinishAs {
-    OPEN,
-    FILLED,
-    CANCELLED,
-    IOC,
-    STP
-  }
 
   /** 订单 ID */
   @JsonProperty("id")

@@ -49,7 +49,7 @@ import org.knowm.xchange.gateio.dto.marketdata.GateioTradeHistory;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrder;
 import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
 import org.knowm.xchange.gateio.dto.trade.GateioOrder;
-import org.knowm.xchange.gateio.dto.trade.GateioOrder.FinishAs;
+import org.knowm.xchange.gateio.dto.GateioEnums.FinishAs;
 import org.knowm.xchange.gateio.dto.trade.GateioTrade;
 import org.knowm.xchange.gateio.service.GateioMarketDataServiceRaw;
 import org.knowm.xchange.instrument.Instrument;
@@ -67,7 +67,6 @@ public final class GateioAdapters {
   }
 
   public static CurrencyPair adaptCurrencyPair(String pair) {
-
     final String[] currencies = pair.toUpperCase().split("_");
     return new CurrencyPair(currencies[0], currencies[1]);
   }

@@ -1,5 +1,7 @@
 package org.knowm.xchange.gateio.service;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.hash.Hashing;
 import jakarta.ws.rs.HeaderParam;
 import javax.crypto.Mac;
@@ -20,6 +22,7 @@ import si.mazi.rescu.RestInvocation;
 public class GateioHmacPostBodyDigest extends BaseParamsDigest {
 
   private String apiKey;
+
   /**
    * Constructor
    *
@@ -31,7 +34,7 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
     super(secretKeyBase64, HMAC_SHA_512);
   }
 
-  private  GateioHmacPostBodyDigest(String apiKey, String secretKeyBase64) {
+  private GateioHmacPostBodyDigest(String apiKey, String secretKeyBase64) {
     super(secretKeyBase64, HMAC_SHA_512);
     this.apiKey = apiKey;
   }
@@ -40,7 +43,7 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
     return secretKeyBase64 == null ? null : new GateioHmacPostBodyDigest(secretKeyBase64);
   }
 
-  public static GateioHmacPostBodyDigest createInstance(String apiKey,String secretKeyBase64) {
+  public static GateioHmacPostBodyDigest createInstance(String apiKey, String secretKeyBase64) {
     return secretKeyBase64 == null || apiKey == null ? null
         : new GateioHmacPostBodyDigest(apiKey, secretKeyBase64);
   }
@@ -83,6 +86,7 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
 
   /**
    * 获取socket的签名
+   *
    * @param channel
    * @param event
    * @param timestamp
@@ -92,7 +96,11 @@ public class GateioHmacPostBodyDigest extends BaseParamsDigest {
     String signTmpl = String.format("channel=%s&event=%s&time=%d", channel, event, timestamp);
     Mac mac = getMac();
     String sign = DigestUtils.bytesToHex(mac.doFinal((signTmpl.getBytes())));
-    return "{'method':'api_key','KEY':"+apiKey+",'SIGN':"+sign+"}";
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
+    node.put("method", "api_key");
+    node.put("key", apiKey);
+    node.put("sign", sign);
+    return node.toString();
   }
 
 }

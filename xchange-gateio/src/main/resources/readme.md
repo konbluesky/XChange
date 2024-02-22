@@ -11,7 +11,8 @@
     - [ ] getFundingHistory
 - [ ] MarketDataService
     - [ ] getTicker
-    - [ ] getTickers(null) - > all
+    - [x] getTickers(null) - > all
+      - 获取最近24h的交易量， 用来筛选活跃币种
 - [ ] TradeService#cancelOrder
     - [x] cancelOrder(DefaultCancelOrderByInstrumentAndIdParams(instrument, orderId))
     - [x] placeMarketOrder
@@ -36,6 +37,17 @@
     - 根据isShouldLoadRemoteMetaData判断是否需要加载远程数据
 
 #### Websocket 需要实现的接口
+
+- [x] StreamingAccountService
+    - [x] getBalanceChanges
+- [x] StreamingMarketDataService
+  - [x] getOrderBook
+  - [x] getTicker
+- [x] StreamingTradeService
+  - [x] getOrderChanges(Instrument instrument, Object... args)
+    - 主要实现这个接口
+  - [x] getOrderChanges(CurrencyPair currencyPair, Object... args)
+    - 重载
 
 ### 注意事项
 

@@ -20,8 +20,8 @@ public abstract class GateioExchangeWiremock {
   @ClassRule
   public static WireMockClassRule wireMockRule = new WireMockClassRule(options().dynamicPort());
 
-  @BeforeClass
-  public static void initExchange() {
+//  @BeforeClass
+  public static void initExchangeMockLocal() {
     ExchangeSpecification exSpec = new ExchangeSpecification(GateioExchange.class);
     exSpec.setSslUri("http://localhost:" + wireMockRule.port());
 
@@ -37,6 +37,17 @@ public abstract class GateioExchangeWiremock {
 
     exchange = (GateioExchange) ExchangeFactory.INSTANCE.createExchange(exSpec);
   }
+
+  @BeforeClass
+  public static void initExchange(){
+    ExchangeSpecification exSpec = new ExchangeSpecification(GateioExchange.class);
+    exSpec.setApiKey("");
+    exSpec.setSecretKey("");
+    exSpec.setShouldLoadRemoteMetaData(true);
+    exSpec.setMetaDataJsonFileOverride(null);
+    exchange = (GateioExchange) ExchangeFactory.INSTANCE.createExchange(exSpec);
+  }
+
 
   @AfterClass
   public static void stop() {
