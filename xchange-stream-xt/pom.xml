@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.knowm.xchange</groupId>
         <artifactId>xchange-parent</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>5.1.2-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-xt</artifactId>
-            <version>5.1.1-SNAPSHOT</version>
+            <version>5.1.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Lombok for boilerplate -->
