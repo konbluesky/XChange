@@ -199,19 +199,44 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
 
 
   @Test
+  public void testWithDrawFee() throws IOException {
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    List<MEXCConfig> all = marketDataService.getAll();
+
+    for (MEXCConfig mexcConfig : all) {
+      for (MEXCNetwork mexcNetwork : mexcConfig.getNetworkList()) {
+        log.info("{} - fee:{}, network: {} ,confirm:{},contract:{}",mexcConfig.getCoin(),mexcNetwork.getWithdrawFee(),mexcNetwork.getNetwork(),mexcNetwork.getMinConfirm(),mexcNetwork.getContract());
+      }
+    }
+  }
+
+  @Test
   public void testGetAll() throws IOException {
     String bscIdentity = "BEP20(BSC)";
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
     MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
     List<MEXCConfig> all = marketDataService.getAll();
-//    Map<Currency, MEXCConfig> collect = all.stream().filter(c -> c.getNetworkList().stream()
-//        .anyMatch(n -> n.getNetwork().equalsIgnoreCase(bscIdentity))).collect(
-//        Collectors.toMap(c -> Currency.getInstance(c.getCoin()), c -> c));
-//
-//    log.info("size:{}",collect.keySet().size());
-//    collect.forEach((k,v)->{
-//      log.info("coin:{} ,{}",k,v);
-//    });
+   // Map<Currency, MEXCConfig> collect = all.stream()
+   //     .filter(c -> c.getNetworkList().stream()
+   //     .anyMatch(n -> n.getNetwork().equalsIgnoreCase(bscIdentity))).collect(
+   //     Collectors.toMap(c -> Currency.getInstance(c.getCoin()), c -> c));
+   //
+   // log.info("size:{}",collect.keySet().size());
+   // collect.forEach((k,v)->{
+   //   log.info("coin:{} ,{}",k,v);
+   // });
+   //  MEXCConfig getall = all.stream().filter(m -> m.getName().equalsIgnoreCase("taboo")).findFirst()
+   //      .get();
+   //  log.info("taboo:{}",getall);
+
+    for (MEXCConfig mexcConfig : all) {
+      log.info("{}",mexcConfig);
+      if(mexcConfig.getCoin().equalsIgnoreCase("TABOO")){
+        log.info("taboo:{}",mexcConfig);
+      }
+    }
+
 
     // network = BEP20(BSC)
     for (MEXCConfig config : all) {
