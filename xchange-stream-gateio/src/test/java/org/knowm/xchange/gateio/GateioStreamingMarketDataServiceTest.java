@@ -21,9 +21,7 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
         .subscribe(orderBook -> {
           log.info("subscribe orderBook:{}", orderBook);
         });
-    TimeUnit.MINUTES.sleep(1);
+    TimeUnit.MINUTES.sleep(5);
   }
-
-
 
 }

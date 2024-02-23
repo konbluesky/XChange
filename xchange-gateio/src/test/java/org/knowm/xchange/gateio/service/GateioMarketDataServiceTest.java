@@ -2,12 +2,19 @@ package org.knowm.xchange.gateio.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multiset.Entry;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -84,22 +91,58 @@ public class GateioMarketDataServiceTest extends GateioExchangeWiremock {
   }
 
 
+  /**
+   * 打印币种和chain信息，统计chain数量
+   *
+   * @throws IOException
+   */
   @Test
   public void testGetChain() throws IOException {
     GateioMarketDataServiceRaw marketDataService = (GateioMarketDataServiceRaw) exchange.getMarketDataService();
     Map<String, GateioCoin> coins = marketDataService.getGateioCoinInfo();
-    coins.forEach((k, v) -> {
-      if (v.getChain() != null) {
-        System.out.println(k + " : " + v.getChain());
-      }
+    //根据key排序输出
+    List<String> sortKey = coins.keySet().stream().sorted().collect(Collectors.toList());
+    Multiset<String> chainCount = HashMultiset.create();
+    Multimap<String, String> chainCoinMap = HashMultimap.create();
+    Multimap<String, String> coinChainMap = HashMultimap.create();
+    log.info("coin size:{}", coins.size());
+    sortKey.forEach(k -> {
+//      System.out.println(k + " : " + coins.get(k).getChain());
+      chainCount.add(coins.get(k).getChain());
+      chainCoinMap.put(coins.get(k).getChain(), k);
+      //去掉币种名称后面的_xxxx
+      coinChainMap.put(k, coins.get(k).getChain());
     });
+    log.info("chain size:{}", chainCount.size());
+    //遍历chainCount，打印每个chain有多少币种
+    //打印大于10的chain
+    for (Entry<String> entry : chainCount.entrySet()) {
+      if (entry.getCount() > 10) {
+        log.info("more than the 10 chain:{} size:{}", entry.getElement(), entry.getCount());
+      }
+    }
+    log.info("=====================");
+    //打印每个chain的币种
+    for (Map.Entry<String, Collection<String>> entry : chainCoinMap.asMap()
+        .entrySet()) {
+      log.info("chain:{} coin:{}", entry.getKey(), entry.getValue());
+    }
+    log.info("+++++++++++++++++++++++++++++++++");
+    //打印每个币种的链
+    for (Map.Entry<String, Collection<String>> entry : chainCoinMap.asMap()
+        .entrySet()) {
+      log.info("coin:{} chain:[]", entry.getKey(), entry.getValue());
+    }
+
+
   }
+
 
   @Test
   public void testTicker() throws IOException {
     MarketDataService marketDataService = exchange.getMarketDataService();
     List<Ticker> tickers = marketDataService.getTickers(null);
-    log.info("size:{}",tickers.size());
+    log.info("size:{}", tickers.size());
     log.info("content:{}", tickers.get(0));
   }
 

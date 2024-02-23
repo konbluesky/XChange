@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.knowm.xchange.gateio.dto.marketdata.GateioCoinNetwork;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCandlestickHistory;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCurrencyPairs;
@@ -25,6 +26,7 @@ public interface Gateio {
 
   String PUBLIC_RULE = "public_rule";
   public static final String PATH_SPOT_TICKERS = "/spot/tickers";
+  public static final String PATH_WALLET_CURRENCY_CHAINS = "/wallet/currency_chains";
   Map<String, List<Integer>> publicPathRateLimits =
       new HashMap<String, List<Integer>>() {
         {
@@ -45,6 +47,11 @@ public interface Gateio {
   @Path("/spot/tickers")
   List<GateioTicker> getTickers() throws IOException;
 
+  @GET
+  @Path("/wallet/currency_chains")
+  List<GateioCoinNetwork> getWalletCurrencyChainConfigBy(
+      @QueryParam("currency") String currency
+      ) throws IOException;
 
   @GET
   @Path("pairs")
