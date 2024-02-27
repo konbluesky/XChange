@@ -24,4 +24,14 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
     TimeUnit.MINUTES.sleep(5);
   }
 
+
+  @Test
+  public void testGetTicker() throws InterruptedException {
+    streamingExchange.getStreamingMarketDataService()
+        .getTicker(CurrencyPair.BTC_USDT)
+        .subscribe(ticker -> {
+          log.info("价格变化:{}", ticker);
+        });
+    TimeUnit.MINUTES.sleep(5);
+  }
 }

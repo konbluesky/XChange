@@ -38,7 +38,7 @@ public class GateioStreamingAccountService implements StreamingAccountService {
     GateioHmacPostBodyDigest hmacPostBodyDigest = streamingService.getHmacPostBodyDigest();
     sendMessage.setAuth(hmacPostBodyDigest);
 
-    log.info("has Auth message:{}", sendMessage);
+//    log.info("has Auth message:{}", sendMessage);
 
     return streamingService.subscribeChannel(topicName, sendMessage)
         .filter(message -> message.has("result"))

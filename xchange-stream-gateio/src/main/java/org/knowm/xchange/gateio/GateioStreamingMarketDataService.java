@@ -67,7 +67,8 @@ public class GateioStreamingMarketDataService implements StreamingMarketDataServ
 
     GateioSendMessage sendMessage = GateioSendMessage.createSubMessage();
     sendMessage.setChannel(topicName);
-    sendMessage.putParam(args);
+//    sendMessage.putParam(args);
+    sendMessage.putParam(GateioUtils.toPairString(currencyPair).toUpperCase());
 
     return streamingService.subscribeChannel(channelName, sendMessage)
         .filter(message -> message.has("result"))

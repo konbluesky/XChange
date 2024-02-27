@@ -18,7 +18,7 @@ public class GateioStreamingAccountServiceTest extends GateioBase {
   public void testBalanceChange() throws InterruptedException {
     streamingExchange.getStreamingAccountService().getBalanceChanges(Currency.USDT)
         .subscribe(balance -> {
-          log.info("subscribe balance:{}", balance);
+          log.info("余额变化:{}", balance);
         });
     TimeUnit.MINUTES.sleep(10);
   }
