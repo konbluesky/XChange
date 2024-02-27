@@ -96,6 +96,7 @@ public class GateioStreamingAdapters {
         .volume(baseVolume)
         .quoteVolume(quoteVolume)
         .percentageChange(percentageChange)
+        .timestamp(new Date(gateioTicker.getTimeMs()))
         .build();
   }
 

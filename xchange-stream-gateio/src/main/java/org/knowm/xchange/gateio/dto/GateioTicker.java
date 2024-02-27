@@ -69,5 +69,11 @@ public class GateioTicker {
   @JsonProperty("low_24h")
   private BigDecimal low24h;
 
+  @JsonProperty("time_ms")
+  private long timeMs;
+
+  @JsonProperty("time")
+  private String time;
+
 
 }
