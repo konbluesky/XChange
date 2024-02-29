@@ -17,9 +17,9 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
   @Test
   public void testGetOrderBook() throws InterruptedException {
     streamingExchange.getStreamingMarketDataService()
-        .getOrderBook(CurrencyPair.BTC_USDT, "BTC_USDT", 5, "1000ms")
+        .getOrderBook(CurrencyPair.BTC_USDT, "EJS_USDT", 20, "1000ms")
         .subscribe(orderBook -> {
-          log.info("subscribe orderBook:{}", orderBook);
+          log.info("深度数据:{}", orderBook);
         });
     TimeUnit.MINUTES.sleep(5);
   }
@@ -28,7 +28,8 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
   @Test
   public void testGetTicker() throws InterruptedException {
     streamingExchange.getStreamingMarketDataService()
-        .getTicker(CurrencyPair.BTC_USDT)
+//        .getTicker(CurrencyPair.BTC_USDT)
+        .getTicker(new CurrencyPair("TRVL","usdt"))
         .subscribe(ticker -> {
           log.info("价格变化:{}", ticker);
         });

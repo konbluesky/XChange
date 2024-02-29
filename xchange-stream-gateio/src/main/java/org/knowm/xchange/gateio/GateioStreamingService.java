@@ -1,8 +1,6 @@
 package org.knowm.xchange.gateio;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
 import info.bitrich.xchangestream.service.netty.WebSocketClientCompressionAllowClientNoContextAndServerNoContextHandler;
 import io.netty.handler.codec.http.websocketx.extensions.WebSocketClientExtensionHandler;
@@ -23,7 +21,7 @@ import org.knowm.xchange.gateio.service.GateioHmacPostBodyDigest;
  * Author: Max Gao (gaamox@tutanota.com) Created: 05-05-2021
  */
 @Slf4j
-public class GateioNewStreamingService extends JsonNettyStreamingService {
+public class GateioStreamingService extends JsonNettyStreamingService {
   private static final String SUBSCRIBE = "subscribe";
   private static final String UNSUBSCRIBE = "unsubscribe";
   private static final String CHANNEL_NAME_DELIMITER = "-";
@@ -34,7 +32,7 @@ public class GateioNewStreamingService extends JsonNettyStreamingService {
   private Disposable pingPongSubscription;
   @Getter
   private GateioHmacPostBodyDigest hmacPostBodyDigest;
-  public GateioNewStreamingService(String apiUrl) {
+  public GateioStreamingService(String apiUrl) {
     super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
   }
 
@@ -45,11 +43,14 @@ public class GateioNewStreamingService extends JsonNettyStreamingService {
    * @param apiKey
    * @param apiSecret
    */
-  public GateioNewStreamingService(String apiUrl, String apiKey, String apiSecret) {
+  public GateioStreamingService(String apiUrl, String apiKey, String apiSecret) {
     super(apiUrl, Integer.MAX_VALUE, Duration.ofSeconds(5), Duration.ofSeconds(20), 60);
     this.hmacPostBodyDigest = GateioHmacPostBodyDigest.createInstance(apiKey, apiSecret);
   }
 
+  public int getChannelSize(){
+    return this.channels.size();
+  }
   /**
    * beforeConnectionHandler.run(); return openConnection();
    *

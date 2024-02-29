@@ -20,9 +20,9 @@ import org.knowm.xchange.gateio.service.GateioHmacPostBodyDigest;
 public class GateioStreamingTradeService implements StreamingTradeService {
 
   private final ObjectMapper mapper = GateioUtils.getObjectMapper();
-  private GateioNewStreamingService streamingService;
+  private GateioStreamingPool streamingService;
 
-  public GateioStreamingTradeService(GateioNewStreamingService streamingService) {
+  public GateioStreamingTradeService(GateioStreamingPool streamingService) {
     this.streamingService = streamingService;
   }
 

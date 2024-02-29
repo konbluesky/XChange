@@ -23,9 +23,9 @@ import org.knowm.xchange.instrument.Instrument;
 public class GateioStreamingMarketDataService implements StreamingMarketDataService {
 
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
-  private final GateioNewStreamingService streamingService;
+  private final GateioStreamingPool streamingService;
 
-  public GateioStreamingMarketDataService(GateioNewStreamingService streamingService) {
+  public GateioStreamingMarketDataService(GateioStreamingPool streamingService) {
     this.streamingService = streamingService;
   }
 
