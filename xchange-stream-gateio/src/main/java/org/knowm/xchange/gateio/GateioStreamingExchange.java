@@ -25,11 +25,11 @@ public class GateioStreamingExchange extends GateioExchange implements Streaming
     String apiKey = getExchangeSpecification().getApiKey();
     String secretKey = getExchangeSpecification().getSecretKey();
     GateioStreamingPool gateioStreamingPool = new GateioStreamingPool(3, 50, API_BASE_PUBLIC_URI, apiKey, secretKey);
-    this.streamingService = new GateioStreamingService(API_BASE_PUBLIC_URI, apiKey, secretKey);
+//    this.streamingService = new GateioStreamingService(API_BASE_PUBLIC_URI, apiKey, secretKey);
     this.streamingAccountService = new GateioStreamingAccountService(gateioStreamingPool);
     this.streamingTradeService = new GateioStreamingTradeService(gateioStreamingPool);
     this.streamingMarketDataService = new GateioStreamingMarketDataService(gateioStreamingPool);
-    return streamingService.connect();
+    return gateioStreamingPool.initializeServices();
   }
 
   @Override
