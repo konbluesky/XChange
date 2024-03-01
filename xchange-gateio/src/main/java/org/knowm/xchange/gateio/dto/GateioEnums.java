@@ -1,5 +1,7 @@
 package org.knowm.xchange.gateio.dto;
 
+import org.knowm.xchange.dto.Order;
+
 /**
  * <p> @Date : 2024/2/21 </p>
  * <p> @Project : XChange</p>
@@ -25,7 +27,7 @@ public class GateioEnums {
     SELL
   }
 
-  public enum TimeInForce {
+  public enum TimeInForce implements Order.IOrderFlags {
     GTC,
     IOC,
     POC,
@@ -74,4 +76,7 @@ public class GateioEnums {
     IOC,
     STP
   }
+
+
+
 }

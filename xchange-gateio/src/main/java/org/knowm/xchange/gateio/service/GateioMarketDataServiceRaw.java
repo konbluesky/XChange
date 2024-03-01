@@ -97,13 +97,22 @@ public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeServi
   }
 
   public Map<CurrencyPair, Ticker> getGateioTickers() throws IOException {
-    List<GateioTicker> tickers = gateio.getTickers();
+    List<GateioTicker> tickers = gateio.getTickers(null);
     Map<CurrencyPair, Ticker> adaptedTickers = Maps.newHashMap();
     for (GateioTicker gateioTicker : tickers) {
       CurrencyPair currencyPair = GateioUtils.toCurrencyPair(gateioTicker.getCurrencyPair());
       adaptedTickers.put(currencyPair, GateioAdapters.adaptTicker(currencyPair, gateioTicker));
     }
     return adaptedTickers;
+  }
+
+  public Ticker getGateioTicker(CurrencyPair currencyPair) throws IOException {
+    List<GateioTicker> tickers = gateio.getTickers(GateioUtils.toPairString(currencyPair));
+    if (!tickers.isEmpty()) {
+      GateioTicker gateioTicker = tickers.get(0);
+      return GateioAdapters.adaptTicker(currencyPair, gateioTicker);
+    }
+    return null;
   }
 
   public List<Instrument> getExchangeSymbols() throws IOException {

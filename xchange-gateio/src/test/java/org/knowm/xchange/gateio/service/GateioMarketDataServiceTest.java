@@ -25,6 +25,8 @@ import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.gateio.GateioExchangeWiremock;
 import org.knowm.xchange.gateio.dto.marketdata.GateioCoin;
+import org.knowm.xchange.gateio.dto.marketdata.GateioCoinNetwork;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 @Slf4j
@@ -137,9 +139,36 @@ public class GateioMarketDataServiceTest extends GateioExchangeWiremock {
 
   }
 
+  @Test
+  public void getWithdrawFee() throws IOException{
+    exchange.remoteInit();
+    ExchangeMetaData exchangeMetaData = exchange.getExchangeMetaData();
+    log.info("exchangeMetaData currencies size: {}", exchangeMetaData.getCurrencies().size());
+
+  }
 
   @Test
-  public void testTicker() throws IOException {
+  public void testGetContractAddress() throws IOException {
+    GateioMarketDataServiceRaw marketDataService = (GateioMarketDataServiceRaw) exchange.getMarketDataService();
+    List<GateioCoinNetwork> coinNetworkBy = marketDataService.getCoinNetworkBy("FUSE");
+    //格式化输出  chain: chainname contract: contractaddress
+    coinNetworkBy.forEach(coinNetwork -> {
+      log.info("chain:{} contract:{}", coinNetwork.getChain(), coinNetwork.getContractAddress());
+    });
+
+  }
+
+
+  @Test
+  public void testSingleTicker() throws IOException {
+    MarketDataService marketDataService = exchange.getMarketDataService();
+    Instrument instrument = new CurrencyPair("prq","usdt");
+    Ticker ticker = marketDataService.getTicker(instrument);
+    log.info("ticker:{}",ticker);
+  }
+
+  @Test
+  public void testAllTicker() throws IOException {
     MarketDataService marketDataService = exchange.getMarketDataService();
     List<Ticker> tickers = marketDataService.getTickers(null);
     log.info("size:{}", tickers.size());

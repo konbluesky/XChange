@@ -65,7 +65,17 @@ public class GateioTradeService extends GateioTradeServiceRaw implements TradeSe
   @Override
   public String placeMarketOrder(MarketOrder marketOrder) throws IOException {
 
+//    CurrencyPair currencyPair = (CurrencyPair) marketOrder.getInstrument();
+//    GateioEnums.OrderSide orderSide =
+//        marketOrder.getType().equals(Order.OrderType.BID) ? GateioEnums.OrderSide.BUY
+//            : GateioEnums.OrderSide.SELL;
+//    TimeInForce timeInForce = TimeInForce.GTC;
+//    BigDecimal amount = marketOrder.getOriginalAmount();
+//    GateioOrder gateioOrder = super.placeMarketOrder(currencyPair, orderSide, amount,
+//        timeInForce);
+//    return String.valueOf(gateioOrder.getId());
     throw new NotAvailableFromExchangeException();
+
   }
 
   @Override
@@ -75,7 +85,12 @@ public class GateioTradeService extends GateioTradeServiceRaw implements TradeSe
     GateioEnums.OrderSide orderSide =
         limitOrder.getType().equals(Order.OrderType.BID) ? GateioEnums.OrderSide.BUY
             : GateioEnums.OrderSide.SELL;
+
     TimeInForce timeInForce = TimeInForce.GTC;
+    if (limitOrder.hasFlag(GateioEnums.TimeInForce.POC)) {
+      timeInForce = TimeInForce.POC;
+    }
+
     BigDecimal price = limitOrder.getLimitPrice();
     BigDecimal amount = limitOrder.getOriginalAmount();
 

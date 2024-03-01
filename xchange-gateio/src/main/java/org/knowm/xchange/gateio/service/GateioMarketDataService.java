@@ -8,6 +8,7 @@ import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.gateio.GateioExchange;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.marketdata.params.CurrencyPairsParam;
 import org.knowm.xchange.service.marketdata.params.Params;
@@ -40,5 +41,10 @@ public class GateioMarketDataService extends GateioMarketDataServiceRaw implemen
         .collect(Collectors.toList());
   }
 
+  @Override
+  public Ticker getTicker(Instrument instrument, Object... args) throws IOException {
+    CurrencyPair currencyPair = new CurrencyPair(instrument.getBase(), instrument.getCounter());
+    return getGateioTicker(currencyPair);
+  }
 
 }

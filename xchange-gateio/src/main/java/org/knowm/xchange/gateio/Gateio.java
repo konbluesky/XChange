@@ -45,7 +45,9 @@ public interface Gateio {
 
   @GET
   @Path("/spot/tickers")
-  List<GateioTicker> getTickers() throws IOException;
+  List<GateioTicker> getTickers(
+      @QueryParam("currency_pair") String currencyPair
+  ) throws IOException;
 
   @GET
   @Path("/wallet/currency_chains")

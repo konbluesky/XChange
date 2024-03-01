@@ -94,6 +94,7 @@ public final class GateioAdapters {
         .volume(baseVolume)
         .quoteVolume(quoteVolume)
         .percentageChange(percentageChange)
+        .timestamp(new Date())
         .build();
   }
 
@@ -382,7 +383,7 @@ public final class GateioAdapters {
         0,
         new BigDecimal(gateioFeeInfo.getWithdrawFix()),
         new BigDecimal(gateioFeeInfo.getWithdrawAmountMini()),
-        walletHealth, gateioCoin.getChain());
+        walletHealth, gateioCoin.getChain(),gateioFeeInfo);
   }
 
 
