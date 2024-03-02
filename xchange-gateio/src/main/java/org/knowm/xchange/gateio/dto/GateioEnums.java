@@ -1,5 +1,7 @@
 package org.knowm.xchange.gateio.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.knowm.xchange.dto.Order;
 
 /**
@@ -28,10 +30,28 @@ public class GateioEnums {
   }
 
   public enum TimeInForce implements Order.IOrderFlags {
-    GTC,
-    IOC,
-    POC,
-    FOK
+    GTC("gtc"),
+    IOC("ioc"),
+    POC("poc"),
+    FOK("fok");
+
+    TimeInForce(String value) {
+      this.value = value;
+    }
+    private String value;
+    @JsonCreator
+    public static TimeInForce fromValue(String value) {
+      for (TimeInForce timeInForce : TimeInForce.values()) {
+        if (timeInForce.value.equalsIgnoreCase(value)) {
+          return timeInForce;
+        }
+      }
+      throw new IllegalArgumentException("Unknown value: " + value);
+    }
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
   }
 
   public enum StpAct {

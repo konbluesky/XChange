@@ -58,7 +58,6 @@ public class GateioTradeServiceTest extends GateioExchangeWiremock {
     log.info("Result:{}", gateioOrder);
   }
 
-
   @Test
   public void testPlaceBuyMarketOrder() throws IOException {
     GateioOrder gateioOrder = gateioTradeServiceRaw.placeMarketOrder(new CurrencyPair("GT", "USDT"),
@@ -95,8 +94,8 @@ public class GateioTradeServiceTest extends GateioExchangeWiremock {
   public void testGetOrderDetailsById() throws IOException{
 //    {"id":"513454777367","text":"apiv4","amend_text":"-","create_time":"1708492255","update_time":"1708492255","create_time_ms":1708492255005,"update_time_ms":1708492255005,"status":"open","currency_pair":"GT_USDT","type":"limit","account":"spot","side":"buy","amount":"1","price":"4.7","time_in_force":"gtc","iceberg":"0","left":"1","fill_price":"0","filled_total":"0","fee":"0","fee_currency":"GT","point_fee":"0","gt_fee":"0","gt_maker_fee":"0","gt_taker_fee":"0","gt_discount":false,"rebated_fee":"0","rebated_fee_currency":"USDT","finish_as":"open"}
     DefaultQueryOrderParamCurrencyPair orderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair();
-    orderParamCurrencyPair.setOrderId("513479256869");
-    orderParamCurrencyPair.setCurrencyPair(new CurrencyPair("GT", "USDT"));
+    orderParamCurrencyPair.setOrderId("520673393756");
+    orderParamCurrencyPair.setCurrencyPair(new CurrencyPair("LOOP", "USDT"));
     Collection<Order> order = gateioTradeService.getOrder(orderParamCurrencyPair);
     log.info("order:{}", order);
   }

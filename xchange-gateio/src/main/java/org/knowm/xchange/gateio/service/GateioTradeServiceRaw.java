@@ -1,5 +1,6 @@
 package org.knowm.xchange.gateio.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
 import org.knowm.xchange.gateio.dto.trade.GateioOrder;
 import org.knowm.xchange.gateio.dto.trade.GateioPlaceOrderPayload;
 import org.knowm.xchange.gateio.dto.trade.GateioTradeHistoryReturn;
+import org.knowm.xchange.utils.ObjectMapperHelper;
 
 public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
 
@@ -117,7 +119,7 @@ public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
     List<GateioOpenOrders> orders = decorateApiCall(
         () -> gateioAuthenticated.getOpenList(apiKey, signatureCreator, timestampFactory,
             null, null, "spot")).
-        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_OPEN_ORDERS)).
         call();
     return orders;
   }

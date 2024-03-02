@@ -110,6 +110,7 @@ public final class GateioAdapters {
     limitOrder.setAveragePrice(
         order.getAvgDealPrice() == null ? BigDecimal.ZERO : order.getAvgDealPrice());
     limitOrder.setOrderStatus(convertOrderStatus(order.getStatus(), order.getFinishAs()));
+    limitOrder.addOrderFlag(order.getTimeInForce());
     return limitOrder;
   }
 
