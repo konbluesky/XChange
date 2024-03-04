@@ -162,7 +162,7 @@ public class GateioMarketDataServiceTest extends GateioExchangeWiremock {
   @Test
   public void testSingleTicker() throws IOException {
     MarketDataService marketDataService = exchange.getMarketDataService();
-    Instrument instrument = new CurrencyPair("prq","usdt");
+    Instrument instrument = new CurrencyPair("trvl","busd");
     Ticker ticker = marketDataService.getTicker(instrument);
     log.info("ticker:{}",ticker);
   }

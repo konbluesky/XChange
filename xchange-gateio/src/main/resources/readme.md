@@ -10,11 +10,12 @@
     - [x] withdrawFunds(WithdrawFundsParams params)
     - [ ] getFundingHistory
 - [ ] MarketDataService
-    - [ ] getTicker
+    - [x]  getTicker(Instrument instrument, Object... args)
     - [x] getTickers(null) - > all
       - 获取最近24h的交易量， 用来筛选活跃币种
 - [ ] TradeService#cancelOrder
     - [x] cancelOrder(DefaultCancelOrderByInstrumentAndIdParams(instrument, orderId))
+      - DefaultCancelOrderByInstrumentAndIdParams 重载,因上层接口都是使用该参数
     - [x] placeMarketOrder
     - [x] placeLimitOrder
     - [x] getOpenOrders
@@ -35,6 +36,7 @@
     - [x] getOrder(DefaultQueryOrderParamInstrument instrument)
 - [ ] Exchange#getExchangeMetaData
     - 根据isShouldLoadRemoteMetaData判断是否需要加载远程数据
+- 
 
 #### Websocket 需要实现的接口
 
@@ -57,3 +59,6 @@
 2. limitorder中平均价格需要处理,防止上层应用调用平均价格时为0;
 3. 签名BaseParamsDigest 要仔细确认
 4. gateio 序列化enum需要注意， enum都要小写
+5. 注意异常处理，gateio返回错误时，使用400错误码
+   > 2024-03-04 14:51:17.967 ERROR[pool-3-thread-9]com.block.trade.swap.core.swap.job.CleanBalance1mJob.call:240 CleanBalance5mJob error
+   si.mazi.rescu.HttpStatusIOException: HTTP status code was not OK: 400

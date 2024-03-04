@@ -27,11 +27,10 @@ import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.CancelOrderByCurrencyPair;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
-import org.knowm.xchange.service.trade.params.DefaultCancelOrderByCurrencyPairAndIdParams;
+import org.knowm.xchange.service.trade.params.DefaultCancelOrderByInstrumentAndIdParams;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
-import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
@@ -112,10 +111,10 @@ public class GateioTradeService extends GateioTradeServiceRaw implements TradeSe
 
   @Override
   public boolean cancelOrder(CancelOrderParams orderParams) throws IOException {
-    if (orderParams instanceof DefaultCancelOrderByCurrencyPairAndIdParams) {
-      DefaultCancelOrderByCurrencyPairAndIdParams cancelParam = (DefaultCancelOrderByCurrencyPairAndIdParams) orderParams;
-      CurrencyPair currencyPair = cancelParam.getCurrencyPair();
-      String orderId = cancelParam.getOrderId();
+    if (orderParams instanceof DefaultCancelOrderByInstrumentAndIdParams) {
+      DefaultCancelOrderByInstrumentAndIdParams params = (DefaultCancelOrderByInstrumentAndIdParams) orderParams;
+      CurrencyPair currencyPair = (CurrencyPair) params.getInstrument();
+      String orderId = params.getOrderId();
       GateioOrder order = super.cancelOrder(orderId, currencyPair);
       return order.getStatus() == GateioEnums.OrderStatus.CANCELLED;
     } else {
