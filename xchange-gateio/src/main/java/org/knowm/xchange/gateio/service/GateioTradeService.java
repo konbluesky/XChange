@@ -32,6 +32,7 @@ import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamCurrencyPa
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamCurrencyPair;
+import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
 
@@ -140,16 +141,12 @@ public class GateioTradeService extends GateioTradeServiceRaw implements TradeSe
   public Collection<Order> getOrder(OrderQueryParams... orderQueryParams) throws IOException {
     List<Order> orders = new ArrayList<>();
     for (OrderQueryParams param : orderQueryParams) {
-      if (!(param instanceof DefaultQueryOrderParamCurrencyPair)) {
-        throw new NotAvailableFromExchangeException(
-            "getOrder in gateio needs orderId and currency pair");
-      }
-      DefaultQueryOrderParamCurrencyPair queryOrderParamCurrencyPair =
-          (DefaultQueryOrderParamCurrencyPair) param;
+      DefaultQueryOrderParamInstrument queryOrderParamInstrument =
+          (DefaultQueryOrderParamInstrument) param;
       GateioOrder gateioOrder =
           getOrder(
-              queryOrderParamCurrencyPair.getOrderId(),
-              queryOrderParamCurrencyPair.getCurrencyPair());
+              queryOrderParamInstrument.getOrderId(),
+              (CurrencyPair) queryOrderParamInstrument.getInstrument());
       Order order = GateioAdapters.adaptLimitOrder(gateioOrder);
       orders.add(order);
     }

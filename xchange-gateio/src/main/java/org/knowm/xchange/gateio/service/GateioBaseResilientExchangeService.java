@@ -3,10 +3,8 @@ package org.knowm.xchange.gateio.service;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.LowerCaseStrategy;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.knowm.xchange.client.ClientConfigCustomizer;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
@@ -14,12 +12,14 @@ import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.gateio.Gateio;
 import org.knowm.xchange.gateio.GateioAuthenticated;
+import org.knowm.xchange.gateio.GateioException;
 import org.knowm.xchange.gateio.GateioExchange;
 import org.knowm.xchange.gateio.dto.GateioBaseResponse;
 import org.knowm.xchange.service.BaseResilientExchangeService;
 import org.knowm.xchange.service.BaseService;
+import org.knowm.xchange.utils.ObjectMapperHelper;
 import org.knowm.xchange.utils.nonce.CurrentTimeIncrementalNonceFactory;
-import si.mazi.rescu.ClientConfigUtil;
+import si.mazi.rescu.HttpStatusIOException;
 import si.mazi.rescu.ParamsDigest;
 import si.mazi.rescu.SynchronizedValueFactory;
 import si.mazi.rescu.serialization.jackson.DefaultJacksonObjectMapperFactory;
@@ -79,6 +79,16 @@ public class GateioBaseResilientExchangeService extends
         GateioHmacPostBodyDigest.createInstance(exchange.getExchangeSpecification().getSecretKey());
   }
 
+  protected void handleException(Exception e) throws IOException {
+    if (e instanceof HttpStatusIOException) {
+      HttpStatusIOException ex = (HttpStatusIOException) e;
+      GateioException gateioException = ObjectMapperHelper.readValue(ex.getHttpBody(),
+          GateioException.class);
+      throw gateioException;
+    }
+    throw new ExchangeException(e.getMessage(), e);
+  }
+
   protected <R extends GateioBaseResponse> R handleResponse(R response) {
 
     if (!response.isResult()) {
@@ -87,6 +97,7 @@ public class GateioBaseResilientExchangeService extends
 
     return response;
   }
+
   public String getApiKey() {
     return apiKey;
   }

@@ -31,9 +31,9 @@ public interface Gateio {
       new HashMap<String, List<Integer>>() {
         {
           put(PUBLIC_RULE, Arrays.asList(200, 10));
+          put(PATH_SPOT_TICKERS, Arrays.asList(200, 10));
         }
       };
-
 
   @GET
   @Path("/spot/currency_pairs")
@@ -44,7 +44,7 @@ public interface Gateio {
   List<GateioCoin> getCoinInfo() throws IOException;
 
   @GET
-  @Path("/spot/tickers")
+  @Path(PATH_SPOT_TICKERS)
   List<GateioTicker> getTickers(
       @QueryParam("currency_pair") String currencyPair
   ) throws IOException;

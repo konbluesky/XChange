@@ -1,11 +1,11 @@
 package org.knowm.xchange.gateio.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.gateio.GateioAuthenticated;
@@ -19,8 +19,8 @@ import org.knowm.xchange.gateio.dto.trade.GateioOpenOrders;
 import org.knowm.xchange.gateio.dto.trade.GateioOrder;
 import org.knowm.xchange.gateio.dto.trade.GateioPlaceOrderPayload;
 import org.knowm.xchange.gateio.dto.trade.GateioTradeHistoryReturn;
-import org.knowm.xchange.utils.ObjectMapperHelper;
 
+@Slf4j
 public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
 
   /**
@@ -85,53 +85,71 @@ public class GateioTradeServiceRaw extends GateioBaseResilientExchangeService {
               objectNode)).
           withRateLimiter(rateLimiter(GateioAuthenticated.PATH_POST_SPOT_ORDER)).
           call();
-
-//      return decorateApiCall(
-//          () -> gateioAuthenticated.placeOrder(apiKey, signatureCreator, timestampFactory,
-//              payload)).
-//          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS)).
-//          call();
-
     } catch (Exception e) {
-      throw e;
+      log.error(e.getMessage(), e);
+      handleException(e);
     }
+    return null;
   }
 
   public GateioOrder cancelOrder(String orderId, CurrencyPair currencyPair) throws IOException {
-    GateioOrder order = decorateApiCall(
-        () -> gateioAuthenticated.cancelOrder(apiKey, signatureCreator, timestampFactory,
-            orderId, GateioUtils.toPairString(currencyPair))).
-        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
-        call();
-    return order;
+    try {
+      GateioOrder order = decorateApiCall(
+          () -> gateioAuthenticated.cancelOrder(apiKey, signatureCreator, timestampFactory,
+              orderId, GateioUtils.toPairString(currencyPair))).
+          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+          call();
+      return order;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      handleException(e);
+    }
+    return null;
   }
 
   public GateioOrder getOrder(String orderId, CurrencyPair currencyPair) throws IOException {
-    GateioOrder order = decorateApiCall(
-        () -> gateioAuthenticated.getOrder(apiKey, signatureCreator, timestampFactory,
-            orderId, GateioUtils.toPairString(currencyPair))).
-        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
-        call();
-    return order;
+    try {
+      GateioOrder order = decorateApiCall(
+          () -> gateioAuthenticated.getOrder(apiKey, signatureCreator, timestampFactory,
+              orderId, GateioUtils.toPairString(currencyPair))).
+          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_ORDERS_PARAM_ID)).
+          call();
+      return order;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      handleException(e);
+    }
+    return null;
   }
 
   public List<GateioOpenOrders> getGateioOpenOrders() throws IOException {
-    List<GateioOpenOrders> orders = decorateApiCall(
-        () -> gateioAuthenticated.getOpenList(apiKey, signatureCreator, timestampFactory,
-            null, null, "spot")).
-        withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_OPEN_ORDERS)).
-        call();
-    return orders;
+    try {
+      List<GateioOpenOrders> orders = decorateApiCall(
+          () -> gateioAuthenticated.getOpenList(apiKey, signatureCreator, timestampFactory,
+              null, null, "spot")).
+          withRateLimiter(rateLimiter(GateioAuthenticated.PATH_SPOT_OPEN_ORDERS)).
+          call();
+      return orders;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      handleException(e);
+    }
+    return null;
   }
 
   public GateioTradeHistoryReturn getGateioTradeHistory(CurrencyPair currencyPair)
       throws IOException {
+    try {
+      GateioTradeHistoryReturn gateioTradeHistoryReturn =
+          gateioAuthenticated.getUserTradeHistory(
+              apiKey, signatureCreator, GateioUtils.toPairString(currencyPair));
 
-    GateioTradeHistoryReturn gateioTradeHistoryReturn =
-        gateioAuthenticated.getUserTradeHistory(
-            apiKey, signatureCreator, GateioUtils.toPairString(currencyPair));
-
-    return handleResponse(gateioTradeHistoryReturn);
+      return handleResponse(gateioTradeHistoryReturn);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      handleException(e);
+    }
+    return null;
   }
 
 }
