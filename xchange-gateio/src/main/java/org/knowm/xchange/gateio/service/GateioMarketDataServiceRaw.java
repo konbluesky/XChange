@@ -2,6 +2,7 @@ package org.knowm.xchange.gateio.service;
 
 import static org.knowm.xchange.gateio.Gateio.PATH_SPOT_TICKERS;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +37,12 @@ public class GateioMarketDataServiceRaw extends GateioBaseResilientExchangeServi
       ResilienceRegistries resilienceRegistries) {
     super(exchange, resilienceRegistries);
   }
+
+  public long serverTime() {
+    JsonNode data = gateio.serverTime();
+    return data.get("server_time").asLong();
+  }
+
 
   public Map<CurrencyPair, GateioPair> getGateioMarketInfo() throws IOException {
     try {

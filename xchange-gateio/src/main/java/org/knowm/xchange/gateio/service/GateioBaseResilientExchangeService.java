@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import jdk.jpackage.internal.Log;
 import org.knowm.xchange.client.ClientConfigCustomizer;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.client.ResilienceRegistries;
@@ -84,6 +86,17 @@ public class GateioBaseResilientExchangeService extends
       HttpStatusIOException ex = (HttpStatusIOException) e;
       GateioException gateioException = ObjectMapperHelper.readValue(ex.getHttpBody(),
           GateioException.class);
+      // {"label":"REQUEST_EXPIRED","message":"gap between request Timestamp and server time exceeds 60"}
+      if (gateioException.getMessage()
+          .contains("gap between request Timestamp and server time exceeds")) {
+
+        String msg =
+            gateioException.getMessage() + ". LocalTime : " + new Date().getTime() + "ServerTime:"
+                + gateio.serverTime();
+        Log.info(msg);
+        gateioException.setMessage(msg);
+      }
+
       throw gateioException;
     }
     throw new ExchangeException(e.getMessage(), e);

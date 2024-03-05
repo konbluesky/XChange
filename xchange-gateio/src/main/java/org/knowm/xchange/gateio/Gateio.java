@@ -1,5 +1,6 @@
 package org.knowm.xchange.gateio;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -27,6 +28,7 @@ public interface Gateio {
   String PUBLIC_RULE = "public_rule";
   public static final String PATH_SPOT_TICKERS = "/spot/tickers";
   public static final String PATH_WALLET_CURRENCY_CHAINS = "/wallet/currency_chains";
+  public static final String PATH_SERVER_TIME = "/spot/time";
   Map<String, List<Integer>> publicPathRateLimits =
       new HashMap<String, List<Integer>>() {
         {
@@ -34,6 +36,10 @@ public interface Gateio {
           put(PATH_SPOT_TICKERS, Arrays.asList(200, 10));
         }
       };
+
+  @GET
+  @Path(PATH_SERVER_TIME)
+  JsonNode serverTime();
 
   @GET
   @Path("/spot/currency_pairs")

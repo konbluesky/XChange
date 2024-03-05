@@ -8,12 +8,12 @@
     - [x] cancelWithdrawal(String withdrawalId)
         - > Gateio提现取消有延迟10分钟，
     - [x] withdrawFunds(WithdrawFundsParams params)
-    - [ ] getFundingHistory
-- [ ] MarketDataService
-    - [x]  getTicker(Instrument instrument, Object... args)
+    - [x] getFundingHistory
+- [x] MarketDataService
+    - [x] getTicker(Instrument instrument, Object... args)
     - [x] getTickers(null) - > all
       - 获取最近24h的交易量， 用来筛选活跃币种
-- [ ] TradeService#cancelOrder
+- [x] TradeService#cancelOrder
     - [x] cancelOrder(DefaultCancelOrderByInstrumentAndIdParams(instrument, orderId))
       - DefaultCancelOrderByInstrumentAndIdParams 重载,因上层接口都是使用该参数
     - [x] placeMarketOrder
@@ -34,9 +34,8 @@
           limitOrder.getOriginalAmount(),new MathContext(8, RoundingMode.HALF_DOWN)));
           > limitOrder.setOrderStatus(Order.OrderStatus.valueOf(mexcOrder.getStatus()));
     - [x] getOrder(DefaultQueryOrderParamInstrument instrument)
-- [ ] Exchange#getExchangeMetaData
+- [x] Exchange#getExchangeMetaData
     - 根据isShouldLoadRemoteMetaData判断是否需要加载远程数据
-- 
 
 #### Websocket 需要实现的接口
 
@@ -50,13 +49,16 @@
     - 主要实现这个接口
   - [x] getOrderChanges(CurrencyPair currencyPair, Object... args)
     - 重载
-
+- [x] StreamServicePool
+  - 不同交易所对一个websocket链接的有订阅和连接数的要求， 因此需要实现pool
+  - 非官方统计过 gateio 单链接最大50订阅topic，最多50链接数
 ### 注意事项
 
 1. 断流机制一定要加
     2. 初始化位置GateioExchange#getResilienceRegistries
     3. BaseService 使用BaseResilientExchangeService 基类
 2. limitorder中平均价格需要处理,防止上层应用调用平均价格时为0;
+3. Order对象，ticker对象中时间戳一定要放；
 3. 签名BaseParamsDigest 要仔细确认
 4. gateio 序列化enum需要注意， enum都要小写
 5. 注意异常处理，gateio返回错误时，使用400错误码
