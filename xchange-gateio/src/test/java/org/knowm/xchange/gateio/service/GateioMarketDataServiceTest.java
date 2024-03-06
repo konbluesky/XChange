@@ -150,7 +150,7 @@ public class GateioMarketDataServiceTest extends GateioExchangeWiremock {
   @Test
   public void testGetContractAddress() throws IOException {
     GateioMarketDataServiceRaw marketDataService = (GateioMarketDataServiceRaw) exchange.getMarketDataService();
-    List<GateioCoinNetwork> coinNetworkBy = marketDataService.getCoinNetworkBy("FUSE");
+    List<GateioCoinNetwork> coinNetworkBy = marketDataService.getCoinNetworkBy("SXP");
     //格式化输出  chain: chainname contract: contractaddress
     coinNetworkBy.forEach(coinNetwork -> {
       log.info("chain:{} contract:{}", coinNetwork.getChain(), coinNetwork.getContractAddress());

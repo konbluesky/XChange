@@ -149,7 +149,7 @@ public final class GateioAdapters {
           case OPEN:
             return OrderStatus.PENDING_CANCEL;
           case FILLED:
-            return OrderStatus.CLOSED;
+            return OrderStatus.FILLED;
           case CANCELLED:
             return OrderStatus.CANCELED;
           case IOC:

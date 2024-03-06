@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import jdk.jpackage.internal.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.client.ClientConfigCustomizer;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.client.ResilienceRegistries;
@@ -33,6 +33,7 @@ import si.mazi.rescu.serialization.jackson.DefaultJacksonObjectMapperFactory;
  *
  * <p> @author konbluesky </p>
  */
+@Slf4j
 public class GateioBaseResilientExchangeService extends
     BaseResilientExchangeService<GateioExchange> implements BaseService {
 
@@ -93,7 +94,7 @@ public class GateioBaseResilientExchangeService extends
         String msg =
             gateioException.getMessage() + ". LocalTime : " + new Date().getTime() + "ServerTime:"
                 + gateio.serverTime();
-        Log.info(msg);
+        log.info(msg);
         gateioException.setMessage(msg);
       }
 

@@ -36,6 +36,7 @@
     - [x] getOrder(DefaultQueryOrderParamInstrument instrument)
 - [x] Exchange#getExchangeMetaData
     - 根据isShouldLoadRemoteMetaData判断是否需要加载远程数据
+    - currencyMetaData中必须放入提现手续费 withdrawFee，所支持的网络
 
 #### Websocket 需要实现的接口
 
