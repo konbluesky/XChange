@@ -53,7 +53,7 @@ public class GateioStreamingPool {
    * @return Completable，表示初始化连接完成
    */
   public Completable initializeServices() {
-    log.info("正在初始化 MEXCStreamingService 实例。");
+    log.info("正在初始化 GateioStreamingService 实例。");
     // 创建包含所有连接操作的 Completable 列表
     List<Completable> connectCompletables = services.stream()
         .map(service -> service.connect()

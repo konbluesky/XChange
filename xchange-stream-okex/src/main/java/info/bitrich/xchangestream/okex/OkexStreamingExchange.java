@@ -46,7 +46,7 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
 
     @Override
     public Completable connect(ProductSubscription... args) {
-        this.streamingServicePool = new OkexStreamingPool(3, 19, getApiUrl(),
+        this.streamingServicePool = new OkexStreamingPool(2, 19, getApiUrl(),
             getDefaultExchangeSpecification());
 
         this.streamingMarketDataService = new OkexStreamingMarketDataService(streamingServicePool);

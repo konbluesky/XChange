@@ -59,6 +59,11 @@
     2. 初始化位置GateioExchange#getResilienceRegistries
     3. BaseService 使用BaseResilientExchangeService 基类
 2. limitorder中平均价格需要处理,防止上层应用调用平均价格时为0;
+   3. 一定要实现的字段
+      4. originalAmount
+      5. cumulativeAmount
+      5. averagePrice
+      6. limitPrice
 3. Order对象，ticker对象中时间戳一定要放；
 3. 签名BaseParamsDigest 要仔细确认
 4. gateio 序列化enum需要注意， enum都要小写

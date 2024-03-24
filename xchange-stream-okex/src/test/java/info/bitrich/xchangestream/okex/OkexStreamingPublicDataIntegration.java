@@ -6,17 +6,20 @@ import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.derivative.FuturesContract;
 import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.utils.DateUtils;
 
+@Slf4j
 public class OkexStreamingPublicDataIntegration {
 
-  private StreamingExchange exchange;
   private final Instrument currencyPair = CurrencyPair.BTC_USDT;
   private final Instrument instrument = new FuturesContract("BTC/USDT/SWAP");
+  private StreamingExchange exchange;
 
   @Before
   public void setUp() {
@@ -32,7 +35,7 @@ public class OkexStreamingPublicDataIntegration {
             .getTrades(currencyPair)
             .subscribe(
                 trade -> {
-                  System.out.println(trade);
+                  log.info("trades:{}", trade);
                   assertThat(trade.getInstrument()).isEqualTo(currencyPair);
                 });
     Disposable dis2 =
@@ -41,7 +44,7 @@ public class OkexStreamingPublicDataIntegration {
             .getTrades(instrument)
             .subscribe(
                 trade -> {
-                  System.out.println(trade);
+                  log.info("trades:{}", trade);
                   assertThat(trade.getInstrument()).isEqualTo(instrument);
                 });
     TimeUnit.SECONDS.sleep(3);
@@ -85,7 +88,8 @@ public class OkexStreamingPublicDataIntegration {
             .getOrderBook(currencyPair)
             .subscribe(
                 orderBook -> {
-                  System.out.println(orderBook);
+
+                  log.info("orderbook1:{}", DateUtils.toUTCISODateString(orderBook.getTimeStamp()));
                   assertThat(orderBook.getBids().get(0).getLimitPrice())
                       .isLessThan(orderBook.getAsks().get(0).getLimitPrice());
                   assertThat(orderBook.getBids().get(0).getInstrument()).isEqualTo(currencyPair);
@@ -96,12 +100,12 @@ public class OkexStreamingPublicDataIntegration {
             .getOrderBook(instrument)
             .subscribe(
                 orderBook -> {
-                  System.out.println(orderBook);
+                  log.info("orderbook2:{}", DateUtils.toUTCISODateString(orderBook.getTimeStamp()));
                   assertThat(orderBook.getBids().get(0).getLimitPrice())
                       .isLessThan(orderBook.getAsks().get(0).getLimitPrice());
                   assertThat(orderBook.getBids().get(0).getInstrument()).isEqualTo(instrument);
                 });
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.MINUTES.sleep(3);
     dis.dispose();
     dis2.dispose();
   }

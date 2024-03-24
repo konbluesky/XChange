@@ -152,6 +152,7 @@ public class OkexStreamingMarketDataService implements StreamingMarketDataServic
                       new Timestamp(
                           Long.parseLong(jsonNode.get("data").get(0).get("ts").asText())));
                 }
+                orderBook.updateDate(new Date(jsonNode.get("data").get(0).get("ts").asLong()));
                 return Observable.just(orderBook);
 
               } else {
