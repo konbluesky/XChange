@@ -22,13 +22,13 @@ import java.util.List;
  */
 public class OkexStreamingPositionService {
 
-    private final OkexStreamingService service;
+    private final OkexStreamingPool service;
 
     private final ExchangeMetaData exchangeMetaData;
 
     private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-    public OkexStreamingPositionService(OkexStreamingService service, ExchangeMetaData exchangeMetaData) {
+    public OkexStreamingPositionService(OkexStreamingPool service, ExchangeMetaData exchangeMetaData) {
         this.service = service;
         this.exchangeMetaData = exchangeMetaData;
     }

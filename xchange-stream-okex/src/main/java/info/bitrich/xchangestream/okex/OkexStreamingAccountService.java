@@ -23,11 +23,11 @@ public class OkexStreamingAccountService implements StreamingAccountService {
 
     private static final Logger LOG = LoggerFactory.getLogger(OkexStreamingAccountService.class);
 
-    private final OkexStreamingService service;
+    private final OkexStreamingPool service;
 
     private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-    public OkexStreamingAccountService(OkexStreamingService service) {
+    public OkexStreamingAccountService(OkexStreamingPool service) {
         this.service = service;
     }
 

@@ -22,13 +22,13 @@ public class OkexStreamingMarketDataService implements StreamingMarketDataServic
 
   private static final Logger LOG = LoggerFactory.getLogger(OkexStreamingMarketDataService.class);
 
-  private final OkexStreamingService service;
+  private final OkexStreamingPool service;
 
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
   private final Map<Instrument, PublishSubject<List<OrderBookUpdate>>>
       orderBookUpdatesSubscriptions;
 
-  public OkexStreamingMarketDataService(OkexStreamingService service) {
+  public OkexStreamingMarketDataService(OkexStreamingPool service) {
     this.service = service;
     this.orderBookUpdatesSubscriptions = new ConcurrentHashMap<>();
   }

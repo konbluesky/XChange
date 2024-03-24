@@ -146,6 +146,11 @@ public class OkexStreamingService extends JsonNettyStreamingService {
         return channelName;
     }
 
+    public int getChannelSize(){
+        return this.channels.size();
+    }
+
+
     @Override
     public String getSubscribeMessage(String channelName, Object... args) throws IOException {
         if(channelName.equalsIgnoreCase(MultipleSubscribeBuilder.MULTIPLE.toLowerCase())){

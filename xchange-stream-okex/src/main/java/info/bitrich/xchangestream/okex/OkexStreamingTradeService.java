@@ -17,11 +17,11 @@ import static info.bitrich.xchangestream.okex.OkexStreamingService.USERORDERS;
 
 public class OkexStreamingTradeService implements StreamingTradeService {
 
-    private final OkexStreamingService service;
+    private final OkexStreamingPool service;
     private final ExchangeMetaData exchangeMetaData;
     private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-    public OkexStreamingTradeService(OkexStreamingService service, ExchangeMetaData exchangeMetaData) {
+    public OkexStreamingTradeService(OkexStreamingPool service, ExchangeMetaData exchangeMetaData) {
         this.service = service;
         this.exchangeMetaData = exchangeMetaData;
     }

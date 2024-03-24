@@ -28,6 +28,7 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
     public static final String SANDBOX_WS_PRIVATE_CHANNEL_URI = "wss://wspap.okx.com:8443/ws/v5/private?brokerId=9999";
 
     private OkexStreamingService streamingService;
+    private OkexStreamingPool streamingServicePool;
 
     private OkexStreamingMarketDataService streamingMarketDataService;
 
@@ -45,17 +46,19 @@ public class OkexStreamingExchange extends OkexExchange implements StreamingExch
 
     @Override
     public Completable connect(ProductSubscription... args) {
-        this.streamingService = new OkexStreamingService(getApiUrl(), this.exchangeSpecification);
-        this.streamingMarketDataService = new OkexStreamingMarketDataService(streamingService);
-        this.streamingTradeService = new OkexStreamingTradeService(streamingService, exchangeMetaData);
-        this.streamingPositionService = new OkexStreamingPositionService(streamingService, exchangeMetaData);
-        this.streamingAccountService = new OkexStreamingAccountService(streamingService);
+        this.streamingServicePool = new OkexStreamingPool(3, 19, getApiUrl(),
+            getDefaultExchangeSpecification());
+
+        this.streamingMarketDataService = new OkexStreamingMarketDataService(streamingServicePool);
+        this.streamingTradeService = new OkexStreamingTradeService(streamingServicePool, exchangeMetaData);
+        this.streamingPositionService = new OkexStreamingPositionService(streamingServicePool,exchangeMetaData);
+        this.streamingAccountService = new OkexStreamingAccountService(streamingServicePool);
 
         // Use WS_BUSINESS_CHANNEL_URI to initialize the socket connection
-        OkexStreamingService okexStreamingService = new OkexStreamingService(WS_BUSINESS_CHANNEL_URI, this.exchangeSpecification);
-        this.streamingBusinessService = new OkexStreamingBusinessService(okexStreamingService);
+        OkexStreamingService streamingService = new OkexStreamingService(WS_BUSINESS_CHANNEL_URI, this.exchangeSpecification);
+        this.streamingBusinessService = new OkexStreamingBusinessService(streamingService);
 
-        return streamingService.connect().andThen(okexStreamingService.connect());
+        return streamingServicePool.initializeServices().andThen(streamingService.connect());
     }
 
     private String getApiUrl() {
