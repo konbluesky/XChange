@@ -156,7 +156,7 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
             // .filter(n -> n.isWithdrawEnable())  //withdraw: 901
             // .filter(n -> n.isDepositEnable()) //deposit: 524
             .collect(Collectors.toList());
-        log.info("mexcNetworks : {}",mexcNetworks.size());
+        log.info("mexcNetworks : {} ",mexcNetworks.size());
         for (MEXCNetwork mexcNetwork : mexcNetworks) {
           log.info("{},{},{}", config.getCoin(), mexcNetwork.getNetwork(),
               mexcNetwork.getContract());
@@ -169,11 +169,6 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     }
     log.info("find coin:{}", count);
     //isSpotTradingAllowed:  261
-
-
-
-
-
   }
 
 
@@ -181,13 +176,19 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
   public void testMEXCCurrencyMetaData() throws IOException {
     String bscIdentity = MEXCNetwork.NETWORK_BSC2;
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    exchange.remoteInit();
     MEXCExchangeMetaData exchangeMetaData = (MEXCExchangeMetaData) exchange.getExchangeMetaData();
     Map<Currency, CurrencyMetaData> currencies = exchangeMetaData.getCurrencies();
     log.info("size:{}",currencies.size());
     currencies.forEach((k, v) -> {
           MEXCCurrencyMetaData mexcCurrencyMetaData=(MEXCCurrencyMetaData) v;
           // log.info("{}",mexcCurrencyMetaData.getDefaultNetwork());
-      log.info("coin:{}",k);
+      if(k.getCurrencyCode().equalsIgnoreCase("drf")||
+      k.getCurrencyCode().equalsIgnoreCase("SAKAI")) {
+        mexcCurrencyMetaData.use(bscIdentity);
+        log.info("coin:{}, v:{}",k,v.getWalletHealth());
+//      log.info("coin:{}, v:{}",k,v);
+      }
 
       if (mexcCurrencyMetaData.getNetworks().size()>1){
         log.info("default:{}",mexcCurrencyMetaData.getDefaultNetwork());
@@ -253,6 +254,44 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
       }
     }
   }
+  @Test
+  public void testGetAllPrintNetwork2() throws IOException {
+    String bscIdentity = MEXCNetwork.NETWORK_BSC2;
+    String arbIdentity = MEXCNetwork.NETWORK_ARB;
+    String targetIdentity = bscIdentity;
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    List<MEXCConfig> all = marketDataService.getAll();
+    for (MEXCConfig config : all) {
+
+      boolean present = config.getNetworkList().stream()
+          .filter(n -> n.getNetwork().equalsIgnoreCase(targetIdentity.toLowerCase())).findAny()
+          .isPresent();
+      if (present) {
+        log.info("coin  config : {} ", config);
+        log.info("\tNetWork size:{} ", config.getNetworkList().size());
+        for (MEXCNetwork mexcNetwork : config.getNetworkList()) {
+          log.info("\t\tnetwork : {} ", mexcNetwork.toString());
+        }
+      }
+    }
+  }
+
+
+  @Test
+  public void getCoinByNetwork() throws IOException{
+    String bscIdentity = MEXCNetwork.NETWORK_BSC2;
+    MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
+    List<MEXCConfig> all = marketDataService.getAll();
+    Map<Currency, MEXCConfig> collect = all.stream().filter(c -> c.getNetworkList().stream()
+        .anyMatch(n -> n.getNetwork().equalsIgnoreCase(bscIdentity))).collect(
+        Collectors.toMap(c -> Currency.getInstance(c.getCoin()), c -> c));
+
+    collect.forEach((k,v)->{
+      log.info("coin:{} ,{}",k,v);
+    });
+  }
 
 
   @Test
@@ -261,6 +300,7 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
     String arbIdentity = MEXCNetwork.NETWORK_ARB;
     String targetIdentity = bscIdentity;
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    exchange.remoteInit();
     MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
     List<MEXCConfig> all = marketDataService.getAll();
 //    Map<Currency, MEXCConfig> collect = all.stream().filter(c -> c.getNetworkList().stream()
@@ -278,7 +318,7 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
       boolean present = config.getNetworkList().stream()
           .filter(n -> n.getNetwork().equalsIgnoreCase(targetIdentity.toLowerCase())).findAny()
           .isPresent();
-      if (present) {
+      if (config.getCoin().equalsIgnoreCase("lai")&&present) {
         log.info("coin  config : {} ", config);
         log.info("\tNetWork size:{} ", config.getNetworkList().size());
         for (MEXCNetwork mexcNetwork : config.getNetworkList()) {

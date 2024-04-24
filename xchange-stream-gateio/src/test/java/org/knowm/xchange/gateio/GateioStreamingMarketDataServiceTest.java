@@ -17,7 +17,7 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
   @Test
   public void testGetOrderBook() throws InterruptedException {
     streamingExchange.getStreamingMarketDataService()
-        .getOrderBook(CurrencyPair.BTC_USDT, "EJS_USDT", 20, "1000ms")
+        .getOrderBook(new CurrencyPair("WSI","usdt"), "WSI_USDT", 20, "1000ms")
         .subscribe(orderBook -> {
           log.info("深度数据:{}", orderBook);
         });
