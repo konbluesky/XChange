@@ -393,9 +393,10 @@ public final class GateioAdapters {
       List<GateioWithdrawalResponse> withdrawalResponses){
     List<FundingRecord> result = new ArrayList<>();
     depositResponses.forEach(d -> {
+      Date timestamp = DateUtils.fromMillisUtc(Long.valueOf(d.getTimestamp()) * 1000);
       FundingRecord r = new FundingRecord(
           d.getAddress(),
-          new Date(Long.valueOf(d.getTimestamp())),
+          timestamp,
           Currency.getInstance(d.getCurrency()),
           d.getAmount(),
           d.getId(),
@@ -408,9 +409,10 @@ public final class GateioAdapters {
       result.add(r);
     });
     withdrawalResponses.forEach(w -> {
+      Date timestamp = DateUtils.fromMillisUtc(Long.valueOf(w.getTimestamp()) * 1000);
       FundingRecord r = new FundingRecord(
           w.getAddress(),
-          new Date(Long.valueOf(w.getTimestamp())),
+          timestamp,
           Currency.getInstance(w.getCurrency()),
           w.getAmount(),
           w.getId(),
