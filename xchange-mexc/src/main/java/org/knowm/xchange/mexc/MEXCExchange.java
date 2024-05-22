@@ -62,7 +62,7 @@ public class MEXCExchange extends BaseExchange implements Exchange {
   public void remoteInit() throws IOException, ExchangeException {
     // warn manually specify
     Set<String> identites = Sets.newHashSet(MEXCNetwork.NETWORK_BSC1, MEXCNetwork.NETWORK_BSC2,
-        MEXCNetwork.NETWORK_ARB);
+        MEXCNetwork.NETWORK_ARB,MEXCNetwork.NETWORK_SOLANA);
     List<MEXCConfig> coinConfig = ((MEXCMarketDataServiceRaw) this.marketDataService).getAll();
     MEXCExchangeInfo exchangeInfo = ((MEXCMarketDataServiceRaw) this.marketDataService).getExchangeInfo();
     log.info("Load BEP20(BSC) coin quantity:{}", coinConfig.size());
