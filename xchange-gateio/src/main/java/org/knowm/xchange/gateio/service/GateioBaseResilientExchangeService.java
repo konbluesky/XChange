@@ -91,9 +91,14 @@ public class GateioBaseResilientExchangeService extends
       if (gateioException.getMessage()
           .contains("gap between request Timestamp and server time exceeds")) {
 
-        String msg =
-            gateioException.getMessage() + ". LocalTime : " + new Date().getTime() + "ServerTime:"
-                + gateio.serverTime();
+        // gateio in/out time
+//        X-In-Time: 1695715091540163
+//X-Out-Time: 1695715091551905
+        String xInTime = ex.getResponseHeaders().get("X-In-Time").get(0);
+        String xOutTime = ex.getResponseHeaders().get("X-Out-Time").get(0);
+
+        String msg = gateioException.getMessage() + ". LocalTime : " + new Date().getTime() + " ServerTime:"
+                + gateio.serverTime()+" X-In-Time:" + xInTime + " X-Out-Time:" + xOutTime;
         log.info(msg);
         gateioException.setMessage(msg);
       }
