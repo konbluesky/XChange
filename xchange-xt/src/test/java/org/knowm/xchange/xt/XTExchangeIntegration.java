@@ -40,10 +40,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class XTExchangeIntegration {
+public class XTExchangeIntegration extends XTExchangeBase {
     // Enter your authentication details here to run private endpoint tests
-    private static final String API_KEY = "";
-    private static final String SECRET_KEY = "";
 
     @Test
     public void testCreateExchangeShouldApplyDefaultSpecification() {
@@ -96,10 +94,6 @@ public class XTExchangeIntegration {
 
     @Test
     public void testMarketMetadataCurrency() throws IOException {
-        ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
-        spec.setApiKey(API_KEY);
-        spec.setSecretKey(SECRET_KEY);
-        XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
         XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
         List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
 

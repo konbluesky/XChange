@@ -65,7 +65,7 @@ public class XTStreamingAdapters {
                     symbol,
                     xtOrderDetail.getOrderId(),
                     new Date(xtOrderDetail.getCreateTime()),
-                    new BigDecimal(xtOrderDetail.getAvgPrice()),
+                    new BigDecimal(xtOrderDetail.getAvgPrice()==null? "0" : xtOrderDetail.getAvgPrice()),
                     new BigDecimal(xtOrderDetail.getExecutedQty()),
                     new BigDecimal(xtOrderDetail.getFee()),
                     Order.OrderStatus.valueOf(xtOrderDetail.getState()));
@@ -76,7 +76,7 @@ public class XTStreamingAdapters {
                     xtOrderDetail.getOrderId(),
                     new Date(xtOrderDetail.getCreateTime()),
                     new BigDecimal(xtOrderDetail.getPrice()),
-                    new BigDecimal(xtOrderDetail.getAvgPrice()),
+                    new BigDecimal(xtOrderDetail.getAvgPrice()==null? "0" : xtOrderDetail.getAvgPrice()),
                     new BigDecimal(xtOrderDetail.getExecutedQty()),
                     new BigDecimal(xtOrderDetail.getFee()),
                     Order.OrderStatus.valueOf(xtOrderDetail.getState()));

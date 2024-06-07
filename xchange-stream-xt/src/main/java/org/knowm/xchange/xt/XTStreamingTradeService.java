@@ -17,25 +17,27 @@ import org.knowm.xchange.xt.dto.XTSendMessage;
  */
 public class XTStreamingTradeService implements StreamingTradeService {
 
-    private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
-    private XTStreamingService privateStreamingService;
+  private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
+  private XTStreamingService privateStreamingService;
 
-    public XTStreamingTradeService(XTStreamingService privateStreamingService) {
-        this.privateStreamingService = privateStreamingService;
-    }
+  public XTStreamingTradeService(XTStreamingService privateStreamingService) {
+    this.privateStreamingService = privateStreamingService;
+  }
 
-    @Override
-    public Observable<Order> getOrderChanges(CurrencyPair currencyPair, Object... args) {
-        String topic = "order";
-        XTSendMessage sendMessage = XTSendMessage.createSubMessage();
-        sendMessage.putParam(topic);
+  @Override
+  public Observable<Order> getOrderChanges(CurrencyPair currencyPair, Object... args) {
+    String topic = "order";
+    XTSendMessage sendMessage = XTSendMessage.createSubMessage();
+    sendMessage.putParam(topic);
 
-        return privateStreamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
-                                      .filter(message -> message.has("data")).flatMap(jsonNode -> {
-                    XTOrderDetail xtOrderDetail = mapper.treeToValue(jsonNode.get("data"), XTOrderDetail.class);
-                    Order order = XTStreamingAdapters.adaptOrder(xtOrderDetail);
-                    return Observable.just(order);
-                });
-    }
+    return privateStreamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+        .filter(message -> message.has("data"))
+        .flatMap(jsonNode -> {
+          XTOrderDetail xtOrderDetail = mapper.treeToValue(jsonNode.get("data"),
+              XTOrderDetail.class);
+          Order order = XTStreamingAdapters.adaptOrder(xtOrderDetail);
+          return Observable.just(order);
+        });
+  }
 
 }

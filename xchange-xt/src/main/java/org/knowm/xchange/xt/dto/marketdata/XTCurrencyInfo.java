@@ -25,12 +25,16 @@ public class XTCurrencyInfo {
      * "convertEnabled": 1,  //小额资产兑换开关[0=关;1=开]
      * "transferEnabled": 1  //划转开关[0=关;1=开]
      */
+
     private String id;
     private String currency;
     private String fullName;
+    private String displayName;
+    private String type;
     private String logo;
     private String cmcLink;
     private String weight;
+    private String nominalValue;
     private String maxPrecision;
     private String depositStatus;
     private String withdrawStatus;

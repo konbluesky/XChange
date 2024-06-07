@@ -23,53 +23,69 @@ import org.knowm.xchange.xt.dto.marketdata.XTTicker;
 @Slf4j
 public class XTStreamingMarketDataService implements StreamingMarketDataService {
 
-    private final XTStreamingService streamingService;
+  private final XTStreamingService streamingService;
 
-    private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
+  private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
 
-    public XTStreamingMarketDataService(XTStreamingService streamingService) {
-        this.streamingService = streamingService;
+  public XTStreamingMarketDataService(XTStreamingService streamingService) {
+    this.streamingService = streamingService;
+  }
+
+
+  /**
+   * args[0]可以传入depth的值，如：5, 10, 20, 50
+   *
+   * @param currencyPair Currency pair of the order book
+   * @param args
+   * @return
+   */
+  @Override
+  public Observable<OrderBook> getOrderBook(CurrencyPair currencyPair, Object... args) {
+    String topic = "depth";
+    String symbol =
+        currencyPair.getBase().getCurrencyCode().toLowerCase() + "_" + currencyPair.getCounter()
+            .getCurrencyCode()
+            .toLowerCase();
+    XTSendMessage sendMessage = XTSendMessage.createSubMessage();
+    if (args == null || args.length == 0) {
+      args = new Object[]{50};
     }
+    sendMessage.putParam(topic, symbol, args[0]);
 
+    return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+        .filter(message -> message.has("data")).flatMap(jsonNode -> {
+          XTOrderBook orderbook = mapper.treeToValue(jsonNode.get("data"), XTOrderBook.class);
+          OrderBook orderBook = XTStreamingAdapters.adaptOrderBook(Lists.newArrayList(orderbook),
+              currencyPair);
+          return Observable.just(orderBook);
+        });
+  }
 
-    /**
-     * args[0]可以传入depth的值，如：5, 10, 20, 50
-     *
-     * @param currencyPair Currency pair of the order book
-     * @param args
-     * @return
-     */
-    @Override
-    public Observable<OrderBook> getOrderBook(CurrencyPair currencyPair, Object... args) {
-        String topic = "depth";
-        String symbol = currencyPair.getBase().getCurrencyCode().toLowerCase() + "_" + currencyPair.getCounter()
-                                                                                                   .getCurrencyCode()
-                                                                                                   .toLowerCase();
-        XTSendMessage sendMessage = XTSendMessage.createSubMessage();
-        sendMessage.putParam(topic, symbol, args[0]);
+  @Override
+  public Observable<OrderBook> getOrderBook(Instrument instrument, Object... args) {
+    return getOrderBook(new CurrencyPair(instrument.getBase(), instrument.getCounter()), args);
+  }
 
-        return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
-                               .filter(message -> message.has("data")).flatMap(jsonNode -> {
-                    XTOrderBook orderbook = mapper.treeToValue(jsonNode.get("data"), XTOrderBook.class);
-                    OrderBook orderBook = XTStreamingAdapters.adaptOrderBook(Lists.newArrayList(orderbook), currencyPair);
-                    return Observable.just(orderBook);
-                });
-    }
+  @Override
+  public Observable<Ticker> getTicker(Instrument instrument, Object... args) {
+    String topic = "ticker";
+    String symbol =
+        instrument.getBase().getCurrencyCode().toLowerCase() + "_" + instrument.getCounter()
+            .getCurrencyCode()
+            .toLowerCase();
+    XTSendMessage sendMessage = XTSendMessage.createSubMessage();
+    sendMessage.putParam(topic, symbol);
 
-    @Override
-    public Observable<Ticker> getTicker(Instrument instrument, Object... args) {
-        String topic = "ticker";
-        String symbol = instrument.getBase().getCurrencyCode().toLowerCase() + "_" + instrument.getCounter()
-                                                                                               .getCurrencyCode()
-                                                                                               .toLowerCase();
-        XTSendMessage sendMessage = XTSendMessage.createSubMessage();
-        sendMessage.putParam(topic, symbol);
+    return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
+        .filter(message -> message.has("data")).flatMap(jsonNode -> {
+          XTTicker ticker = mapper.treeToValue(jsonNode.get("data"), XTTicker.class);
+          Ticker adaptTicker = XTAdapters.adaptTicker(ticker, instrument);
+          return Observable.just(adaptTicker);
+        });
+  }
 
-        return streamingService.subscribeChannel(sendMessage.getChannelName(), sendMessage)
-                               .filter(message -> message.has("data")).flatMap(jsonNode -> {
-                    XTTicker ticker = mapper.treeToValue(jsonNode.get("data"), XTTicker.class);
-                    Ticker adaptTicker = XTAdapters.adaptTicker(ticker, instrument);
-                    return Observable.just(adaptTicker);
-                });
-    }
+  @Override
+  public Observable<Ticker> getTicker(CurrencyPair currencyPair, Object... args) {
+    return getTicker((Instrument) currencyPair, args);
+  }
 }

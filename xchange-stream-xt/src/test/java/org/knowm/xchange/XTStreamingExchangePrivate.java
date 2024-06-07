@@ -21,10 +21,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Ignore
 @Slf4j
-public class XTStreamingExchangePrivate {
+public class XTStreamingExchangePrivate extends XTStreamingBase{
     // Enter your authentication details here to run private endpoint tests
-    private static final String API_KEY = "";
-    private static final String SECRET_KEY = "";
     private final Instrument instrument = new FuturesContract("ARB/USDT/SWAP");
     StreamingExchange streamingExchange;
 
@@ -46,16 +44,28 @@ public class XTStreamingExchangePrivate {
     }
 
     @Test
-    public void testPrivate() throws InterruptedException {
+    public void testBalanceChange() throws InterruptedException {
         XTStreamingExchange xtStreamingExchange = (XTStreamingExchange) streamingExchange;
         Disposable dis = xtStreamingExchange.getStreamingAccountService()
                                             .getBalanceChanges(null)
                                             .subscribe(orderBook -> {
                                                 log.info("sub: {}", orderBook.toString());
                                             });
-        TimeUnit.SECONDS.sleep(180);
-
+        TimeUnit.MINUTES.sleep(10);
         dis.dispose();
     }
+
+    @Test
+    public void testSelfOrder() throws InterruptedException{
+        XTStreamingExchange xtStreamingExchange = (XTStreamingExchange) streamingExchange;
+        Disposable dis = xtStreamingExchange.getStreamingTradeService()
+            .getOrderChanges(null)
+            .subscribe(orderBook -> {
+                log.info("orderBook: {}", orderBook.toString());
+            });
+        TimeUnit.MINUTES.sleep(10);
+        dis.dispose();
+    }
+
 
 }
