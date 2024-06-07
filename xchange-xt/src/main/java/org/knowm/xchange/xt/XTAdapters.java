@@ -28,6 +28,8 @@ import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.knowm.xchange.xt.dto.trade.XTOrderEnum;
+import org.knowm.xchange.xt.dto.trade.XTOrderEnum.TimeInForce;
 
 import static org.knowm.xchange.xt.service.XTMarketDataServiceRaw.BNB_SMART_CHAIN;
 
@@ -131,7 +133,7 @@ public class XTAdapters {
     public static PlaceOrderRequest adaptOrder(Order order, boolean isLimit) {
         if (isLimit) {
             LimitOrder limitOrder = (LimitOrder) order;
-            return PlaceOrderRequest.builder()
+            PlaceOrderRequest.PlaceOrderRequestBuilder builder = PlaceOrderRequest.builder()
                                     .symbol(adaptInstrument(order.getInstrument()))
                                     .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
                                     .clientOrderId(order.getUserReference())
@@ -141,20 +143,27 @@ public class XTAdapters {
                                     .bizType("SPOT")
                                     .quantity(order.getOriginalAmount().toPlainString())
                                     .price(limitOrder.getLimitPrice()
-                                                     .toString())
-                                    .build();
+                                                     .toString());
+            if(order.hasFlag(TimeInForce.IOC)){
+                builder.timeInForce("IOC");
+            }
+            return builder.build();
         } else {
-            MarketOrder marketOrder=(MarketOrder)order;
-            return PlaceOrderRequest.builder()
-                                    .symbol(adaptInstrument(order.getInstrument()))
-                                    .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
-                                    .clientOrderId(order.getUserReference())
-                                    .type(isLimit ? "LIMIT" : "MARKET")
-                                    //GTC,FOK,IOC,GTX
-                                    .timeInForce("GTC")
-                                    .bizType("SPOT")
-                                    .quantity(order.getOriginalAmount().toPlainString())
-                                    .build();
+          MarketOrder marketOrder = (MarketOrder) order;
+          PlaceOrderRequest.PlaceOrderRequestBuilder builder = PlaceOrderRequest.builder();
+          builder.symbol(adaptInstrument(order.getInstrument()))
+              .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
+              .clientOrderId(order.getUserReference())
+              .type(isLimit ? "LIMIT" : "MARKET")
+              //GTC,FOK,IOC,GTX
+              .timeInForce("GTC")
+              .bizType("SPOT")
+              .quantity(order.getOriginalAmount().toPlainString());
+
+          if (order.hasFlag(TimeInForce.IOC)) {
+            builder.timeInForce("IOC");
+          }
+          return builder.build();
         }
     }
 
