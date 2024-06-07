@@ -33,9 +33,9 @@ public interface XT {
     @GET
     @Path("/symbol")
     XTResponse<JsonNode> symbol(
-            @QueryParam("symbol") String symbol,
-            @QueryParam("symbols") String symbols,
-            @QueryParam("version") String version
+        @QueryParam("symbol") String symbol,
+        @QueryParam("symbols") String symbols,
+        @QueryParam("version") String version
     ) throws XTException;
 
     @GET
@@ -49,16 +49,17 @@ public interface XT {
     @GET
     @Path("/ticker/price")
     XTResponse<List<XTTicker>> getTickerPrice(
-            @QueryParam("symbol") String symbol,
-            @QueryParam("symbols") String symbols,
-            @QueryParam("tags") String tags
+        @QueryParam("symbol") String symbol,
+        @QueryParam("symbols") String symbols,
+        @QueryParam("tags") String tags
     ) throws XTException;
 
     @GET
-    @Path("/ticker")
+    @Path("/ticker/24h")
     XTResponse<List<XTTicker>> getFullTickerPrice(
-            @QueryParam("symbol") String symbol,
-            @QueryParam("symbols") String symbols,
-            @QueryParam("tags") String tags
+        @QueryParam("symbol") String symbol,
+        @QueryParam("symbols") String symbols,
+        @QueryParam("tags") String tags
     ) throws XTException;
+
 }
