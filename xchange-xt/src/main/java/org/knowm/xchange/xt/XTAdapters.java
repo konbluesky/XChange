@@ -67,6 +67,7 @@ public class XTAdapters {
                                                         .map(balanceResponse -> new Balance.Builder()
                                                                 .currency(new Currency(balanceResponse.getCurrency()))
                                                                 .total(new BigDecimal(balanceResponse.getTotalAmount()))
+                                                                .frozen(new BigDecimal(balanceResponse.getFrozenAmount()))
                                                                 .available(new BigDecimal(balanceResponse.getAvailableAmount()))
                                                                 .timestamp(new Date())
                                                                 .build())
@@ -109,7 +110,6 @@ public class XTAdapters {
                     walletInfo.isWithdrawEnabled() && walletInfo.isDepositEnabled() ? WalletHealth.ONLINE : WalletHealth.OFFLINE
             ));
         }
-
         return new ExchangeMetaData(instruments, currencies, null, null, null);
     }
 

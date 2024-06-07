@@ -29,6 +29,21 @@ public class BalanceResponse {
     @JsonProperty("frozenAmount")
     private String frozenAmount;
 
+    @JsonProperty("freeze")
+    private String freeze;
+
+    @JsonProperty("lock")
+    private String lock;
+
+    @JsonProperty("trade")
+    private String trade;
+
+    @JsonProperty("copyTrade")
+    private String copyTrade;
+
+    @JsonProperty("withdraw")
+    private String withdraw;
+
     @JsonProperty("availableAmount")
     private String availableAmount;
 

@@ -28,51 +28,30 @@ import org.knowm.xchange.xt.service.XTMarketDataServiceRaw;
 public class XTExchangeTest extends XTExchangeBase {
 
   @Test
-  public void testGetCoinAndNetwork() throws IOException {
-    ExchangeMetaData exchangeMetaData = exchange.getExchangeMetaData();
-
-
-  }
-
-  @Test
   public void testCurrencyIds() throws IOException {
     XTMarketDataServiceRaw marketDataService = (XTMarketDataServiceRaw) exchange.getMarketDataService();
     List<XTCurrencyInfo> currencyInfos = marketDataService.getCurrencyInfos();
-    /**
-     *     private String id;
-     *     private String currency;
-     *     private String fullName;
-     *     private String displayName;
-     *     private String type;
-     *     private String logo;
-     *     private String cmcLink;
-     *     private String weight;
-     *     private String nominalValue;
-     *     private String maxPrecision;
-     *     private String depositStatus;
-     *     private String withdrawStatus;
-     *     private String convertEnabled;
-     *     private String transferEnabled;
-     *     private String isChainExist;
-     *     private String[] plates;
-     */
     List<String> lines = Lists.newArrayList();
 //    String title="id,currency,fullName,displayName,type,logo,cmcLink,weight,nominalValue,maxPrecision,depositStatus,withdrawStatus,convertEnabled,transferEnabled,isChainExist,plates";
     String title = "id,coin,coin_full_name,network,deposit,withdraw,fee,contract,transfer,cmclink";
     lines.add(title);
     for (XTCurrencyInfo currencyInfo : currencyInfos) {
-      lines.add(
-          String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-              currencyInfo.getId(),
-              currencyInfo.getCurrency().toUpperCase(),
-              currencyInfo.getFullName(),
-              "",
-              currencyInfo.getDepositStatus(),
-              currencyInfo.getWithdrawStatus(),
-              " ",
-              " ",
-              currencyInfo.getTransferEnabled(),
-              currencyInfo.getCmcLink()));
+      if (currencyInfo.getDepositStatus().equalsIgnoreCase("1")
+          && currencyInfo.getWithdrawStatus().equalsIgnoreCase("1")
+          && currencyInfo.getTransferEnabled().equalsIgnoreCase("1")) {
+        lines.add(
+            String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                currencyInfo.getId(),
+                currencyInfo.getCurrency().toUpperCase(),
+                currencyInfo.getFullName(),
+                "",
+                currencyInfo.getDepositStatus(),
+                currencyInfo.getWithdrawStatus(),
+                " ",
+                " ",
+                currencyInfo.getTransferEnabled(),
+                currencyInfo.getCmcLink()));
+      }
     }
     String join = Joiner.on("\n").join(lines);
     Files.write(join.getBytes(), new File("xt-coin-ids.csv"));
