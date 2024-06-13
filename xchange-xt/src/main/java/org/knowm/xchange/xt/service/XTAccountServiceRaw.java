@@ -69,7 +69,7 @@ public class XTAccountServiceRaw extends XTBaseService {
                 signatureCreator,
                 request
         ).getData();
-        return jsonNode.get("id").textValue();
+        return jsonNode.get("id").asText();
     }
 
     public List<WithdrawHistoryResponse> getWithdrawHistory(

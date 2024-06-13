@@ -149,7 +149,6 @@ public class XTAdapters {
             }
             return builder.build();
         } else {
-          MarketOrder marketOrder = (MarketOrder) order;
           PlaceOrderRequest.PlaceOrderRequestBuilder builder = PlaceOrderRequest.builder();
           builder.symbol(adaptInstrument(order.getInstrument()))
               .side(order.getType() == Order.OrderType.BID ? "BUY" : "SELL")
