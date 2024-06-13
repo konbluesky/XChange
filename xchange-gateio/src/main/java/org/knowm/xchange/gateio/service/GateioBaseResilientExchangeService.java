@@ -16,11 +16,11 @@ import org.knowm.xchange.gateio.Gateio;
 import org.knowm.xchange.gateio.GateioAuthenticated;
 import org.knowm.xchange.gateio.GateioException;
 import org.knowm.xchange.gateio.GateioExchange;
+import org.knowm.xchange.gateio.GateioNormalTimestampFactory;
 import org.knowm.xchange.gateio.dto.GateioBaseResponse;
 import org.knowm.xchange.service.BaseResilientExchangeService;
 import org.knowm.xchange.service.BaseService;
 import org.knowm.xchange.utils.ObjectMapperHelper;
-import org.knowm.xchange.utils.nonce.CurrentTimeIncrementalNonceFactory;
 import si.mazi.rescu.HttpStatusIOException;
 import si.mazi.rescu.ParamsDigest;
 import si.mazi.rescu.SynchronizedValueFactory;
@@ -40,7 +40,7 @@ public class GateioBaseResilientExchangeService extends
   protected final String apiKey;
   protected final Gateio gateio;
   protected final GateioAuthenticated gateioAuthenticated;
-  protected final SynchronizedValueFactory<Long> timestampFactory = new CurrentTimeIncrementalNonceFactory(
+  protected final SynchronizedValueFactory<Long> timestampFactory = new GateioNormalTimestampFactory(
       TimeUnit.SECONDS);
   protected final ParamsDigest signatureCreator;
 
