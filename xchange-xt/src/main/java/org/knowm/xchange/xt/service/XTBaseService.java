@@ -40,12 +40,10 @@ public class XTBaseService extends BaseExchangeService {
         super(exchange);
         this.apiKey = exchange.getExchangeSpecification().getApiKey();
         this.secretKey = exchange.getExchangeSpecification().getSecretKey();
-
         this.xt = ExchangeRestProxyBuilder.forInterface(XT.class, exchange.getExchangeSpecification())
                                           .build();
         this.xtAuthenticated = ExchangeRestProxyBuilder.forInterface(XTAuthenticated.class, exchange.getExchangeSpecification())
                                                        .build();
-
         this.signatureCreator = XTDigest.createInstance(apiKey, secretKey);
         init();
     }

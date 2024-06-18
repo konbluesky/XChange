@@ -24,7 +24,7 @@ import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
-import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryParams;
+import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -208,7 +208,7 @@ public class XTExchangeIntegration extends XTExchangeBase {
         spec.setSecretKey(SECRET_KEY);
         XTExchange exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
         List<FundingRecord> fundingHistory = exchange.getAccountService()
-                                                     .getFundingHistory(XTWithdrawHistoryParams.builder()
+                                                     .getFundingHistory(XTFundingHistoryParams.builder()
                                                                                                .build());
         log.info("{}",fundingHistory.toString());
 

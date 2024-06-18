@@ -147,5 +147,25 @@ public interface XTAuthenticated {
       @QueryParam("endTime") Long endTime
   ) throws IOException;
 
+
+  @GET
+  @Path("/deposit/history")
+  XTResponse<JsonNode> getDepositHistory(
+      @HeaderParam("validate-algorithms") String validateAlgorithms,
+      @HeaderParam("validate-appkey") String appkey,
+      @HeaderParam("validate-recvwindow") String recvwindow,
+      @HeaderParam("validate-timestamp") String timestamp,
+      @HeaderParam("validate-signature") ParamsDigest signature,
+      @QueryParam("currency") String currency,
+      @QueryParam("chain") String chain,
+      @QueryParam("status") String status,
+      @QueryParam("fromId") Long fromId,
+      @QueryParam("direction") String direction,
+      @QueryParam("limit") int limit,
+      @QueryParam("startTime") Long startTime,
+      @QueryParam("endTime") Long endTime
+  );
+
+
 }
 

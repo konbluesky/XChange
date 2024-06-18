@@ -12,7 +12,7 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParams;
  */
 @Getter
 @Builder
-public class XTWithdrawHistoryParams implements TradeHistoryParams {
+public class XTFundingHistoryParams implements TradeHistoryParams {
     /**
      * 币种名称，可从'获取XT可充提的币种'接口中获取
      */
