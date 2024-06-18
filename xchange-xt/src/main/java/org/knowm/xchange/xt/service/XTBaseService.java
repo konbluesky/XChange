@@ -23,44 +23,45 @@ import si.mazi.rescu.ParamsDigest;
 public class XTBaseService extends BaseExchangeService {
 
 
-    protected final String apiKey;
-    protected final String secretKey;
-    protected final ParamsDigest signatureCreator;
-    protected final XT xt;
-    protected final String RECV_WINDOW = "6000";
-    protected final XTAuthenticated xtAuthenticated;
-    protected ObjectMapper mapper = new ObjectMapper();
+  protected final String apiKey;
+  protected final String secretKey;
+  protected final ParamsDigest signatureCreator;
+  protected final XT xt;
+  protected final String RECV_WINDOW = "6000";
+  protected final XTAuthenticated xtAuthenticated;
+  protected ObjectMapper mapper = new ObjectMapper();
 
-    /**
-     * Constructor
-     *
-     * @param exchange
-     */
-    protected XTBaseService(Exchange exchange) {
-        super(exchange);
-        this.apiKey = exchange.getExchangeSpecification().getApiKey();
-        this.secretKey = exchange.getExchangeSpecification().getSecretKey();
-        this.xt = ExchangeRestProxyBuilder.forInterface(XT.class, exchange.getExchangeSpecification())
-                                          .build();
-        this.xtAuthenticated = ExchangeRestProxyBuilder.forInterface(XTAuthenticated.class, exchange.getExchangeSpecification())
-                                                       .build();
-        this.signatureCreator = XTDigest.createInstance(apiKey, secretKey);
-        init();
+  /**
+   * Constructor
+   *
+   * @param exchange
+   */
+  protected XTBaseService(Exchange exchange) {
+    super(exchange);
+    this.apiKey = exchange.getExchangeSpecification().getApiKey();
+    this.secretKey = exchange.getExchangeSpecification().getSecretKey();
+    this.xt = ExchangeRestProxyBuilder.forInterface(XT.class, exchange.getExchangeSpecification())
+        .build();
+    this.xtAuthenticated = ExchangeRestProxyBuilder.forInterface(XTAuthenticated.class,
+            exchange.getExchangeSpecification())
+        .build();
+    this.signatureCreator = XTDigest.createInstance(apiKey, secretKey);
+    init();
+  }
+
+
+  private void init() {
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+  }
+
+  protected ExchangeException handleError(XTException exception) {
+    if (exception.getMessage().contains("Requests too frequent")) {
+      return new RateLimitExceededException(exception);
+    } else if (exception.getMessage().contains("System error")) {
+      return new InternalServerException(exception);
+    } else {
+      return new ExchangeException(exception);
     }
-
-
-    private void init() {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-              .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
-
-    protected ExchangeException handleError(XTException exception) {
-        if (exception.getMessage().contains("Requests too frequent")) {
-            return new RateLimitExceededException(exception);
-        } else if (exception.getMessage().contains("System error")) {
-            return new InternalServerException(exception);
-        } else {
-            return new ExchangeException(exception);
-        }
-    }
+  }
 }

@@ -3,7 +3,6 @@ package org.knowm.xchange.xt.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
-import org.knowm.xchange.Exchange;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.XTExchange;

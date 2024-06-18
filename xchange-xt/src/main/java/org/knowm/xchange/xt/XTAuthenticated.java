@@ -11,17 +11,15 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.util.List;
 import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 import org.knowm.xchange.xt.dto.ws.WebSocketToken;
 import si.mazi.rescu.ParamsDigest;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * <p> @Date : 2023/7/10 </p>

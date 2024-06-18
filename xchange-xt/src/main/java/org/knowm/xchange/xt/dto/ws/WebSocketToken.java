@@ -10,6 +10,7 @@ import lombok.Getter;
  */
 @Getter
 public class WebSocketToken {
-    private String accessToken;
-    private String refreshToken;
+
+  private String accessToken;
+  private String refreshToken;
 }

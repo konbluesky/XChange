@@ -11,50 +11,47 @@ import lombok.Data;
  */
 @Data
 public class BalanceResponse {
-    /**
-     * "currency": "usdt",     //币种
-     * "currencyId": 0,        //币种ID
-     * "frozenAmount": 0,      //冻结数量
-     * "availableAmount": 0,   //可用数量
-     * "totalAmount": 0,       //总数量
-     * "convertBtcAmount": 0   //折算BTC数量
-     */
 
-    @JsonProperty("currency")
-    private String currency;
+  /**
+   * "currency": "usdt",     //币种 "currencyId": 0,        //币种ID "frozenAmount": 0,      //冻结数量
+   * "availableAmount": 0,   //可用数量 "totalAmount": 0,       //总数量 "convertBtcAmount": 0   //折算BTC数量
+   */
 
-    @JsonProperty("currencyId")
-    private String currencyId;
+  @JsonProperty("currency")
+  private String currency;
 
-    @JsonProperty("frozenAmount")
-    private String frozenAmount;
+  @JsonProperty("currencyId")
+  private String currencyId;
 
-    @JsonProperty("freeze")
-    private String freeze;
+  @JsonProperty("frozenAmount")
+  private String frozenAmount;
 
-    @JsonProperty("lock")
-    private String lock;
+  @JsonProperty("freeze")
+  private String freeze;
 
-    @JsonProperty("trade")
-    private String trade;
+  @JsonProperty("lock")
+  private String lock;
 
-    @JsonProperty("copyTrade")
-    private String copyTrade;
+  @JsonProperty("trade")
+  private String trade;
 
-    @JsonProperty("withdraw")
-    private String withdraw;
+  @JsonProperty("copyTrade")
+  private String copyTrade;
 
-    @JsonProperty("availableAmount")
-    private String availableAmount;
+  @JsonProperty("withdraw")
+  private String withdraw;
 
-    @JsonProperty("totalAmount")
-    private String totalAmount;
+  @JsonProperty("availableAmount")
+  private String availableAmount;
 
-    @JsonProperty("convertBtcAmount")
-    private String convertBtcAmount;
+  @JsonProperty("totalAmount")
+  private String totalAmount;
 
-    @JsonProperty("convertUsdtAmount")
-    private String convertUsdtAmount;
+  @JsonProperty("convertBtcAmount")
+  private String convertBtcAmount;
+
+  @JsonProperty("convertUsdtAmount")
+  private String convertUsdtAmount;
 
 
 }

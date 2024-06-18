@@ -1,9 +1,8 @@
 package org.knowm.xchange.xt.dto.marketdata;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.List;
 
 /**
  * <p> @Date : 2023/7/10 </p>
@@ -14,17 +13,18 @@ import java.util.List;
 @Getter
 @ToString
 public class XTCurrencyWalletInfo {
-    private String currency;
-    private List<XTCurrencyChainInfo> supportChains;
+
+  private String currency;
+  private List<XTCurrencyChainInfo> supportChains;
 
 
-    public XTCurrencyChainInfo getWalletInfo(String chainName) {
-        for (XTCurrencyChainInfo chainInfo : supportChains) {
-            if (chainInfo.getChain().equalsIgnoreCase(chainName)) {
-                return chainInfo;
-            }
-        }
-        return null;
-
+  public XTCurrencyChainInfo getWalletInfo(String chainName) {
+    for (XTCurrencyChainInfo chainInfo : supportChains) {
+      if (chainInfo.getChain().equalsIgnoreCase(chainName)) {
+        return chainInfo;
+      }
     }
+    return null;
+
+  }
 }

@@ -11,22 +11,22 @@ import si.mazi.rescu.HttpStatusExceptionSupport;
  */
 public class XTException extends HttpStatusExceptionSupport {
 
-    private final String message;
-    private final int code;
+  private final String message;
+  private final int code;
 
-    public XTException(@JsonProperty("mc") String message, @JsonProperty("rc") int code) {
-        super(message);
-        this.message = message;
-        this.code = code;
-    }
+  public XTException(@JsonProperty("mc") String message, @JsonProperty("rc") int code) {
+    super(message);
+    this.message = message;
+    this.code = code;
+  }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-    @Override
-    public String toString() {
-        return code + ":" + message;
-    }
+  @Override
+  public String toString() {
+    return code + ":" + message;
+  }
 }
