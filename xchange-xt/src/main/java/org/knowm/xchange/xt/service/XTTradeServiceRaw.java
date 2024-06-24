@@ -3,8 +3,10 @@ package org.knowm.xchange.xt.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
-import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseParamsDigest;
+import org.knowm.xchange.xt.XTExchange;
+import org.knowm.xchange.xt.XTResilience;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 
@@ -14,27 +16,30 @@ import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
  *
  * <p> @author konbluesky </p>
  */
-public class XTTradeServiceRaw extends XTBaseService {
+public class XTTradeServiceRaw extends XTBaseResilientExchangeService {
 
-  /**
-   * Constructor
-   *
-   * @param exchange
-   */
-  public XTTradeServiceRaw(Exchange exchange) {
-    super(exchange);
+  public XTTradeServiceRaw(XTExchange exchange,
+      ResilienceRegistries resilienceRegistries) {
+    super(exchange, resilienceRegistries);
   }
 
-
   public String placeLimitOrder(PlaceOrderRequest request) throws IOException {
-    JsonNode jsonNode = xtAuthenticated.placeOrder(
-        BaseParamsDigest.HMAC_SHA_256,
-        apiKey,
-        RECV_WINDOW,
-        String.valueOf(System.currentTimeMillis()),
-        signatureCreator,
-        request).getData();
-    return jsonNode.get("orderId").asText();
+    try {
+      JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.placeOrder(
+          BaseParamsDigest.HMAC_SHA_256,
+          apiKey,
+          RECV_WINDOW,
+          String.valueOf(System.currentTimeMillis()),
+          signatureCreator,
+          request).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+      if (jsonNode.has("orderId")) {
+        return jsonNode.get("orderId").asText();
+      } else {
+        return null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public GetOrderResponse getOrder(Long orderId, String clientOrderId) throws IOException {

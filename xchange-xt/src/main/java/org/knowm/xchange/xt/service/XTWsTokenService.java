@@ -26,7 +26,7 @@ public class XTWsTokenService extends XTBaseResilientExchangeService {
   }
 
   public WebSocketToken getWsToken() throws IOException {
-    return decorateApiCall(()->xtAuthenticated.getWsToken(
+    return decorateApiCall(() -> xtAuthenticated.getWsToken(
         BaseParamsDigest.HMAC_SHA_256,
         apiKey,
         RECV_WINDOW,

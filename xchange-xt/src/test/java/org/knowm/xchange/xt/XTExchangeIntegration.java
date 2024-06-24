@@ -37,6 +37,7 @@ import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
 import org.knowm.xchange.xt.service.XTAccountServiceRaw;
 import org.knowm.xchange.xt.service.XTMarketDataService;
+import org.knowm.xchange.xt.service.XTMarketDataServiceRaw;
 
 @Slf4j
 public class XTExchangeIntegration extends XTExchangeBase {
@@ -118,7 +119,7 @@ public class XTExchangeIntegration extends XTExchangeBase {
 
   @Test
   public void filterBNB() {
-    XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
+    XTMarketDataServiceRaw marketDataService = (XTMarketDataServiceRaw) exchange.getMarketDataService();
     List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
     List<XTSymbol> symbols1 = marketDataService.getSymbols(null, null).stream()
         .filter(xt -> xt.getState().equalsIgnoreCase("online"))

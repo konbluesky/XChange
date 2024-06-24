@@ -1,9 +1,7 @@
 package org.knowm.xchange.xt.service;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.account.AccountInfo;
@@ -56,9 +54,9 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
           .address(address)
           .build();
       String withdraw = withdraw(withdrawRequest);
-        if (!Strings.isNullOrEmpty(withdraw)) {
-            return withdraw;
-        }
+      if (!Strings.isNullOrEmpty(withdraw)) {
+        return withdraw;
+      }
 
       return null;
     }
@@ -76,9 +74,10 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       List<WithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status,
           null, null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-      List<DepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status,null,null,100,
+      List<DepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status, null,
+          null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-      return XTAdapters.adaptWithdraws(withdrawHistory,depositHistory);
+      return XTAdapters.adaptWithdraws(withdrawHistory, depositHistory);
     }
     throw new IllegalStateException("Don't know how to withdraw: " + params);
   }

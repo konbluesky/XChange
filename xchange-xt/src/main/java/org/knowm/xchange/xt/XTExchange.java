@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.BaseExchange;
+import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.exceptions.ExchangeException;
@@ -22,7 +23,7 @@ import org.knowm.xchange.xt.service.XTWsTokenService;
  *
  * <p> @author konbluesky </p>
  */
-public class XTExchange extends BaseExchange {
+public class XTExchange extends BaseExchange implements Exchange {
 
   private static ResilienceRegistries resilienceRegistries;
   protected XTWsTokenService xtWsTokenService;
@@ -53,9 +54,9 @@ public class XTExchange extends BaseExchange {
   @Override
   protected void initServices() {
     this.accountService = new XTAccountService(this, getResilienceRegistries());
-    this.marketDataService = new XTMarketDataService(this);
-    this.tradeService = new XTTradeService(this);
-    this.xtWsTokenService = new XTWsTokenService(this,getResilienceRegistries());
+    this.marketDataService = new XTMarketDataService(this, getResilienceRegistries());
+    this.tradeService = new XTTradeService(this, getResilienceRegistries());
+    this.xtWsTokenService = new XTWsTokenService(this, getResilienceRegistries());
   }
 
   @Override

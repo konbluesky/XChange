@@ -1,8 +1,6 @@
 package org.knowm.xchange.xt.service;
 
 import jakarta.ws.rs.QueryParam;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.utils.DigestUtils;

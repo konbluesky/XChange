@@ -95,7 +95,7 @@ public class XTAccountServiceTest extends XTExchangeBase {
     String formattedDateTime = twoDaysAgoStartOfDay.format(formatter);
     List<DepositHistoryResponse> depositHistory = accountService.getDepositHistory(
 //        Currency.SOL.getCurrencyCode(), XTNetwork.SOL_SOL,null, null, null, 10, null,
-        Currency.USDT.getCurrencyCode(), XTNetwork.BNB_SMART_CHAIN,null, null, null, 10, timestamp,
+        null, XTNetwork.BNB_SMART_CHAIN,null, null, null, 10, timestamp,
         null);
     log.info("depositHistory record :{} ", depositHistory.size());
     for (DepositHistoryResponse depositHistoryResponse : depositHistory) {

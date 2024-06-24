@@ -3,7 +3,7 @@ package org.knowm.xchange.xt.service;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.Collection;
-import org.knowm.xchange.Exchange;
+import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
@@ -12,6 +12,7 @@ import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamInstrument;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.xt.XTAdapters;
+import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 
 /**
@@ -22,13 +23,9 @@ import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
  */
 public class XTTradeService extends XTTradeServiceRaw implements TradeService {
 
-  /**
-   * Constructor
-   *
-   * @param exchange
-   */
-  public XTTradeService(Exchange exchange) {
-    super(exchange);
+  public XTTradeService(XTExchange exchange,
+      ResilienceRegistries resilienceRegistries) {
+    super(exchange, resilienceRegistries);
   }
 
   @Override

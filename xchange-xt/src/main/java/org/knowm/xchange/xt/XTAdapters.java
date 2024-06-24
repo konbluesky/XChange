@@ -1,10 +1,11 @@
 package org.knowm.xchange.xt;
 
-import static org.knowm.xchange.xt.service.XTMarketDataServiceRaw.BNB_SMART_CHAIN;
+
+import static org.knowm.xchange.xt.dto.XTNetwork.BNB_SMART_CHAIN;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.FundingRecord;
+import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
@@ -203,16 +205,21 @@ public class XTAdapters {
   }
 
   public static List<FundingRecord> adaptWithdraws(
-      List<WithdrawHistoryResponse> withdrawHistoryResponses,List<DepositHistoryResponse> depositHistoryResponses) {
-    List<FundingRecord> withdrawFunding=withdrawHistoryResponses.stream()
+      List<WithdrawHistoryResponse> withdrawHistoryResponses,
+      List<DepositHistoryResponse> depositHistoryResponses) {
+    if (withdrawHistoryResponses == null || depositHistoryResponses == null) {
+      return Lists.newArrayList();
+    }
+    List<FundingRecord> withdrawFunding = withdrawHistoryResponses.stream()
         .map(XTAdapters::adaptWithdrawalHistoryResponse)
         .collect(Collectors.toList());
-    List<FundingRecord> depositFunding=depositHistoryResponses.stream()
+    List<FundingRecord> depositFunding = depositHistoryResponses.stream()
         .map(XTAdapters::adaptDepositHistoryResponse)
         .collect(Collectors.toList());
     return Stream.concat(withdrawFunding.stream(), depositFunding.stream())
         .collect(Collectors.toList());
   }
+
   public static FundingRecord adaptDepositHistoryResponse(DepositHistoryResponse response) {
     //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
     return new FundingRecord.Builder().setAddress(response.getAddress())
@@ -224,9 +231,10 @@ public class XTAdapters {
         .setInternalId(String.valueOf(response.getId()))
         .setStatus(convertFundingStatus(response.getStatus()))
         .setBlockchainTransactionHash(response.getTransactionId())
-        .setType(FundingRecord.Type.WITHDRAWAL)
+        .setType(Type.DEPOSIT)
         .build();
   }
+
   public static FundingRecord adaptWithdrawalHistoryResponse(WithdrawHistoryResponse response) {
     //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
     return new FundingRecord.Builder().setAddress(response.getAddress())
@@ -239,7 +247,7 @@ public class XTAdapters {
         .setInternalId(String.valueOf(response.getId()))
         .setStatus(convertFundingStatus(response.getStatus()))
         .setBlockchainTransactionHash(response.getTransactionId())
-        .setType(FundingRecord.Type.WITHDRAWAL)
+        .setType(Type.WITHDRAWAL)
         .build();
   }
 

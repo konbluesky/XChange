@@ -10,7 +10,6 @@ import org.knowm.xchange.client.ClientConfigCustomizer;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseResilientExchangeService;
-import org.knowm.xchange.service.BaseService;
 import org.knowm.xchange.xt.XT;
 import org.knowm.xchange.xt.XTAuthenticated;
 import org.knowm.xchange.xt.XTExchange;
@@ -25,7 +24,7 @@ import si.mazi.rescu.serialization.jackson.DefaultJacksonObjectMapperFactory;
  */
 @Slf4j
 public class XTBaseResilientExchangeService extends
-    BaseResilientExchangeService<XTExchange> implements BaseService {
+    BaseResilientExchangeService<XTExchange> {
 
   protected final String apiKey;
   protected final String secretKey;
@@ -60,7 +59,7 @@ public class XTBaseResilientExchangeService extends
     this.xt = ExchangeRestProxyBuilder.forInterface(XT.class, exchange.getExchangeSpecification())
         .build();
     this.xtAuthenticated = ExchangeRestProxyBuilder.forInterface(XTAuthenticated.class,
-        exchange.getExchangeSpecification())
+            exchange.getExchangeSpecification())
         .clientConfigCustomizer(clientConfigCustomizer)
         .build();
     this.signatureCreator = XTDigest.createInstance(apiKey, secretKey);
