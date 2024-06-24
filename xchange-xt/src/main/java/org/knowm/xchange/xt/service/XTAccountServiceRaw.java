@@ -12,7 +12,6 @@ import org.knowm.xchange.xt.dto.account.BalanceResponse;
 import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
-import org.knowm.xchange.xt.dto.account.XTFundingHistoryRequest;
 
 /**
  * <p> @Date : 2023/7/10 </p>
@@ -122,17 +121,6 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
   ) throws IOException {
 
     try {
-//      XTFundingHistoryRequest request=XTFundingHistoryRequest.builder()
-//          .currency(currency)
-//          .chain(chain)
-//          .status(status)
-//          .fromId(fromId)
-//          .startTime(startTime)
-//          .endTime(endTime)
-//          .limit(limit)
-//          .direction(direction)
-//          .build();
-
       JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.getDepositHistory(
           BaseParamsDigest.HMAC_SHA_256,
           apiKey,
@@ -148,10 +136,10 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
           startTime,
           endTime
       ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
-      if(jsonNode.hasNonNull("items")){
+      if (jsonNode.hasNonNull("items")) {
         return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
             .constructCollectionType(List.class, DepositHistoryResponse.class));
-      }else {
+      } else {
         return Lists.newArrayList();
       }
     } catch (Exception e) {

@@ -49,7 +49,7 @@ public class XTStreamingAdapters {
 
     public static Balance adaptBalance(XTBalance balance) {
         Balance.Builder builder = new Balance.Builder();
-        builder.available(new BigDecimal(balance.getBalance()))
+        builder.total(new BigDecimal(balance.getBalance()))
                .frozen(new BigDecimal(balance.getFrozen()))
                .currency(Currency.getInstance(balance.getCurrency()));
         return builder.build();

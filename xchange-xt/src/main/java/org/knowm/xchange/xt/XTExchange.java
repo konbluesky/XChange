@@ -55,7 +55,7 @@ public class XTExchange extends BaseExchange {
     this.accountService = new XTAccountService(this, getResilienceRegistries());
     this.marketDataService = new XTMarketDataService(this);
     this.tradeService = new XTTradeService(this);
-    this.xtWsTokenService = new XTWsTokenService(this);
+    this.xtWsTokenService = new XTWsTokenService(this,getResilienceRegistries());
   }
 
   @Override

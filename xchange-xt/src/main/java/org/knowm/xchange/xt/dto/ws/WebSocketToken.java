@@ -1,5 +1,6 @@
 package org.knowm.xchange.xt.dto.ws;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 /**
@@ -11,6 +12,9 @@ import lombok.Getter;
 @Getter
 public class WebSocketToken {
 
+  @JsonProperty("accessToken")
   private String accessToken;
+
+  @JsonProperty("refreshToken")
   private String refreshToken;
 }
