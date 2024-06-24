@@ -1,7 +1,9 @@
 package org.knowm.xchange.xt.service;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.dto.account.AccountInfo;
@@ -11,6 +13,7 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 import org.knowm.xchange.xt.XTAdapters;
 import org.knowm.xchange.xt.XTExchange;
+import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
@@ -62,6 +65,7 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
     throw new IllegalStateException("Don't know how to withdraw: " + params);
   }
 
+
   @Override
   public List<FundingRecord> getFundingHistory(TradeHistoryParams params) throws IOException {
     if (params instanceof XTFundingHistoryParams) {
@@ -70,12 +74,11 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       String chain = xtFundingHistoryParams.getChain();
       String status = xtFundingHistoryParams.getStatus();
       List<WithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status,
-          null, null, 50,
+          null, null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-        if (withdrawHistory != null && !withdrawHistory.isEmpty()) {
-            return XTAdapters.adaptWithdraws(withdrawHistory);
-        }
-      return null;
+      List<DepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status,null,null,100,
+          xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
+      return XTAdapters.adaptWithdraws(withdrawHistory,depositHistory);
     }
     throw new IllegalStateException("Don't know how to withdraw: " + params);
   }

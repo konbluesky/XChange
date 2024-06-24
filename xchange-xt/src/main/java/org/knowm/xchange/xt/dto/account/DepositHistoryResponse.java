@@ -2,6 +2,7 @@ package org.knowm.xchange.xt.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * <p> @Date : 2024/6/13 </p>
@@ -10,6 +11,7 @@ import lombok.Getter;
  * <p> @author konbluesky </p>
  */
 @Getter
+@ToString
 public class DepositHistoryResponse {
   /**
    * "id": 169669597,       //提现记录id

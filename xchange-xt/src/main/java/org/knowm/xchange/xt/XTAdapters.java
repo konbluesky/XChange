@@ -4,6 +4,7 @@ import static org.knowm.xchange.xt.service.XTMarketDataServiceRaw.BNB_SMART_CHAI
 
 import com.google.common.base.Strings;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -27,6 +29,7 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyChainInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
@@ -200,12 +203,30 @@ public class XTAdapters {
   }
 
   public static List<FundingRecord> adaptWithdraws(
-      List<WithdrawHistoryResponse> depositHistoryResponses) {
-    return depositHistoryResponses.stream()
+      List<WithdrawHistoryResponse> withdrawHistoryResponses,List<DepositHistoryResponse> depositHistoryResponses) {
+    List<FundingRecord> withdrawFunding=withdrawHistoryResponses.stream()
         .map(XTAdapters::adaptWithdrawalHistoryResponse)
         .collect(Collectors.toList());
+    List<FundingRecord> depositFunding=depositHistoryResponses.stream()
+        .map(XTAdapters::adaptDepositHistoryResponse)
+        .collect(Collectors.toList());
+    return Stream.concat(withdrawFunding.stream(), depositFunding.stream())
+        .collect(Collectors.toList());
   }
-
+  public static FundingRecord adaptDepositHistoryResponse(DepositHistoryResponse response) {
+    //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
+    return new FundingRecord.Builder().setAddress(response.getAddress())
+        .setAmount(new BigDecimal(response.getAmount()))
+        .setCurrency(Currency.getInstance(response.getCurrency()))
+        .setDate(new Date(Long.valueOf(response.getCreatedTime())))
+        .setDescription(response.getMemo())
+        //internalId is wdId
+        .setInternalId(String.valueOf(response.getId()))
+        .setStatus(convertFundingStatus(response.getStatus()))
+        .setBlockchainTransactionHash(response.getTransactionId())
+        .setType(FundingRecord.Type.WITHDRAWAL)
+        .build();
+  }
   public static FundingRecord adaptWithdrawalHistoryResponse(WithdrawHistoryResponse response) {
     //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
     return new FundingRecord.Builder().setAddress(response.getAddress())
@@ -216,7 +237,7 @@ public class XTAdapters {
         .setDescription(response.getMemo())
         //internalId is wdId
         .setInternalId(String.valueOf(response.getId()))
-        .setStatus(convertWithdrawalStatus(response.getStatus()))
+        .setStatus(convertFundingStatus(response.getStatus()))
         .setBlockchainTransactionHash(response.getTransactionId())
         .setType(FundingRecord.Type.WITHDRAWAL)
         .build();
@@ -226,7 +247,7 @@ public class XTAdapters {
    * 充值/提现记录状态码及含义 Status	说明 SUBMIT	提现: 未冻结 REVIEW	提现: 已冻结,待审核 AUDITED	提现: 已审核,发送钱包,待上链
    * AUDITED_AGAIN	复审中 PENDING	充值/提现: 已上链 SUCCESS	完成 FAIL	失败 CANCEL	已取消
    */
-  private static FundingRecord.Status convertWithdrawalStatus(String status) {
+  private static FundingRecord.Status convertFundingStatus(String status) {
     switch (status) {
       case "SUBMIT":
       case "REVIEW":

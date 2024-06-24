@@ -6,15 +6,12 @@ import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.DefaultCancelOrderByInstrumentAndIdParams;
-import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstrument;
 
 /**
  * <p> @Date : 2024/6/7 </p>
@@ -23,20 +20,20 @@ import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamInstr
  * <p> @author konbluesky </p>
  */
 @Slf4j
-public class XTTradeService extends XTExchangeBase{
+public class XTTradeService extends XTExchangeBase {
 
 
   @Test
-  public void testGetOrderDetail() throws IOException{
+  public void testGetOrderDetail() throws IOException {
 //    exchange.getTradeService().getOrder()
 
   }
 
   @Test
-  public void testTicker24() throws IOException{
+  public void testTicker24() throws IOException {
     List<Ticker> tickers = exchange.getMarketDataService().getTickers(null);
     for (Ticker ticker : tickers) {
-      log.info("symbol:{} volumn : {}",ticker.getInstrument(),ticker.getVolume().toPlainString());
+      log.info("symbol:{} volumn : {}", ticker.getInstrument(), ticker.getVolume().toPlainString());
     }
   }
 

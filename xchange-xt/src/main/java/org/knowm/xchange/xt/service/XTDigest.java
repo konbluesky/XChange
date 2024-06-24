@@ -1,8 +1,12 @@
 package org.knowm.xchange.xt.service;
 
+import jakarta.ws.rs.QueryParam;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.utils.DigestUtils;
+import si.mazi.rescu.Params;
 import si.mazi.rescu.RestInvocation;
 
 /**
@@ -36,7 +40,15 @@ public class XTDigest extends BaseParamsDigest {
         "validate-algorithms=%s&validate-appkey=%s&validate-recvwindow=%s&validate-timestamp=%s",
         HMAC_SHA_256, apikey, recvwindow, timestamp);
     String y = String.format("#%s#%s", restInvocation.getHttpMethod(), restInvocation.getPath());
-    String query = restInvocation.getQueryString();
+//    String query = restInvocation.getQueryString();
+//    String query = restInvocation.getQueryString().replaceAll("\\+"," ");
+    // restInvocation.getParamsMap().get(QueryParam.class).asHttpHeaders().keySet().stream().sorted().collect(Collectors.toList())
+    // 此处对key要排序,否则参数未按字典排序签名后发给服务端,会返回AUTH103签名错误
+    Params newParams = Params.of();
+    Params oldParams = restInvocation.getParamsMap().get(QueryParam.class);
+    restInvocation.getParamsMap().get(QueryParam.class).asHttpHeaders()
+        .keySet().stream().sorted().forEach(e -> newParams.add(e, oldParams.getParamValue(e)));
+    String query = newParams.toString();
     if (query != null && query.length() > 0) {
       y += "#" + query;
     }
