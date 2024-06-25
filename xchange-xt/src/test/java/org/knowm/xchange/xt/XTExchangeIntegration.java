@@ -173,11 +173,13 @@ public class XTExchangeIntegration extends XTExchangeBase {
   public void placeLimitBuyOrder() throws IOException {
     LimitOrder limitOrder = new LimitOrder.Builder(Order.OrderType.BID,
         new CurrencyPair("XTZ", "USDT"))
-        .limitPrice(new BigDecimal("0.75"))
-        .originalAmount(new BigDecimal("100"))
+        .limitPrice(new BigDecimal("0.72"))
+        .originalAmount(new BigDecimal("10"))
         .build();
-    exchange.getTradeService()
-        .placeLimitOrder(limitOrder);
+    String s = exchange.getTradeService().placeLimitOrder(limitOrder);
+    log.info("id:{}",s);
+    boolean b = exchange.getTradeService().cancelOrder(s);
+    log.info("{}",b);
   }
 
   @Test

@@ -32,7 +32,7 @@ public class XTTradeServiceRaw extends XTBaseResilientExchangeService {
           String.valueOf(System.currentTimeMillis()),
           signatureCreator,
           request).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
-      if (jsonNode.has("orderId")) {
+      if (jsonNode != null && jsonNode.has("orderId")) {
         return jsonNode.get("orderId").asText();
       } else {
         return null;
