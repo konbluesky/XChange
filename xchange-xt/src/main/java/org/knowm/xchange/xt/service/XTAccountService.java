@@ -12,10 +12,10 @@ import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 import org.knowm.xchange.xt.XTAdapters;
 import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
-import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
-import org.knowm.xchange.xt.dto.account.XTWithdrawRequest;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawRequest;
 
 /**
  * <p> @Date : 2023/7/11 </p>
@@ -47,13 +47,13 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       String address = defaultParams.getAddressTag() != null ? defaultParams.getAddress() + ":"
           + defaultParams.getAddressTag() : defaultParams.getAddress();
 
-      XTWithdrawRequest XTWithdrawRequest = XTWithdrawRequest.builder()
+      XTWithdrawRequest withdrawRequest = XTWithdrawRequest.builder()
           .amount(defaultParams.getAmount().toPlainString())
           .currency(defaultParams.getCurrency().getCurrencyCode())
           .chain(chain)
           .address(address)
           .build();
-      String withdraw = withdraw(XTWithdrawRequest);
+      String withdraw = withdraw(withdrawRequest);
       if (!Strings.isNullOrEmpty(withdraw)) {
         return withdraw;
       }
@@ -74,7 +74,8 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       List<XTWithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status,
           null, null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-      List<XTDepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status, null,
+      List<XTDepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status,
+          null,
           null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
       return XTAdapters.adaptWithdraws(withdrawHistory, depositHistory);
