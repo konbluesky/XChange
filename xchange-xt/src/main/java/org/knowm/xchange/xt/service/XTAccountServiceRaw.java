@@ -9,9 +9,9 @@ import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.XTResilience;
 import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
-import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawRequest;
+import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawRequest;
 
 /**
  * <p> @Date : 2023/7/10 </p>
@@ -62,7 +62,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
         rateLimiter(XTResilience.IP_RATE_TYPE)).call();
   }
 
-  public String withdraw(WithdrawRequest request) throws IOException {
+  public String withdraw(XTWithdrawRequest request) throws IOException {
     JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.withdraw(
         BaseParamsDigest.HMAC_SHA_256,
         apiKey,
@@ -74,7 +74,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
     return jsonNode.get("id").asText();
   }
 
-  public List<WithdrawHistoryResponse> getWithdrawHistory(
+  public List<XTWithdrawHistoryResponse> getWithdrawHistory(
       String currency,
       String chain,
       String status,
@@ -103,13 +103,13 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
           ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
           .call();
       return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
-          .constructCollectionType(List.class, WithdrawHistoryResponse.class));
+          .constructCollectionType(List.class, XTWithdrawHistoryResponse.class));
     } catch (Exception e) {
       throw e;
     }
   }
 
-  public List<DepositHistoryResponse> getDepositHistory(
+  public List<XTDepositHistoryResponse> getDepositHistory(
       String currency,
       String chain,
       String status,
@@ -138,7 +138,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
       ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
       if (jsonNode.hasNonNull("items")) {
         return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
-            .constructCollectionType(List.class, DepositHistoryResponse.class));
+            .constructCollectionType(List.class, XTDepositHistoryResponse.class));
       } else {
         return Lists.newArrayList();
       }

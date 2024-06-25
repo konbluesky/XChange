@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Builder
 @Getter
-public class WithdrawRequest {
+public class XTWithdrawRequest {
 
   /**
    * 币种名称，可从'获取XT可充提的币种'接口中获取

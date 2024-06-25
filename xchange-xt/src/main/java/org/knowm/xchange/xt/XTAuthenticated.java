@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawRequest;
+import org.knowm.xchange.xt.dto.account.XTWithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
 import org.knowm.xchange.xt.dto.ws.WebSocketToken;
@@ -124,7 +124,7 @@ public interface XTAuthenticated {
       @HeaderParam("validate-recvwindow") String recvwindow,
       @HeaderParam("validate-timestamp") String timestamp,
       @HeaderParam("validate-signature") ParamsDigest signature,
-      WithdrawRequest requestPayload
+      XTWithdrawRequest requestPayload
   ) throws IOException;
 
   @GET

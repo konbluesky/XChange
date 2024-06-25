@@ -31,8 +31,8 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
-import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyChainInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -205,22 +205,22 @@ public class XTAdapters {
   }
 
   public static List<FundingRecord> adaptWithdraws(
-      List<WithdrawHistoryResponse> withdrawHistoryResponses,
-      List<DepositHistoryResponse> depositHistoryResponses) {
-    if (withdrawHistoryResponses == null || depositHistoryResponses == null) {
+      List<XTWithdrawHistoryResponse> XTWithdrawHistoryRespons,
+      List<XTDepositHistoryResponse> XTDepositHistoryRespons) {
+    if (XTWithdrawHistoryRespons == null || XTDepositHistoryRespons == null) {
       return Lists.newArrayList();
     }
-    List<FundingRecord> withdrawFunding = withdrawHistoryResponses.stream()
+    List<FundingRecord> withdrawFunding = XTWithdrawHistoryRespons.stream()
         .map(XTAdapters::adaptWithdrawalHistoryResponse)
         .collect(Collectors.toList());
-    List<FundingRecord> depositFunding = depositHistoryResponses.stream()
+    List<FundingRecord> depositFunding = XTDepositHistoryRespons.stream()
         .map(XTAdapters::adaptDepositHistoryResponse)
         .collect(Collectors.toList());
     return Stream.concat(withdrawFunding.stream(), depositFunding.stream())
         .collect(Collectors.toList());
   }
 
-  public static FundingRecord adaptDepositHistoryResponse(DepositHistoryResponse response) {
+  public static FundingRecord adaptDepositHistoryResponse(XTDepositHistoryResponse response) {
     //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
     return new FundingRecord.Builder().setAddress(response.getAddress())
         .setAmount(new BigDecimal(response.getAmount()))
@@ -235,7 +235,7 @@ public class XTAdapters {
         .build();
   }
 
-  public static FundingRecord adaptWithdrawalHistoryResponse(WithdrawHistoryResponse response) {
+  public static FundingRecord adaptWithdrawalHistoryResponse(XTWithdrawHistoryResponse response) {
     //https://doc.xt.com/#deposit_withdrawal_cnwithdrawHistory
     return new FundingRecord.Builder().setAddress(response.getAddress())
         .setAmount(new BigDecimal(response.getAmount()))

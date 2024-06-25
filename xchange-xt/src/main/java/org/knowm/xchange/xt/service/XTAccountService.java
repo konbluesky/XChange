@@ -11,9 +11,9 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 import org.knowm.xchange.xt.XTAdapters;
 import org.knowm.xchange.xt.XTExchange;
-import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
-import org.knowm.xchange.xt.dto.account.WithdrawRequest;
+import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTWithdrawRequest;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
 
@@ -47,13 +47,13 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       String address = defaultParams.getAddressTag() != null ? defaultParams.getAddress() + ":"
           + defaultParams.getAddressTag() : defaultParams.getAddress();
 
-      WithdrawRequest withdrawRequest = WithdrawRequest.builder()
+      XTWithdrawRequest XTWithdrawRequest = XTWithdrawRequest.builder()
           .amount(defaultParams.getAmount().toPlainString())
           .currency(defaultParams.getCurrency().getCurrencyCode())
           .chain(chain)
           .address(address)
           .build();
-      String withdraw = withdraw(withdrawRequest);
+      String withdraw = withdraw(XTWithdrawRequest);
       if (!Strings.isNullOrEmpty(withdraw)) {
         return withdraw;
       }
@@ -71,10 +71,10 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
       String currency = xtFundingHistoryParams.getCurrency();
       String chain = xtFundingHistoryParams.getChain();
       String status = xtFundingHistoryParams.getStatus();
-      List<WithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status,
+      List<XTWithdrawHistoryResponse> withdrawHistory = getWithdrawHistory(currency, chain, status,
           null, null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-      List<DepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status, null,
+      List<XTDepositHistoryResponse> depositHistory = getDepositHistory(currency, chain, status, null,
           null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
       return XTAdapters.adaptWithdraws(withdrawHistory, depositHistory);

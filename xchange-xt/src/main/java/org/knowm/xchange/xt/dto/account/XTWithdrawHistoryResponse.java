@@ -2,30 +2,16 @@ package org.knowm.xchange.xt.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.ToString;
 
 /**
- * <p> @Date : 2024/6/13 </p>
+ * <p> @Date : 2023/7/16 </p>
  * <p> @Project : XChange</p>
  *
  * <p> @author konbluesky </p>
  */
 @Getter
-@ToString
-public class DepositHistoryResponse {
-  /**
-   * "id": 169669597,       //提现记录id
-   *          "currency": "xlm2",    //币种名称
-   *          "chain": "XLM",        //转账网络名称
-   *          "memo": "441824256",   //memo
-   *          "status": "SUCCESS",   //充值状态
-   *          "amount": "0.1",       //充值金额
-   *          "confirmations": 12,   //区块确认数
-   *          "transactionId": "28dd15b5c119e00886517f129e5e1f8283f0286b277bcd3cd1f95f7fd4a1f7fc",   //交易哈希
-   *          "address": "GBY6UIYEYLAAXRQXVO7X5I4BSSCS54EAHTUILXWMW6ONPM3PNEA3LWEC",     //充值目标地址
-   *          "fromAddr": "GBTISB3JK65DG6LEEYYFW33RMMDHBQ65AEUPE5VDBTCLYYFS533FTG6Q",    //来源地址
-   *          "createdTime": 1667260957000   //充值时间，毫秒级时间戳
-   */
+public class XTWithdrawHistoryResponse {
+
   /**
    * 提现记录ID
    */
@@ -39,22 +25,16 @@ public class DepositHistoryResponse {
   private String currency;
 
   /**
-   * 充值网络
+   * 提现网络
    */
   @JsonProperty("chain")
   private String chain;
 
   /**
-   * 充值目标地址
+   * 提现目标地址
    */
   @JsonProperty("address")
   private String address;
-
-  /**
-   * 充值来源地址
-   */
-  @JsonProperty("fromAddr")
-  private String fromAddr;
 
   /**
    * 备注
@@ -75,6 +55,12 @@ public class DepositHistoryResponse {
   private String amount;
 
   /**
+   * 提现手续费
+   */
+  @JsonProperty("fee")
+  private String fee;
+
+  /**
    * 区块确认数
    */
   @JsonProperty("confirmations")
@@ -91,5 +77,4 @@ public class DepositHistoryResponse {
    */
   @JsonProperty("createdTime")
   private long createdTime;
-
 }
