@@ -1,5 +1,6 @@
 package org.knowm.xchange.xt.dto.account;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
@@ -33,6 +34,7 @@ public class XTFundingHistoryParams implements TradeHistoryParams {
   /**
    * 上次开始分页的Id，即记录的主键id
    */
+  @JsonProperty("from")
   private Long fromId;
 
   /**
@@ -48,11 +50,13 @@ public class XTFundingHistoryParams implements TradeHistoryParams {
   /**
    * 查询范围开始边界，毫秒级时间戳
    */
+  @JsonProperty("startTime")
   private Long startTime;
 
   /**
    * 查询范围结束边界，毫秒级时间戳
    */
+  @JsonProperty("endTime")
   private Long endTime;
 
 

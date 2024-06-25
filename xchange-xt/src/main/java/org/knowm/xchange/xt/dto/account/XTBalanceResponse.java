@@ -10,7 +10,7 @@ import lombok.Data;
  * <p> @author konbluesky </p>
  */
 @Data
-public class BalanceResponse {
+public class XTBalanceResponse {
 
   /**
    * "currency": "usdt",     //币种 "currencyId": 0,        //币种ID "frozenAmount": 0,      //冻结数量

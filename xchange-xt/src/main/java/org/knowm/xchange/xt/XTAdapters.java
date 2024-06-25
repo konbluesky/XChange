@@ -30,7 +30,7 @@ import org.knowm.xchange.dto.meta.WalletHealth;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.instrument.Instrument;
-import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyChainInfo;
@@ -67,7 +67,7 @@ public class XTAdapters {
         .collect(Collectors.toList());
   }
 
-  public static Wallet adaptWallet(List<BalanceResponse> walletSupportCurrencies) {
+  public static Wallet adaptWallet(List<XTBalanceResponse> walletSupportCurrencies) {
     if (walletSupportCurrencies == null || walletSupportCurrencies.isEmpty()) {
       return Wallet.Builder.from(Collections.emptyList())
           .id("TRADING_WALLET_ID")
@@ -75,11 +75,11 @@ public class XTAdapters {
           .build();
     }
     List<Balance> balances = walletSupportCurrencies.stream()
-        .map(balanceResponse -> new Balance.Builder()
-            .currency(new Currency(balanceResponse.getCurrency()))
-            .total(new BigDecimal(balanceResponse.getTotalAmount()))
-            .frozen(new BigDecimal(balanceResponse.getFrozenAmount()))
-            .available(new BigDecimal(balanceResponse.getAvailableAmount()))
+        .map(XTBalanceResponse -> new Balance.Builder()
+            .currency(new Currency(XTBalanceResponse.getCurrency()))
+            .total(new BigDecimal(XTBalanceResponse.getTotalAmount()))
+            .frozen(new BigDecimal(XTBalanceResponse.getFrozenAmount()))
+            .available(new BigDecimal(XTBalanceResponse.getAvailableAmount()))
             .timestamp(new Date())
             .build())
         .collect(Collectors.toList());

@@ -8,7 +8,7 @@ import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.XTResilience;
-import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
@@ -26,7 +26,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
     super(exchange, resilienceRegistries);
   }
 
-  public BalanceResponse balance(String currency) throws IOException {
+  public XTBalanceResponse balance(String currency) throws IOException {
     try {
       return decorateApiCall(() -> xtAuthenticated.balance(
           BaseParamsDigest.HMAC_SHA_256,
@@ -40,7 +40,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
     }
   }
 
-  public List<BalanceResponse> balances() throws IOException {
+  public List<XTBalanceResponse> balances() throws IOException {
     try {
       JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.balances(
           BaseParamsDigest.HMAC_SHA_256,
@@ -50,7 +50,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
           signatureCreator).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
           .call();
       return mapper.treeToValue(jsonNode.get("assets"), mapper.getTypeFactory()
-          .constructCollectionType(List.class, BalanceResponse.class));
+          .constructCollectionType(List.class, XTBalanceResponse.class));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

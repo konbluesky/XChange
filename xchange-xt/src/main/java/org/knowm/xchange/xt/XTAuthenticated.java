@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 import org.knowm.xchange.xt.dto.XTResponse;
-import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.WithdrawRequest;
 import org.knowm.xchange.xt.dto.trade.GetOrderResponse;
 import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
@@ -44,7 +44,7 @@ public interface XTAuthenticated {
 
   @GET
   @Path("/balance")
-  XTResponse<BalanceResponse> balance(
+  XTResponse<XTBalanceResponse> balance(
       @HeaderParam("validate-algorithms") String validateAlgorithms,
       @HeaderParam("validate-appkey") String appkey,
       @HeaderParam("validate-recvwindow") String recvwindow,

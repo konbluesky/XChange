@@ -1,5 +1,6 @@
 package org.knowm.xchange.xt.dto.marketdata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,29 +14,30 @@ import lombok.ToString;
 @ToString
 public class XTCurrencyInfo {
 
-  /**
-   * "id": 11,            //币种id "currency": "usdt",   //币种名称 "fullName": "usdt",   //币种全称 "logo":
-   * null,         //币种logo "cmcLink": null,      //cmc链接 "weight": 100,        //权重 "maxPrecision":
-   * 6,    //精度 "depositStatus": 1,   //充值状态(0关闭 1开放) "withdrawStatus": 1,  //提现状态(0关闭 1开放)
-   * "convertEnabled": 1,  //小额资产兑换开关[0=关;1=开] "transferEnabled": 1  //划转开关[0=关;1=开]
-   */
-
   private String id;
   private String currency;
+  @JsonProperty("fullName")
   private String fullName;
+  @JsonProperty("displayName")
   private String displayName;
   private String type;
   private String logo;
+  @JsonProperty("cmcLink")
   private String cmcLink;
   private String weight;
+  @JsonProperty("nominalValue")
   private String nominalValue;
+  @JsonProperty("maxPrecision")
   private String maxPrecision;
+  @JsonProperty("depositStatus")
   private String depositStatus;
+  @JsonProperty("withdrawStatus")
   private String withdrawStatus;
+  @JsonProperty("convertEnabled")
   private String convertEnabled;
+  @JsonProperty("transferEnabled")
   private String transferEnabled;
+  @JsonProperty("isChainExist")
   private String isChainExist;
   private String[] plates;
-
-
 }

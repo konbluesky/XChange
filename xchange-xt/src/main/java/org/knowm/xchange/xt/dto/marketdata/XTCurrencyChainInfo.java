@@ -1,5 +1,6 @@
 package org.knowm.xchange.xt.dto.marketdata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -18,11 +19,22 @@ public class XTCurrencyChainInfo {
    * "withdrawEnabled": true,    //是否支持提现，true:支持，false:不支持 "withdrawFeeAmount": 0.2,   //提现手续费
    * "withdrawMinAmount": 10,    //最小提现数量 "depositFeeRate": 0.2       //充值费率，百分比
    */
+  @JsonProperty("chain")
   private String chain;
+
+  @JsonProperty("depositEnabled")
   private boolean depositEnabled;
+
+  @JsonProperty("withdrawEnabled")
   private boolean withdrawEnabled;
+
+  @JsonProperty("withdrawFeeAmount")
   private double withdrawFeeAmount;
+
+  @JsonProperty("withdrawMinAmount")
   private double withdrawMinAmount;
+
+  @JsonProperty("depositFeeRate")
   private double depositFeeRate;
 
 }
