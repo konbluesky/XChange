@@ -13,9 +13,8 @@ import org.junit.Test;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
-import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.xt.dto.XTNetwork;
-import org.knowm.xchange.xt.dto.account.DepositHistoryResponse;
+import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
 import org.knowm.xchange.xt.service.XTAccountServiceRaw;
@@ -92,14 +91,25 @@ public class XTAccountServiceTest extends XTExchangeBase {
 
     // 格式化日期时间
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    String formattedDateTime = twoDaysAgoStartOfDay.format(formatter);
-    List<DepositHistoryResponse> depositHistory = accountService.getDepositHistory(
-//        Currency.SOL.getCurrencyCode(), XTNetwork.SOL_SOL,null, null, null, 10, null,
-        null, XTNetwork.BNB_SMART_CHAIN,null, null, null, 10, timestamp,
-        null);
-    log.info("depositHistory record :{} ", depositHistory.size());
-    for (DepositHistoryResponse depositHistoryResponse : depositHistory) {
-      log.info("info : {}",depositHistoryResponse);
+//    String formattedDateTime = twoDaysAgoStartOfDay.format(formatter);
+//    List<XTDepositHistoryResponse> depositHistory = accountService.getDepositHistory(
+////        Currency.SOL.getCurrencyCode(), XTNetwork.SOL_SOL,null, null, null, 10, null,
+//        null, XTNetwork.BNB_SMART_CHAIN,null, null, null, 10, timestamp,
+//        null);
+//    log.info("depositHistory record :{} ", depositHistory.size());
+//    for (XTDepositHistoryResponse XTDepositHistoryResponse : depositHistory) {
+//      log.info("info : {}", XTDepositHistoryResponse);
+//    }
+    XTFundingHistoryParams xtFundingHistoryParams = XTFundingHistoryParams.builder()
+        .startTime(timestamp)
+        .chain(XTNetwork.BNB_SMART_CHAIN)
+        .build();
+    List<FundingRecord> fundingHistory = exchange.getAccountService()
+        .getFundingHistory(xtFundingHistoryParams);
+
+    log.info("fundingHistory record :{}", fundingHistory.size());
+    for(FundingRecord fundingRecord : fundingHistory){
+      log.info("funding record :  {} ", fundingRecord);
     }
   }
 

@@ -78,7 +78,7 @@ public class XTAccountService extends XTAccountServiceRaw implements AccountServ
           null,
           null, 100,
           xtFundingHistoryParams.getStartTime(), xtFundingHistoryParams.getEndTime());
-      return XTAdapters.adaptWithdraws(withdrawHistory, depositHistory);
+      return XTAdapters.adaptFundingHistory(withdrawHistory, depositHistory);
     }
     throw new IllegalStateException("Don't know how to withdraw: " + params);
   }

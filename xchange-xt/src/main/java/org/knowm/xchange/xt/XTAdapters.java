@@ -204,18 +204,24 @@ public class XTAdapters {
     return new OpenOrders(openOrders);
   }
 
-  public static List<FundingRecord> adaptWithdraws(
-      List<XTWithdrawHistoryResponse> XTWithdrawHistoryRespons,
-      List<XTDepositHistoryResponse> XTDepositHistoryRespons) {
-    if (XTWithdrawHistoryRespons == null || XTDepositHistoryRespons == null) {
+  public static List<FundingRecord> adaptFundingHistory(
+      List<XTWithdrawHistoryResponse> withdrawHistoryResponses,
+      List<XTDepositHistoryResponse> depositHistoryResponses) {
+    if (withdrawHistoryResponses == null && depositHistoryResponses == null) {
       return Lists.newArrayList();
     }
-    List<FundingRecord> withdrawFunding = XTWithdrawHistoryRespons.stream()
-        .map(XTAdapters::adaptWithdrawalHistoryResponse)
-        .collect(Collectors.toList());
-    List<FundingRecord> depositFunding = XTDepositHistoryRespons.stream()
-        .map(XTAdapters::adaptDepositHistoryResponse)
-        .collect(Collectors.toList());
+    List<FundingRecord> withdrawFunding=Lists.newArrayList();
+    if(withdrawHistoryResponses!=null && !withdrawHistoryResponses.isEmpty()) {
+       withdrawFunding = withdrawHistoryResponses.stream()
+          .map(XTAdapters::adaptWithdrawalHistoryResponse)
+          .collect(Collectors.toList());
+    }
+    List<FundingRecord> depositFunding = Lists.newArrayList();
+    if(depositHistoryResponses!=null && !depositHistoryResponses.isEmpty()) {
+      depositFunding = depositHistoryResponses.stream()
+          .map(XTAdapters::adaptDepositHistoryResponse)
+          .collect(Collectors.toList());
+    }
     return Stream.concat(withdrawFunding.stream(), depositFunding.stream())
         .collect(Collectors.toList());
   }
