@@ -8,6 +8,7 @@ import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.XTResilience;
+import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
@@ -28,13 +29,14 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
 
   public XTBalanceResponse balance(String currency) throws IOException {
     try {
-      return decorateApiCall(() -> xtAuthenticated.balance(
+      XTResponse<XTBalanceResponse> call = decorateApiCall(() -> xtAuthenticated.balance(
           BaseParamsDigest.HMAC_SHA_256,
           apiKey,
           RECV_WINDOW,
           String.valueOf(System.currentTimeMillis()),
           signatureCreator,
-          currency).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+          currency)).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+      return safeGetResponse(call);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -42,13 +44,14 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
 
   public List<XTBalanceResponse> balances() throws IOException {
     try {
-      JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.balances(
+      XTResponse<JsonNode> call = decorateApiCall(() -> xtAuthenticated.balances(
           BaseParamsDigest.HMAC_SHA_256,
           apiKey,
           RECV_WINDOW,
           String.valueOf(System.currentTimeMillis()),
-          signatureCreator).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
+          signatureCreator)).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
           .call();
+      JsonNode jsonNode = safeGetResponse(call);
       return mapper.treeToValue(jsonNode.get("assets"), mapper.getTypeFactory()
           .constructCollectionType(List.class, XTBalanceResponse.class));
     } catch (Exception e) {
@@ -63,15 +66,20 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
   }
 
   public String withdraw(XTWithdrawRequest request) throws IOException {
-    JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.withdraw(
-        BaseParamsDigest.HMAC_SHA_256,
-        apiKey,
-        RECV_WINDOW,
-        String.valueOf(System.currentTimeMillis()),
-        signatureCreator,
-        request
-    ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
-    return jsonNode.get("id").asText();
+    try {
+      XTResponse<JsonNode> call = decorateApiCall(() -> xtAuthenticated.withdraw(
+          BaseParamsDigest.HMAC_SHA_256,
+          apiKey,
+          RECV_WINDOW,
+          String.valueOf(System.currentTimeMillis()),
+          signatureCreator,
+          request
+      )).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+      JsonNode jsonNode = safeGetResponse(call);
+      return jsonNode.get("id").asText();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public List<XTWithdrawHistoryResponse> getWithdrawHistory(
@@ -85,7 +93,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
       Long endTime
   ) throws IOException {
     try {
-      JsonNode jsonNode = decorateApiCall(
+      XTResponse<JsonNode> call = decorateApiCall(
           () -> xtAuthenticated.getWithdrawHistory(
               BaseParamsDigest.HMAC_SHA_256,
               apiKey,
@@ -100,8 +108,9 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
               limit,
               startTime,
               endTime
-          ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
+          )).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE))
           .call();
+      JsonNode jsonNode = safeGetResponse(call);
       return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
           .constructCollectionType(List.class, XTWithdrawHistoryResponse.class));
     } catch (Exception e) {
@@ -121,7 +130,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
   ) throws IOException {
 
     try {
-      JsonNode jsonNode = decorateApiCall(() -> xtAuthenticated.getDepositHistory(
+      XTResponse<JsonNode> call = decorateApiCall(() -> xtAuthenticated.getDepositHistory(
           BaseParamsDigest.HMAC_SHA_256,
           apiKey,
           RECV_WINDOW,
@@ -135,7 +144,9 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
           limit,
           startTime,
           endTime
-      ).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+      )).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+
+      JsonNode jsonNode = safeGetResponse(call);
       if (jsonNode.hasNonNull("items")) {
         return mapper.treeToValue(jsonNode.get("items"), mapper.getTypeFactory()
             .constructCollectionType(List.class, XTDepositHistoryResponse.class));
@@ -143,7 +154,7 @@ public class XTAccountServiceRaw extends XTBaseResilientExchangeService {
         return Lists.newArrayList();
       }
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw e;
     }
 
   }

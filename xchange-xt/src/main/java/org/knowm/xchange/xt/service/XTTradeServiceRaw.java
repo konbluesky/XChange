@@ -3,6 +3,7 @@ package org.knowm.xchange.xt.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.service.BaseParamsDigest;
 import org.knowm.xchange.xt.XTExchange;
@@ -16,6 +17,7 @@ import org.knowm.xchange.xt.dto.trade.PlaceOrderRequest;
  *
  * <p> @author konbluesky </p>
  */
+@Slf4j
 public class XTTradeServiceRaw extends XTBaseResilientExchangeService {
 
   public XTTradeServiceRaw(XTExchange exchange,
@@ -32,6 +34,8 @@ public class XTTradeServiceRaw extends XTBaseResilientExchangeService {
           String.valueOf(System.currentTimeMillis()),
           signatureCreator,
           request).getData()).withRateLimiter(rateLimiter(XTResilience.API_RATE_TYPE)).call();
+      log.info("request:{}",request.toString());
+      log.info("response:{}",jsonNode);
       if (jsonNode != null && jsonNode.has("orderId")) {
         return jsonNode.get("orderId").asText();
       } else {

@@ -1,6 +1,7 @@
 package org.knowm.xchange.xt.dto.marketdata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -29,12 +30,18 @@ public class XTCurrencyChainInfo {
   private boolean withdrawEnabled;
 
   @JsonProperty("withdrawFeeAmount")
-  private double withdrawFeeAmount;
+  private BigDecimal withdrawFeeAmount;
 
   @JsonProperty("withdrawMinAmount")
-  private double withdrawMinAmount;
+  private BigDecimal withdrawMinAmount;
+
+  @JsonProperty("withdrawFeeCurrency")
+  private String withdrawFeeCurrency;
+
+  @JsonProperty("withdrawFeeCurrencyId")
+  private String withdrawFeeCurrencyId;
 
   @JsonProperty("depositFeeRate")
-  private double depositFeeRate;
+  private BigDecimal depositFeeRate;
 
 }

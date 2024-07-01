@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.xt.XTExchange;
 import org.knowm.xchange.xt.XTResilience;
+import org.knowm.xchange.xt.dto.XTNetwork;
+import org.knowm.xchange.xt.dto.XTResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
@@ -23,7 +25,6 @@ import org.knowm.xchange.xt.dto.marketdata.XTTicker;
  */
 public class XTMarketDataServiceRaw extends XTBaseResilientExchangeService {
 
-  public static final String BNB_SMART_CHAIN = "BNB Smart Chain";
 
   public XTMarketDataServiceRaw(XTExchange exchange, ResilienceRegistries resilienceRegistries) {
     super(exchange, resilienceRegistries);
@@ -31,9 +32,10 @@ public class XTMarketDataServiceRaw extends XTBaseResilientExchangeService {
 
   public List<XTSymbol> getSymbols(String symbol, String currency) {
     try {
-      JsonNode currencies = decorateApiCall(
+      XTResponse<JsonNode> call = decorateApiCall(
           () -> xt.symbol(symbol == null ? "" : symbol, currency == null ? "" : currency, null)
-              .getData()).withRateLimiter(rateLimiter(XTResilience.IP_RATE_TYPE)).call();
+      ).withRateLimiter(rateLimiter(XTResilience.IP_RATE_TYPE)).call();
+      JsonNode currencies = safeGetResponse(call);
       return mapper.treeToValue(currencies.get("symbols"),
           mapper.getTypeFactory().constructCollectionType(List.class, XTSymbol.class));
     } catch (IOException e) {
@@ -41,17 +43,17 @@ public class XTMarketDataServiceRaw extends XTBaseResilientExchangeService {
     }
   }
 
-  public List<XTCurrencyWalletInfo> getWalletSupportCurrencys() {
-    return xt.walletSupportCurrency().getData();
+  public List<XTCurrencyWalletInfo> getWalletSupportCurrencies() {
+    return safeGetResponse(xt.walletSupportCurrency());
   }
 
   public Map<String, XTCurrencyWalletInfo> getWalletSupportCurrencysMap(String filterChain) {
 
     if (Strings.isNullOrEmpty(filterChain)) {
-      filterChain = BNB_SMART_CHAIN;
+      filterChain = XTNetwork.BNB_SMART_CHAIN;
     }
 
-    List<XTCurrencyWalletInfo> data = xt.walletSupportCurrency().getData();
+    List<XTCurrencyWalletInfo> data = getWalletSupportCurrencies();
     //将data转换成map结构，使用currency 作为key，XTCurrencyWalletInfo 作为value
     String finalFilterChain = filterChain;
     Map<String, XTCurrencyWalletInfo> collected = data.stream().filter(

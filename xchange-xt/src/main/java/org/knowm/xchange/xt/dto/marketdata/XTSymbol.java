@@ -23,9 +23,9 @@ public class XTSymbol {
   @JsonProperty("state")
   private String state;
   @JsonProperty("tradingEnabled")
-  private String tradingEnabled;
+  private boolean tradingEnabled;
   @JsonProperty("openapiEnabled")
-  private String openapiEnabled;
+  private boolean openapiEnabled;
   @JsonProperty("nextStateTime")
   private String nextStateTime;
   @JsonProperty("nextState")

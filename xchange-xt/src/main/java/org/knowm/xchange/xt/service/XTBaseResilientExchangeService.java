@@ -13,6 +13,7 @@ import org.knowm.xchange.service.BaseResilientExchangeService;
 import org.knowm.xchange.xt.XT;
 import org.knowm.xchange.xt.XTAuthenticated;
 import org.knowm.xchange.xt.XTExchange;
+import org.knowm.xchange.xt.dto.XTResponse;
 import si.mazi.rescu.ParamsDigest;
 import si.mazi.rescu.serialization.jackson.DefaultJacksonObjectMapperFactory;
 
@@ -62,5 +63,12 @@ public class XTBaseResilientExchangeService extends BaseResilientExchangeService
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
+  protected <R> R safeGetResponse(XTResponse<R> response){
+    if(response.isSuccess()){
+      return response.getData();
+    }else {
+      throw new RuntimeException(response.toString());
+    }
+  }
 
 }

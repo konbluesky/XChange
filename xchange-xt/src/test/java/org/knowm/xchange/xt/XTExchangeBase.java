@@ -21,7 +21,7 @@ public class XTExchangeBase {
   public static void initExchangeMockLocal() {
     ExchangeSpecification spec = new XTExchange().getDefaultExchangeSpecification();
     AuthUtils.setApiAndSecretKey(spec);
-    spec.setShouldLoadRemoteMetaData(false);
+    spec.setShouldLoadRemoteMetaData(true);
     exchange = (XTExchange) ExchangeFactory.INSTANCE.createExchange(spec);
   }
 }

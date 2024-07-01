@@ -34,6 +34,7 @@ import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyChainInfo;
+import org.knowm.xchange.xt.dto.marketdata.XTCurrencyMetaData;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
 import org.knowm.xchange.xt.dto.marketdata.XTTicker;
@@ -76,7 +77,7 @@ public class XTAdapters {
     }
     List<Balance> balances = walletSupportCurrencies.stream()
         .map(XTBalanceResponse -> new Balance.Builder()
-            .currency(new Currency(XTBalanceResponse.getCurrency()))
+            .currency(new Currency(XTBalanceResponse.getCurrency().toUpperCase()))
             .total(new BigDecimal(XTBalanceResponse.getTotalAmount()))
             .frozen(new BigDecimal(XTBalanceResponse.getFrozenAmount()))
             .available(new BigDecimal(XTBalanceResponse.getAvailableAmount()))
@@ -92,19 +93,19 @@ public class XTAdapters {
 
 
   public static ExchangeMetaData adaptToExchangeMetaData(List<XTSymbol> symbols,
-      Map<String, XTCurrencyWalletInfo> walletSupportCurrencys) {
+      Map<String, XTCurrencyWalletInfo> walletSupportCurrencies) {
     Map<Currency, CurrencyMetaData> currencies = new HashMap<>();
     Map<Instrument, InstrumentMetaData> instruments = new HashMap<>();
 
     for (XTSymbol symbol : symbols) {
 
-      if (!"ONLINE".equals(symbol.getState())) {
+      if (!"ONLINE".equals(symbol.getState()) && !symbol.isTradingEnabled()) {
         continue;
       }
 
       Instrument pair = adaptInstrumentId(symbol.getSymbol());
 
-      XTCurrencyWalletInfo xtCurrencyWalletInfo = walletSupportCurrencys.get(
+      XTCurrencyWalletInfo xtCurrencyWalletInfo = walletSupportCurrencies.get(
           pair.getBase().toString()
               .toLowerCase());
       if (xtCurrencyWalletInfo == null) {
@@ -113,14 +114,15 @@ public class XTAdapters {
       XTCurrencyChainInfo walletInfo = xtCurrencyWalletInfo.getWalletInfo(BNB_SMART_CHAIN);
 
       instruments.put(pair, new InstrumentMetaData.Builder()
-          .minimumAmount(BigDecimal.valueOf(walletInfo.getWithdrawMinAmount()))
+          .minimumAmount(walletInfo.getWithdrawMinAmount())
           .marketOrderEnabled(true)
           .build());
-      currencies.put(pair.getBase(), new CurrencyMetaData(null,
-          BigDecimal.valueOf(walletInfo.getWithdrawFeeAmount()),
-          BigDecimal.valueOf(walletInfo.getWithdrawMinAmount()),
+      currencies.put(pair.getBase(), new XTCurrencyMetaData(null,
+          walletInfo.getWithdrawFeeAmount(),
+          walletInfo.getWithdrawMinAmount(),
           walletInfo.isWithdrawEnabled() && walletInfo.isDepositEnabled() ? WalletHealth.ONLINE
-              : WalletHealth.OFFLINE
+              : WalletHealth.OFFLINE,
+          symbol
       ));
     }
     return new ExchangeMetaData(instruments, currencies, null, null, null);
@@ -130,7 +132,7 @@ public class XTAdapters {
     String[] tokens = instrumentId.split("_");
     if (tokens.length == 2) {
       // SPOT or Margin
-      return new CurrencyPair(tokens[0], tokens[1]);
+      return new CurrencyPair(tokens[0].toUpperCase(), tokens[1].toUpperCase());
     }
     return null;
   }
@@ -210,14 +212,14 @@ public class XTAdapters {
     if (withdrawHistoryResponses == null && depositHistoryResponses == null) {
       return Lists.newArrayList();
     }
-    List<FundingRecord> withdrawFunding=Lists.newArrayList();
-    if(withdrawHistoryResponses!=null && !withdrawHistoryResponses.isEmpty()) {
-       withdrawFunding = withdrawHistoryResponses.stream()
+    List<FundingRecord> withdrawFunding = Lists.newArrayList();
+    if (withdrawHistoryResponses != null && !withdrawHistoryResponses.isEmpty()) {
+      withdrawFunding = withdrawHistoryResponses.stream()
           .map(XTAdapters::adaptWithdrawalHistoryResponse)
           .collect(Collectors.toList());
     }
     List<FundingRecord> depositFunding = Lists.newArrayList();
-    if(depositHistoryResponses!=null && !depositHistoryResponses.isEmpty()) {
+    if (depositHistoryResponses != null && !depositHistoryResponses.isEmpty()) {
       depositFunding = depositHistoryResponses.stream()
           .map(XTAdapters::adaptDepositHistoryResponse)
           .collect(Collectors.toList());

@@ -31,7 +31,9 @@ public class XTAccountServiceTest extends XTExchangeBase {
   @Test
   public void testBalance() throws IOException {
     AccountInfo accountInfo = exchange.getAccountService().getAccountInfo();
-    log.info("{}", accountInfo);
+    accountInfo.getWallet().getBalances().forEach((k,v) -> {
+      log.info("{}-{}", k, v);
+    });
   }
 
   @Test

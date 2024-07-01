@@ -10,18 +10,18 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.knowm.xchange.Exchange;
-import org.knowm.xchange.ExchangeFactory;
-import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
@@ -29,12 +29,13 @@ import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.marketdata.params.InstrumentsParams;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamInstrument;
-import org.knowm.xchange.xt.dto.account.BalanceResponse;
+import org.knowm.xchange.xt.dto.account.XTBalanceResponse;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTCurrencyWalletInfo;
 import org.knowm.xchange.xt.dto.marketdata.XTSymbol;
+import org.knowm.xchange.xt.dto.trade.XTOrderEnum.TimeInForce;
 import org.knowm.xchange.xt.service.XTAccountServiceRaw;
 import org.knowm.xchange.xt.service.XTMarketDataService;
 import org.knowm.xchange.xt.service.XTMarketDataServiceRaw;
@@ -45,7 +46,7 @@ public class XTExchangeIntegration extends XTExchangeBase {
   @Test
   public void testBalance() throws IOException {
     XTAccountServiceRaw xtAccountServiceRaw = exchange.accountServiceRaw();
-    BalanceResponse usdt = xtAccountServiceRaw.balance("usdt");
+    XTBalanceResponse usdt = xtAccountServiceRaw.balance("usdt");
     log.info("usdt:{}", usdt.getAvailableAmount());
 
   }
@@ -57,6 +58,17 @@ public class XTExchangeIntegration extends XTExchangeBase {
     log.info("{}", accountInfo.toString());
   }
 
+  @Test
+  public void printAllCurrencies() throws IOException{
+    ExchangeMetaData exchangeMetaData = exchange.getExchangeMetaData();
+    Map<Currency, CurrencyMetaData> currencies = exchangeMetaData.getCurrencies();
+    log.info("currencies:{}", currencies.size());
+    currencies.forEach((k,v)->{
+      log.info("{} - {}", k, v);
+    });
+  }
+
+
 
   @Test
   public void testTime() throws IOException {
@@ -65,9 +77,20 @@ public class XTExchangeIntegration extends XTExchangeBase {
   }
 
   @Test
+  public void testWalletSupportCurrencies(){
+    XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
+    List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencies();
+    log.info("currencys:{}", currencys.size());
+    for (XTCurrencyWalletInfo currency : currencys) {
+      log.info("{}",currency);
+    }
+
+  }
+
+  @Test
   public void testMarketMetadataCurrency() throws IOException {
     XTMarketDataService marketDataService = (XTMarketDataService) exchange.getMarketDataService();
-    List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
+    List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencies();
 
     log.info("Currencys size:{} ", currencys.size());
     Multiset<String> currcount = HashMultiset.create();
@@ -120,7 +143,7 @@ public class XTExchangeIntegration extends XTExchangeBase {
   @Test
   public void filterBNB() {
     XTMarketDataServiceRaw marketDataService = (XTMarketDataServiceRaw) exchange.getMarketDataService();
-    List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencys();
+    List<XTCurrencyWalletInfo> currencys = marketDataService.getWalletSupportCurrencies();
     List<XTSymbol> symbols1 = marketDataService.getSymbols(null, null).stream()
         .filter(xt -> xt.getState().equalsIgnoreCase("online"))
         .collect(Collectors.toList());
@@ -169,23 +192,40 @@ public class XTExchangeIntegration extends XTExchangeBase {
 
   }
 
+
   @Test
   public void placeLimitBuyOrder() throws IOException {
+//    https://bscscan.com/tx/0xa9adfd9cd6b73954b856cba5ed41bfd530530088ae62dc150b055489067ea88c
     LimitOrder limitOrder = new LimitOrder.Builder(Order.OrderType.BID,
-        new CurrencyPair("XTZ", "USDT"))
-        .limitPrice(new BigDecimal("0.72"))
-        .originalAmount(new BigDecimal("10"))
+        new CurrencyPair("RACA", "USDT"))
+        .limitPrice(new BigDecimal("0.0001871"))
+        .originalAmount(new BigDecimal("11381.52"))
         .build();
+    limitOrder.addOrderFlag(TimeInForce.GTC);
     String s = exchange.getTradeService().placeLimitOrder(limitOrder);
     log.info("id:{}",s);
-    boolean b = exchange.getTradeService().cancelOrder(s);
-    log.info("{}",b);
+//    boolean b = exchange.getTradeService().cancelOrder(s);
+//    log.info("{}",b);
   }
 
   @Test
+  public void placeLimitSellOrder() throws IOException {
+//    https://bscscan.com/tx/0xa9adfd9cd6b73954b856cba5ed41bfd530530088ae62dc150b055489067ea88c
+    LimitOrder limitOrder = new LimitOrder.Builder(OrderType.ASK,
+        new CurrencyPair("TBCC", "USDT"))
+        .limitPrice(new BigDecimal("0.00142"))
+        .originalAmount(new BigDecimal("4317.10"))
+        .build();
+    limitOrder.addOrderFlag(TimeInForce.GTC);
+    String s = exchange.getTradeService().placeLimitOrder(limitOrder);
+    log.info("id:{}",s);
+//    boolean b = exchange.getTradeService().cancelOrder(s);
+//    log.info("{}",b);
+  }
+  @Test
   public void getOrder() throws IOException {
     Collection<Order> orders = exchange.getTradeService()
-        .getOrder("249401475713759872");
+        .getOrder("375826751817216256");
 
     //248956193088058240
     log.info("orders:{}", orders);

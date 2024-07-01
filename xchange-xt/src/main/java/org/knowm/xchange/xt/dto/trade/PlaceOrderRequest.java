@@ -3,6 +3,7 @@ package org.knowm.xchange.xt.dto.trade;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * <p> @Date : 2023/7/11 </p>
@@ -12,6 +13,7 @@ import lombok.Getter;
  */
 @Builder
 @Getter
+@ToString
 public class PlaceOrderRequest {
 
   /**

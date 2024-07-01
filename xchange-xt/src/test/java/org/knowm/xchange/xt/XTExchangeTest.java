@@ -121,4 +121,14 @@ public class XTExchangeTest extends XTExchangeBase {
 
   }
 
+  @Test
+  public void getSymbol() throws IOException{
+    XTMarketDataServiceRaw marketDataService = (XTMarketDataServiceRaw) exchange.getMarketDataService();
+    List<XTSymbol> symbols = marketDataService.getSymbols(null, null);
+    for (XTSymbol symbol : symbols) {
+      log.info("{}",symbol);
+    }
+  }
+
+
 }
