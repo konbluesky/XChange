@@ -33,7 +33,7 @@ public class XTMarketDataServiceRaw extends XTBaseResilientExchangeService {
   public List<XTSymbol> getSymbols(String symbol, String currency) {
     try {
       XTResponse<JsonNode> call = decorateApiCall(
-          () -> xt.symbol(symbol == null ? "" : symbol, currency == null ? "" : currency, null)
+          () -> xt.symbol(symbol, currency , null)
       ).withRateLimiter(rateLimiter(XTResilience.IP_RATE_TYPE)).call();
       JsonNode currencies = safeGetResponse(call);
       return mapper.treeToValue(currencies.get("symbols"),
