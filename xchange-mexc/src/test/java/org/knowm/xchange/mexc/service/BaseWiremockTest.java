@@ -8,6 +8,7 @@ import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.mexc.MEXCExchange;
 
 import java.io.IOException;
+import org.knowm.xchange.utils.AuthUtils;
 
 public class BaseWiremockTest {
 
@@ -21,9 +22,8 @@ public class BaseWiremockTest {
         specification.setHost("localhost");
         specification.setSslUri("http://localhost:" + wireMockRule.port());
         specification.setPort(wireMockRule.port());
-        specification.setApiKey("test_api_key");
-        specification.setSecretKey("test_secret_key");
         specification.setShouldLoadRemoteMetaData(false);
+        AuthUtils.setApiAndSecretKey(specification);
         exchange.applySpecification(specification);
         return exchange;
     }
@@ -35,10 +35,8 @@ public class BaseWiremockTest {
         ExchangeSpecification specification = exchange.getDefaultExchangeSpecification();
         specification.setHost("mexc.com");
         specification.setSslUri("https://api.mexc.com");
-//    specification.setPort(443);
-        specification.setApiKey("");
-        specification.setSecretKey("");
         specification.setShouldLoadRemoteMetaData(false);
+        AuthUtils.setApiAndSecretKey(specification);
         exchange.applySpecification(specification);
         return exchange;
     }
