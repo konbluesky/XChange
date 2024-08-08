@@ -127,7 +127,7 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
     if (realtimeOrderBookTicker) {
       return getRawBookTicker(currencyPair).map(raw -> raw.toTicker(false));
     }
-    return getRawTicker(currencyPair).map(raw -> raw.toTicker(false));
+    return getRawTicker(currencyPair).map(raw -> BinanceAdapters.toTicker(raw, false));
   }
 
   @Override
@@ -151,7 +151,7 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
       return getRawBookTicker(instrument)
           .map(raw -> raw.toTicker(instrument instanceof FuturesContract));
     }
-    return getRawTicker(instrument).map(raw -> raw.toTicker(instrument instanceof FuturesContract));
+    return getRawTicker(instrument).map(raw -> BinanceAdapters.toTicker(raw, instrument instanceof FuturesContract));
   }
 
   @Override
