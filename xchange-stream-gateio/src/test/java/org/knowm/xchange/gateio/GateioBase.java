@@ -14,8 +14,6 @@ import org.knowm.xchange.utils.AuthUtils;
 public class GateioBase {
 
   protected static GateioStreamingExchange streamingExchange;
-  protected static String apikey="";
-  protected static String apiSecret="";
   @BeforeClass
   public static void initExchange() {
     ExchangeSpecification spec =
