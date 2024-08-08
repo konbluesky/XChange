@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.knowm.xchange.currency.Currency;
@@ -29,11 +30,14 @@ import org.knowm.xchange.xt.service.XTAccountServiceRaw;
 public class XTAccountServiceTest extends XTExchangeBase {
 
   @Test
-  public void testBalance() throws IOException {
-    AccountInfo accountInfo = exchange.getAccountService().getAccountInfo();
-    accountInfo.getWallet().getBalances().forEach((k,v) -> {
-      log.info("{}-{}", k, v);
-    });
+  public void testBalance() throws IOException, InterruptedException {
+//    while(true) {
+      AccountInfo accountInfo = exchange.getAccountService().getAccountInfo();
+      accountInfo.getWallet().getBalances().forEach((k, v) -> {
+        log.info("{}-{}", k, v);
+      });
+      TimeUnit.SECONDS.sleep(1);
+//    }
   }
 
   @Test

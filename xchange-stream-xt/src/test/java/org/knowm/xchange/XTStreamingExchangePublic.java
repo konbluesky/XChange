@@ -26,7 +26,6 @@ import org.knowm.xchange.xt.XTStreamingExchange;
 public class XTStreamingExchangePublic extends XTStreamingBase {
 
   // Enter your authentication details here to run private endpoint tests
-  StreamingExchange streamingExchange;
   private Instrument instrument = new FuturesContract("ARB/USDT/SWAP");
 
   @Test

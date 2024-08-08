@@ -29,7 +29,7 @@ public class GateioStreamingMarketDataServiceTest extends GateioBase {
   public void testGetTicker() throws InterruptedException {
     streamingExchange.getStreamingMarketDataService()
 //        .getTicker(CurrencyPair.BTC_USDT)
-        .getTicker(new CurrencyPair("TRVL","usdt"))
+        .getTicker(new CurrencyPair("debt","usdt"))
         .subscribe(ticker -> {
           log.info("价格变化:{}", ticker);
         });

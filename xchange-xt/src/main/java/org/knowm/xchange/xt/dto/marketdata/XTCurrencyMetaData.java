@@ -1,6 +1,7 @@
 package org.knowm.xchange.xt.dto.marketdata;
 
 import java.math.BigDecimal;
+import lombok.Getter;
 import lombok.ToString;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.WalletHealth;
@@ -14,6 +15,7 @@ import org.knowm.xchange.dto.meta.WalletHealth;
 @ToString
 public class XTCurrencyMetaData extends CurrencyMetaData {
 
+  @Getter
   private XTSymbol symbolConfig;
 
   public XTCurrencyMetaData(Integer scale, BigDecimal withdrawalFee) {
