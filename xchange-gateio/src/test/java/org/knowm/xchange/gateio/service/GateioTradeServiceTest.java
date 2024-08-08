@@ -3,6 +3,7 @@ package org.knowm.xchange.gateio.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.internal.runners.statements.FailOnTimeout;

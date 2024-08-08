@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.utils.AuthUtils;
 
 /** Sets up the wiremock for exchange */
 public abstract class GateioExchangeWiremock {
@@ -41,8 +42,7 @@ public abstract class GateioExchangeWiremock {
   @BeforeClass
   public static void initExchange(){
     ExchangeSpecification exSpec = new ExchangeSpecification(GateioExchange.class);
-    exSpec.setApiKey("");
-    exSpec.setSecretKey("");
+    AuthUtils.setApiAndSecretKey(exSpec);
     exSpec.setShouldLoadRemoteMetaData(true);
     exSpec.setMetaDataJsonFileOverride(null);
     exchange = (GateioExchange) ExchangeFactory.INSTANCE.createExchange(exSpec);

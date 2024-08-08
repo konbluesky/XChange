@@ -99,7 +99,7 @@ public class GateioAccountServiceTest extends GateioExchangeWiremock {
   @Test
   public void testQueryDepAndWithRecord() throws IOException {
     // 获取当前日期
-    Date from = DateUtils.fromRfc3339DateString("2024-02-20 00:00:00");
+    Date from = DateUtils.fromRfc3339DateString("2024-05-06 00:00:00");
     log.info("from:{}", from);
     log.info("to:{}",new Date());
     // 获取前一天的日期

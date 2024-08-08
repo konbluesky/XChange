@@ -26,6 +26,21 @@ import org.knowm.xchange.gateio.dto.marketdata.GateioCoinNetwork;
 public class GateioCoinConfigGenericTest extends GateioExchangeWiremock {
 
   @Test
+  public void testGetGateioWithDrawFees(){
+    try {
+      GateioMarketDataServiceRaw marketDataService = (GateioMarketDataServiceRaw) exchange.getMarketDataService();
+      Map<String, GateioWithdrawStatus> gateioWithDrawFees = marketDataService.getGateioWithDrawFees(
+          null);
+//      log.info("gateioWithDrawFees: {}", gateioWithDrawFees);
+      gateioWithDrawFees.forEach((k, v) -> {
+        log.info("coin: {}, name:{},nameCn:{},withdraw-percent: {} withdraw-fixed: {}", k,v.getName(),v.getNameCn(),v.getWithdrawPercentOnChains(),v.getWithdrawFixOnChains());
+      });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
   public void newGateioBSC2CoinCsv() throws IOException {
     GateioMarketDataServiceRaw marketDataService = (GateioMarketDataServiceRaw) exchange.getMarketDataService();
     Map<String, GateioCoin> coins = marketDataService.getGateioCoinInfo();
@@ -35,30 +50,34 @@ public class GateioCoinConfigGenericTest extends GateioExchangeWiremock {
     String title = "coin,coin_full_name,network,deposit,withdraw,fee,feeRate,contract";
     lines.add(title);
     for (Entry<String, GateioCoin> stringGateioCoinEntry : coins.entrySet()) {
-      String k=stringGateioCoinEntry.getKey();
-      GateioCoin v=stringGateioCoinEntry.getValue();
+      String k = stringGateioCoinEntry.getKey();
+      GateioCoin v = stringGateioCoinEntry.getValue();
       GateioWithdrawStatus coinChainConfig = gateioWithDrawFees.get(v.getCurrency());
-      if(coinChainConfig==null){
-        log.error("coinChainConfig is null for {}", v.getCurrency());
+      if (coinChainConfig == null) {
+        log.error("coinChainConfig is null for {} , chain: {}", v.getCurrency(),v.getChain());
         continue;
       }
       List<GateioCoinNetwork> coinNetworkBy = null;
       try {
         coinNetworkBy = marketDataService.getCoinNetworkBy(
             coinChainConfig.getCurrency());
-        TimeUnit.MILLISECONDS.sleep(200);
-      } catch (IOException | InterruptedException e) {
-        throw new RuntimeException(e);
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (Exception e) {
+        log.info("error currency:{}",coinChainConfig.toString());
+        e.printStackTrace();
+//        throw new RuntimeException(e);
       }
-      if(coinNetworkBy.isEmpty()){
+      if (coinNetworkBy==null || coinNetworkBy.isEmpty()) {
         log.error("coinNetworkBy is empty for {}", v.getCurrency());
         continue;
       }
       for (GateioCoinNetwork gateioCoinNetwork : coinNetworkBy) {
         lines.add(
-            String.format("%s,%s,%s,%s,%s,%s,%s,%s", k, v.getCurrency(), gateioCoinNetwork.getChain(),
-                v.isDepositDisabled(), v.isWithdrawDisabled(), coinChainConfig.getWithdrawFix(),v.getFixedRate(),gateioCoinNetwork.getContractAddress()
-                ));
+            String.format("%s,%s,%s,%s,%s,%s,%s,%s", k, v.getCurrency(),
+                gateioCoinNetwork.getChain(),
+                !v.isDepositDisabled(), !v.isWithdrawDisabled(), coinChainConfig.getWithdrawFix(),
+                v.getFixedRate(), gateioCoinNetwork.getContractAddress()
+            ));
       }
 
     }
