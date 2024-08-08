@@ -45,10 +45,10 @@ public class CurrentTimeIncrementalNonceFactory implements SynchronizedValueFact
     return nonce.updateAndGet(
         prevNonce -> {
           long newNonce = timeFn.get();
-
-          if (newNonce <= prevNonce) {
-            newNonce = prevNonce + 1;
-          }
+//
+//          if (newNonce <= prevNonce) {
+//            newNonce = prevNonce + 1;
+//          }
           return newNonce;
         });
   }
