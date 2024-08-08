@@ -1,5 +1,7 @@
 package org.knowm.xchange.binance.service.marketdata;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -60,7 +62,7 @@ public class MarketDataServiceIntegration extends BinanceExchangeIntegration {
     tickers
         .forEach(
             t -> System.out.println(
-                t.getSymbol()
+                t.getCurrencyPair()
                     + " => "
                     + String.format("%+.2f%%", t.getPriceChangePercent())));
   }

@@ -10,6 +10,7 @@ import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.marketdata.*;
 import org.knowm.xchange.binance.dto.meta.BinanceConfig;
 import org.knowm.xchange.binance.dto.meta.BinanceTime;
+import org.knowm.xchange.binance.dto.meta.exchangeinfo.BinanceExchangeInfo;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.derivative.FuturesContract;
@@ -32,6 +33,23 @@ public class BinanceMarketDataServiceRaw extends BinanceBaseService {
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
         .call();
   }
+
+
+  public BinanceExchangeInfo getExchangeInfo() throws IOException {
+    return decorateApiCall(binance::exchangeInfo)
+        .withRetry(retry("exchangeInfo"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
+        .call();
+  }
+
+
+  public BinanceExchangeInfo getFutureExchangeInfo() throws IOException {
+    return decorateApiCall(binanceFutures::exchangeInfo)
+        .withRetry(retry("exchangeInfo"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
+        .call();
+  }
+
 
   public BinanceOrderbook getBinanceOrderbookAllProducts(Instrument pair, Integer limit)
       throws IOException {
@@ -84,11 +102,17 @@ public class BinanceMarketDataServiceRaw extends BinanceBaseService {
         .collect(Collectors.toList());
   }
 
-  public List<BinanceTicker24h> ticker24hAllProducts() throws IOException {
-    return decorateApiCall(binance::ticker24h)
-        .withRetry(retry("ticker24h"))
-        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 40)
-        .call();
+  public List<BinanceTicker24h> ticker24hAllProducts(boolean isFutures) throws IOException {
+    if(isFutures)
+      return decorateApiCall(binanceFutures::ticker24h)
+          .withRetry(retry("ticker24h"))
+          .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 40)
+          .call();
+    else
+      return  decorateApiCall(binance::ticker24h)
+          .withRetry(retry("ticker24h"))
+          .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 80)
+          .call();
   }
 
   public BinanceTicker24h ticker24hAllProducts(Instrument pair) throws IOException {
@@ -101,7 +125,6 @@ public class BinanceMarketDataServiceRaw extends BinanceBaseService {
             .withRetry(retry("ticker24h"))
             .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
             .call();
-    ticker24h.setInstrument(pair);
     return ticker24h;
   }
 

@@ -342,6 +342,17 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam(SIGNATURE) ParamsDigest signature)
       throws IOException, BinanceException;
 
+
+  @GET
+  @Path("/sapi/v1/capital/config/getall")
+  List<BinanceCurrencyInfo> getCurrencyInfos(
+      @QueryParam("recvWindow") Long recvWindow,
+      @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException, BinanceException;
+
+
   /**
    * Submit a withdraw request.
    *

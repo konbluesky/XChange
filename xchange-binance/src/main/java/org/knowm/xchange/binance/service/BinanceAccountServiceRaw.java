@@ -10,7 +10,19 @@ import java.util.Map;
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.BinanceException;
-import org.knowm.xchange.binance.dto.account.*;
+import org.knowm.xchange.binance.dto.account.AssetDetail;
+import org.knowm.xchange.binance.dto.account.AssetDividendResponse;
+import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.BinanceBalance;
+import org.knowm.xchange.binance.dto.account.BinanceCurrencyInfo;
+import org.knowm.xchange.binance.dto.account.BinanceDeposit;
+import org.knowm.xchange.binance.dto.account.BinanceWithdraw;
+import org.knowm.xchange.binance.dto.account.DepositAddress;
+import org.knowm.xchange.binance.dto.account.TransferAllPurposeResponse;
+import org.knowm.xchange.binance.dto.account.TransferHistory;
+import org.knowm.xchange.binance.dto.account.TransferSubUserHistory;
+import org.knowm.xchange.binance.dto.account.TransferType;
+import org.knowm.xchange.binance.dto.account.WithdrawResponse;
 import org.knowm.xchange.binance.dto.account.futures.BinanceFutureAccountInformation;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
@@ -34,6 +46,14 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
     return decorateApiCall(
         () -> binance.getFundingAccount(null,null,getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
         .withRetry(retry("funding-account"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
+        .call();
+  }
+
+  public List<BinanceCurrencyInfo> currencyInfos() throws BinanceException, IOException {
+    return decorateApiCall(
+            () -> binance.getCurrencyInfos(getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
+        .withRetry(retry("currencyInfo"))
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
         .call();
   }
