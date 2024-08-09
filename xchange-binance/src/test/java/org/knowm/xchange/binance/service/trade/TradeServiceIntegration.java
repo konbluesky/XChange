@@ -14,6 +14,7 @@ import static org.knowm.xchange.dto.Order.OrderType.BID;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,6 +29,7 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.StopOrder;
 
+@Slf4j
 public class TradeServiceIntegration extends BinanceExchangeIntegration {
 
   static BinanceTradeService tradeService;
@@ -68,6 +70,15 @@ public class TradeServiceIntegration extends BinanceExchangeIntegration {
         .getAsks()
         .get(0)
         .getLimitPrice();
+  }
+
+  @Test
+  public void testPlaceOrder() throws IOException {
+    final CurrencyPair currencyPair = new CurrencyPair("QKC","USDT");
+    final BigDecimal amount = BigDecimal.valueOf(585);
+    final MarketOrder marketOrder = new MarketOrder.Builder(BID, currencyPair).originalAmount(amount).build();
+    String s = tradeService.placeMarketOrder(marketOrder);
+    log.info("result:{}", s);
   }
 
   @Test

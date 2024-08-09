@@ -1,8 +1,10 @@
 package org.knowm.xchange.binance.dto.trade;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.math.BigDecimal;
 import java.util.List;
+import org.knowm.xchange.binance.config.converter.StringToTimeInForceConverter;
 
 public final class BinanceNewOrder {
 
@@ -35,6 +37,7 @@ public final class BinanceNewOrder {
       @JsonProperty("origQty") BigDecimal origQty,
       @JsonProperty("executedQty") BigDecimal executedQty,
       @JsonProperty("status") OrderStatus status,
+      @JsonDeserialize(converter = StringToTimeInForceConverter.class)
       @JsonProperty("timeInForce") TimeInForce timeInForce,
       @JsonProperty("type") OrderType type,
       @JsonProperty("side") OrderSide side,
