@@ -355,15 +355,16 @@ public abstract class NettyStreamingService<T> extends ConnectableService {
       throws IOException;
 
   public String getSubscriptionUniqueId(String channelName, Object... args) {
+    return channelName;
 
-    if (args == null || args.length == 0) {
-      return channelName;
-    }
-
-    List<String> collect = Arrays.stream(args).map(String::valueOf).collect(Collectors.toList());
-    String argsString = String.join("-", collect);
-
-    return channelName + "_" + argsString;
+//    if (args == null || args.length == 0) {
+//      return channelName;
+//    }
+//
+//    List<String> collect = Arrays.stream(args).map(String::valueOf).collect(Collectors.toList());
+//    String argsString = String.join("-", collect);
+//
+//    return channelName + "_" + argsString;
   }
 
   /**
