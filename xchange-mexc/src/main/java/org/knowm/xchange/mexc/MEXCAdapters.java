@@ -114,7 +114,8 @@ public class MEXCAdapters {
       // currencyNetworks.row(base).keySet().containsAll(identities)
       // 过滤状态开启，支持现货交易，支持市价单
       //
-      if (!"ENABLED".equals(symbol.getStatus())
+//      if (!"ENABLED".equals(symbol.getStatus())
+      if (!"1".equals(symbol.getStatus())
 //          || !symbol.getOrderTypes().containsAll(Arrays.asList("MARKET", "LIMIT_MAKER", "LIMIT"))
           || !symbol.getOrderTypes().containsAll(Arrays.asList("LIMIT_MAKER", "LIMIT"))
           || !symbol.isSpotTradingAllowed()

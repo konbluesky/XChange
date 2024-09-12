@@ -107,29 +107,33 @@ public class BinanceExchange extends BaseExchange implements Exchange {
       BinanceMarketDataServiceRaw marketDataServiceRaw = (BinanceMarketDataServiceRaw) marketDataService;
       BinanceAccountService accountService = (BinanceAccountService) getAccountService();
       Map<String, AssetDetail> assetDetailMap = null;
-      if (!usingSandbox() && isAuthenticated()) {
-        assetDetailMap = accountService.getAssetDetails(); // not available in sndbox
+      if(getDefaultExchangeSpecification().isShouldLoadRemoteMetaData()) {
+        if (!usingSandbox() && isAuthenticated()) {
+          assetDetailMap = accountService.getAssetDetails(); // not available in sndbox
+        }
+
+        BinanceExchangeInfo exchangeInfo;
+        // get exchange type or SPOT as default
+        ExchangeType exchangeType = (ExchangeType) ObjectUtils.defaultIfNull(
+            exchangeSpecification.getExchangeSpecificParametersItem(EXCHANGE_TYPE), SPOT);
+
+        switch (exchangeType) {
+          case FUTURES:
+            exchangeInfo = marketDataServiceRaw.getFutureExchangeInfo();
+            BinanceAdapters.adaptFutureExchangeMetaData(exchangeMetaData, exchangeInfo);
+            break;
+          default:
+            exchangeInfo = marketDataServiceRaw.getExchangeInfo();
+            exchangeMetaData = BinanceAdapters.adaptExchangeMetaData(exchangeInfo, assetDetailMap);
+        }
+
+        // init symbol mappings
+        exchangeInfo.getSymbols().stream()
+            .filter(symbol -> ObjectUtils.allNotNull(symbol.getBaseAsset(), symbol.getQuoteAsset(),
+                symbol.getSymbol()))
+            .forEach(symbol -> BinanceAdapters.putSymbolMapping(symbol.getSymbol(),
+                new CurrencyPair(symbol.getBaseAsset(), symbol.getQuoteAsset())));
       }
-
-      BinanceExchangeInfo exchangeInfo;
-      // get exchange type or SPOT as default
-      ExchangeType exchangeType = (ExchangeType) ObjectUtils.defaultIfNull(exchangeSpecification.getExchangeSpecificParametersItem(EXCHANGE_TYPE), SPOT);
-
-      switch (exchangeType) {
-        case FUTURES:
-          exchangeInfo = marketDataServiceRaw.getFutureExchangeInfo();
-          BinanceAdapters.adaptFutureExchangeMetaData(exchangeMetaData, exchangeInfo);
-          break;
-        default:
-          exchangeInfo = marketDataServiceRaw.getExchangeInfo();
-          exchangeMetaData = BinanceAdapters.adaptExchangeMetaData(exchangeInfo, assetDetailMap);
-      }
-
-      // init symbol mappings
-      exchangeInfo.getSymbols().stream()
-          .filter(symbol -> ObjectUtils.allNotNull(symbol.getBaseAsset(), symbol.getQuoteAsset(), symbol.getSymbol()))
-          .forEach(symbol -> BinanceAdapters.putSymbolMapping(symbol.getSymbol(), new CurrencyPair(symbol.getBaseAsset(), symbol.getQuoteAsset())));
-
     } catch (Exception e) {
       throw new ExchangeException("Failed to initialize: " + e.getMessage(), e);
     }
