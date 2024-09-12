@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
+import org.knowm.xchange.dto.account.Wallet.WalletFeature;
 import org.knowm.xchange.xt.dto.XTNetwork;
 import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
@@ -33,7 +34,7 @@ public class XTAccountServiceTest extends XTExchangeBase {
   public void testBalance() throws IOException, InterruptedException {
 //    while(true) {
       AccountInfo accountInfo = exchange.getAccountService().getAccountInfo();
-      accountInfo.getWallet().getBalances().forEach((k, v) -> {
+      accountInfo.getWallet(WalletFeature.TRADING).getBalances().forEach((k, v) -> {
         log.info("{}-{}", k, v);
       });
       TimeUnit.SECONDS.sleep(1);
