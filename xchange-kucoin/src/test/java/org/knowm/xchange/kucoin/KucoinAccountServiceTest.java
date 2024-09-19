@@ -50,7 +50,7 @@ public class KucoinAccountServiceTest extends KucoinBaseTest {
 
   @Test
   public void testWithdraw() throws IOException{
-    KucoinWithdrawFundsParams withdrawFundsParams = new KucoinWithdrawFundsParams("0x50196380f3c0805ff5d1254ca7cafa9923ce85c9",
+    KucoinWithdrawFundsParams withdrawFundsParams = new KucoinWithdrawFundsParams("",
         Currency.USDT, BigDecimal.valueOf(5),KucoinNetwork.BEP20.getInnerChainId());
     String s = exchange.getAccountService().withdrawFunds(withdrawFundsParams);
     log.info("result:{}", s);
