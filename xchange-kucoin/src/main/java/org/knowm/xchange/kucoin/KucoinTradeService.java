@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.io.IOException;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -223,6 +224,14 @@ public class KucoinTradeService extends KucoinTradeServiceRaw implements TradeSe
   @Override
   public String placeStopOrder(StopOrder stopOrder) throws IOException {
     return kucoinCreateOrder(KucoinAdapters.adaptStopOrder(stopOrder)).getOrderId();
+  }
+
+
+  @Override
+  public Collection<Order> getOrder(String... orderIds) throws IOException {
+    List<Order> orders = new ArrayList<>();
+    orders.add(KucoinAdapters.adaptOrder(super.getKucoinOrder(orderIds[0])));
+    return orders;
   }
 
   private OpenOrders convertOpenOrders(Collection<OrderResponse> orders, OpenOrdersParams params) {

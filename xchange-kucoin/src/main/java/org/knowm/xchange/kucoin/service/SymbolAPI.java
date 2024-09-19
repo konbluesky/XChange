@@ -64,6 +64,16 @@ public interface SymbolAPI {
       throws IOException;
 
   /**
+   * Get all currencies for V3
+   *
+   * @return The available currencies.
+   */
+  @GET
+  @Path("/v3/currencies")
+  KucoinResponse<List<CurrencyResponseV2>> getCurrenciesV3() throws IOException;
+
+
+  /**
    * Get the fiat price of the currencies for the available trading pairs.
    *
    * @return USD fiat price of the currencies.

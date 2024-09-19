@@ -48,6 +48,9 @@ public class CurrencyResponseV2 {
     @JsonProperty("chain")
     private String chain;
 
+    @JsonProperty("chainId")
+    private String chainId;
+
     @JsonProperty("withdrawalMinSize")
     private BigDecimal withdrawalMinSize;
 

@@ -122,6 +122,15 @@ public class KucoinMarketDataServiceRaw extends KucoinBaseService {
                 .call());
   }
 
+  public List<CurrencyResponseV2> getKucoinCurrenciesV3() throws IOException {
+    return classifyingExceptions(
+        () ->
+            decorateApiCall(symbolApi::getCurrenciesV3)
+                .withRetry(retry("currencies"))
+                .withRateLimiter(rateLimiter(PUBLIC_REST_ENDPOINT_RATE_LIMITER))
+                .call());
+  }
+
   public CurrencyResponseV2 getKucoinCurrencies(Currency currency) throws IOException {
     return classifyingExceptions(
         () ->
