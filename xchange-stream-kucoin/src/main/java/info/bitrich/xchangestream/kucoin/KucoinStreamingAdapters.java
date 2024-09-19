@@ -1,16 +1,19 @@
 package info.bitrich.xchangestream.kucoin;
 
+import info.bitrich.xchangestream.kucoin.dto.KucoinAccountBalanceChangesEvent;
 import info.bitrich.xchangestream.kucoin.dto.KucoinOrderEventData;
 import info.bitrich.xchangestream.kucoin.dto.KucoinWebSocketOrderEvent;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 
 public class KucoinStreamingAdapters {
+
   public static Order adaptOrder(KucoinWebSocketOrderEvent orderEvent) {
     KucoinOrderEventData data = orderEvent.data;
 
@@ -26,7 +29,7 @@ public class KucoinStreamingAdapters {
     orderBuilder
         .id(data.orderId)
         .originalAmount(new BigDecimal(data.size))
-        .timestamp(new Date(TimeUnit.NANOSECONDS.toMillis(data.orderTime)))
+        .timestamp(new Date(data.orderTime))
         .cumulativeAmount(new BigDecimal(data.filledSize))
         .orderStatus(adaptStatus(data.status));
 
@@ -34,9 +37,27 @@ public class KucoinStreamingAdapters {
   }
 
   private static Order.OrderStatus adaptStatus(String status) {
-    if ("open".equals(status)) return Order.OrderStatus.NEW;
-    if ("match".equals(status)) return Order.OrderStatus.PARTIALLY_FILLED;
-    if ("done".equals(status)) return Order.OrderStatus.FILLED;
+    if ("open".equals(status)) {
+      return Order.OrderStatus.NEW;
+    }
+    if ("match".equals(status)) {
+      return Order.OrderStatus.PARTIALLY_FILLED;
+    }
+    if ("done".equals(status)) {
+      return Order.OrderStatus.FILLED;
+    }
     return null;
   }
+
+  public static Balance adaptBalance(KucoinAccountBalanceChangesEvent balanceChangesEvent) {
+    Balance.Builder builder = new Balance.Builder();
+    builder.currency(Currency.getInstance(balanceChangesEvent.data.currency))
+        .available(balanceChangesEvent.data.available)
+        .total(balanceChangesEvent.data.total)
+        .frozen(balanceChangesEvent.data.hold)
+        .timestamp(balanceChangesEvent.data.time);
+    return builder.build();
+  }
+
+
 }

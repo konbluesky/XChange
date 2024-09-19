@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import java.math.BigDecimal;
 import java.util.Date;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 
 public class KucoinTickerConverter implements Converter<JsonNode, Ticker> {
   @Override
   public Ticker convert(JsonNode jsonNode) {
     return new Ticker.Builder()
+//        .instrument(new CurrencyPair())
         .timestamp(new Date(jsonNode.get("time").longValue()))
         .ask(new BigDecimal(jsonNode.get("bestAsk").asText()))
         .askSize(new BigDecimal(jsonNode.get("bestAskSize").asText()))

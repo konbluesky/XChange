@@ -1,5 +1,6 @@
 package info.bitrich.xchangestream.kucoin;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBookEvent;
@@ -8,6 +9,8 @@ import info.bitrich.xchangestream.kucoin.dto.KucoinTickerEvent;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,6 +19,7 @@ import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.kucoin.KucoinAdapters;
 import org.knowm.xchange.kucoin.KucoinMarketDataService;
 import org.knowm.xchange.kucoin.dto.response.OrderBookResponse;
@@ -49,12 +53,30 @@ public class KucoinStreamingMarketDataService implements StreamingMarketDataServ
   @Override
   public Observable<Ticker> getTicker(CurrencyPair currencyPair, Object... args) {
     String channelName = "/market/ticker:" + KucoinAdapters.adaptCurrencyPair(currencyPair);
-    return service
-        .subscribeChannel(channelName)
-        .doOnError(
-            ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
-        .map(node -> mapper.treeToValue(node, KucoinTickerEvent.class))
-        .map(KucoinTickerEvent::getTicker);
+//    return service
+//        .subscribeChannel(channelName)
+//        .doOnError(
+//            ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
+//        .map(node -> mapper.treeToValue(node, KucoinTickerEvent.class))
+//        .map(KucoinTickerEvent::getTicker);
+     return service.subscribeChannel(channelName)
+         .doOnError(ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
+        .filter(message -> message.has("subject"))
+        .flatMap(jsonNode -> {
+          String symbol = jsonNode.get("topic").asText().split("\\:")[1];
+          JsonNode data = jsonNode.get("data");
+          Ticker ticker = new Ticker.Builder()
+              .instrument(KucoinAdapters.adaptCurrencyPair(symbol))
+              .timestamp(new Date(data.get("time").longValue()))
+              .ask(new BigDecimal(data.get("bestAsk").asText()))
+              .askSize(new BigDecimal(data.get("bestAskSize").asText()))
+              .bid(new BigDecimal(data.get("bestBid").asText()))
+              .bidSize(new BigDecimal(data.get("bestBidSize").asText()))
+              .last(new BigDecimal(data.get("price").asText()))
+              .volume(new BigDecimal(data.get("size").asText()))
+              .build();
+          return Observable.just(ticker);
+        });
   }
 
   @Override

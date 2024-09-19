@@ -14,7 +14,9 @@ import io.reactivex.disposables.Disposable;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class KucoinStreamingService extends JsonNettyStreamingService {
 
   private final AtomicLong refCount = new AtomicLong();
@@ -80,7 +82,10 @@ class KucoinStreamingService extends JsonNettyStreamingService {
     JsonNode typeNode = message.get("type");
     if (typeNode != null) {
       String type = typeNode.asText();
-      if ("message".equals(type)) super.handleMessage(message);
+      if ("message".equals(type)){
+        log.debug("message : {}",message);
+        super.handleMessage(message);
+      }
       else if ("error".equals(type))
         super.handleError(message, new Exception(message.get("data").asText()));
     }
