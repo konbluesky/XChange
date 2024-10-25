@@ -3,9 +3,9 @@ package info.bitrich.xchangestream.kucoin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
+import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBook;
 import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBookEvent;
 import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBookEventData;
-import info.bitrich.xchangestream.kucoin.dto.KucoinTickerEvent;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
@@ -79,10 +79,30 @@ public class KucoinStreamingMarketDataService implements StreamingMarketDataServ
         });
   }
 
+
+//  level2Depth50
   @Override
   public Observable<OrderBook> getOrderBook(CurrencyPair currencyPair, Object... args) {
-    return orderbookSubscriptions.computeIfAbsent(currencyPair, this::initOrderBookIfAbsent);
+    String channelName = "/spotMarket/level2Depth50:" + KucoinAdapters.adaptCurrencyPair(currencyPair);
+    return service
+        .subscribeChannel(channelName)
+        .doOnError(
+            ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
+        .flatMap(jsonNode -> {
+          String symbol = jsonNode.get("topic").asText().split("\\:")[1];
+          Instrument instrument = KucoinAdapters.adaptCurrencyPair(symbol);
+          JsonNode data = jsonNode.get("data");
+          KucoinOrderBook kucoinOrderBook = mapper.treeToValue(data, KucoinOrderBook.class);
+          OrderBook orderBook = KucoinStreamingAdapters.adaptOrderBook(kucoinOrderBook, instrument);
+          return Observable.just(orderBook);
+        });
   }
+
+//  原深度获取方式： 快照 + 订阅
+//  @Override
+//  public Observable<OrderBook> getOrderBook(CurrencyPair currencyPair, Object... args) {
+//    return orderbookSubscriptions.computeIfAbsent(currencyPair, this::initOrderBookIfAbsent);
+//  }
 
   private Observable<OrderBook> initOrderBookIfAbsent(CurrencyPair currencyPair) {
     orderBookRawUpdatesSubscriptions.computeIfAbsent(

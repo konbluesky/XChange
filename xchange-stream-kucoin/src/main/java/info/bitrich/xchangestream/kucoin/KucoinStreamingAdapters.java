@@ -1,16 +1,23 @@
 package info.bitrich.xchangestream.kucoin;
 
 import info.bitrich.xchangestream.kucoin.dto.KucoinAccountBalanceChangesEvent;
+import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBook;
+import info.bitrich.xchangestream.kucoin.dto.KucoinOrderBookItem;
 import info.bitrich.xchangestream.kucoin.dto.KucoinOrderEventData;
 import info.bitrich.xchangestream.kucoin.dto.KucoinWebSocketOrderEvent;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
+import org.knowm.xchange.instrument.Instrument;
 
 public class KucoinStreamingAdapters {
 
@@ -34,6 +41,30 @@ public class KucoinStreamingAdapters {
         .orderStatus(adaptStatus(data.status));
 
     return orderBuilder.build();
+  }
+
+  public static OrderBook adaptOrderBook(KucoinOrderBook orderbooks, Instrument instrument) {
+    List<LimitOrder> asks = new ArrayList<>();
+    List<LimitOrder> bids = new ArrayList<>();
+    Date timeStamp = new Date(orderbooks.getTs());
+
+    orderbooks.getAsks()
+        .forEach(askItem -> asks.add(adaptLimitOrder(askItem, instrument, Order.OrderType.ASK,timeStamp)));
+
+    orderbooks.getBids()
+        .forEach(bidItem -> bids.add(adaptLimitOrder(bidItem, instrument, Order.OrderType.BID,timeStamp)));
+
+    return new OrderBook(timeStamp, asks, bids);
+  }
+  public static LimitOrder adaptLimitOrder(KucoinOrderBookItem orderBookItem,
+      Instrument instrument, Order.OrderType orderType,Date timestamp) {
+    return adaptOrderBookOrder(orderBookItem.getVolume(), orderBookItem.getPrice(), instrument,
+        orderType,timestamp);
+  }
+
+  public static LimitOrder adaptOrderBookOrder(BigDecimal amount, BigDecimal price,
+      Instrument instrument, Order.OrderType orderType,Date timestamp) {
+    return new LimitOrder(orderType, amount, instrument, "", timestamp, price);
   }
 
   private static Order.OrderStatus adaptStatus(String status) {

@@ -2,6 +2,7 @@ package info.bitrich.xchangestream.kucoin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.bitrich.xchangestream.core.StreamingTradeService;
+import info.bitrich.xchangestream.kucoin.dto.KucoinAccountBalanceChangesEvent;
 import info.bitrich.xchangestream.kucoin.dto.KucoinWebSocketOrderEvent;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
 import io.reactivex.Observable;
@@ -24,7 +25,12 @@ public class KucoinStreamingTradeService implements StreamingTradeService {
 
   @Override
   public Observable<Order> getOrderChanges(CurrencyPair currencyPair, Object... args) {
-    return getRawOrderChanges(currencyPair).map(KucoinStreamingAdapters::adaptOrder);
+    return service
+        .subscribeChannel("/spotMarket/tradeOrders")
+        .doOnError(ex -> logger.warn("encountered error while subscribing to order changes", ex))
+        .map(node -> mapper.treeToValue(node, KucoinWebSocketOrderEvent.class))
+        .map(KucoinStreamingAdapters::adaptOrder);
+//    return getRawOrderChanges(currencyPair).map(KucoinStreamingAdapters::adaptOrder);
   }
 
   public Observable<KucoinWebSocketOrderEvent> getRawOrderChanges(CurrencyPair currencyPair) {

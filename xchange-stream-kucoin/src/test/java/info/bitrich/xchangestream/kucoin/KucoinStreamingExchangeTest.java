@@ -39,17 +39,24 @@ public class KucoinStreamingExchangeTest extends BaseKucoinStreaming {
 
   @Test
   public void testTicker() throws InterruptedException {
+    Instrument ethInstrument = new CurrencyPair("ETH", "USDT");
     streamingExchange
         .connect(
             ProductSubscription.create()
                 .addOrderbook(instrument)
                 .addTicker(instrument)
+                .addTicker(ethInstrument)
                 .addTrades(instrument)
                 .build())
         .blockingAwait();
     streamingExchange.getStreamingMarketDataService().getTicker(instrument).subscribe(
         orderBook -> {
-          log.info("ticker : {}", orderBook);
+          log.info("ticker1: {}", orderBook);
+        }
+    );
+    streamingExchange.getStreamingMarketDataService().getTicker(ethInstrument).subscribe(
+        orderBook -> {
+          log.info("ticker2: {}", orderBook);
         }
     );
     TimeUnit.MINUTES.sleep(10);
@@ -76,5 +83,24 @@ public class KucoinStreamingExchangeTest extends BaseKucoinStreaming {
     TimeUnit.MINUTES.sleep(10);
   }
 
+  @Test
+  public void testOrderChange() throws InterruptedException {
+    instrument = new CurrencyPair("SUNDOG/USDT");
+    streamingExchange
+        .connect(
+            ProductSubscription.create()
+                .addOrders(instrument)
+//                .addOrderbook(instrument)
+//                .addTicker(instrument)
+//                .addTrades(instrument)
+                .build())
+        .blockingAwait();
+    streamingExchange.getStreamingTradeService().getOrderChanges(null).subscribe(
+        orderBook -> {
+          log.info("order change : {}", orderBook);
+        }
+    );
+    TimeUnit.MINUTES.sleep(10);
+  }
 
 }
