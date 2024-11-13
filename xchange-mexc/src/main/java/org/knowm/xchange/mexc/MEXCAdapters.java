@@ -152,7 +152,7 @@ public class MEXCAdapters {
    */
   public static List<CurrencyPair> extractCurrencyPairs(String... symbols) {
     List<CurrencyPair> currencyPairs = new ArrayList<>();
-    List<String> tokenSuffixes = Arrays.asList("USDC", "USDT", "ETH", "BUSD", "BTC", "TUSD");
+    List<String> tokenSuffixes = Arrays.asList("USDC", "USDT", "ETH", "BUSD", "BTC", "TUSD","EUR");
     for (String token : symbols) {
       for (String suffix : tokenSuffixes) {
         if (token.contains(suffix)) {
