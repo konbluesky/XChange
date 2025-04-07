@@ -63,7 +63,7 @@ public class GateioCoinConfigGenericTest extends GateioExchangeWiremock {
             coinChainConfig.getCurrency());
         TimeUnit.MILLISECONDS.sleep(100);
       } catch (Exception e) {
-        log.info("error currency:{}",coinChainConfig.toString());
+        log.error("error currency:{}",coinChainConfig.getCurrency());
         e.printStackTrace();
 //        throw new RuntimeException(e);
       }
