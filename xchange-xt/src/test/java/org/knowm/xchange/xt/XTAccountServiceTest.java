@@ -15,10 +15,12 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
+import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.xt.dto.XTNetwork;
 import org.knowm.xchange.xt.dto.account.XTDepositHistoryResponse;
 import org.knowm.xchange.xt.dto.account.XTFundingHistoryParams;
 import org.knowm.xchange.xt.dto.account.XTWithdrawFundsParams;
+import org.knowm.xchange.xt.dto.account.XTWithdrawHistoryResponse;
 import org.knowm.xchange.xt.service.XTAccountServiceRaw;
 
 /**
@@ -49,6 +51,17 @@ public class XTAccountServiceTest extends XTExchangeBase {
         XTNetwork.BNB_SMART_CHAIN);
     String s = exchange.getAccountService().withdrawFunds(xtWithdrawFundsParams);
     log.info("withdraw result : {} ", s);
+  }
+
+
+
+  @Test
+  public void testWithdrawHistory() throws IOException {
+    XTAccountServiceRaw accountService = (XTAccountServiceRaw) exchange.getAccountService();
+    List<XTWithdrawHistoryResponse> withdrawHistory = accountService.getWithdrawHistory(null, null,
+        null, null, null, 10, null, null);
+    log.info("withdrawHistory record :{} ", withdrawHistory.size());
+
   }
 
   @Test
