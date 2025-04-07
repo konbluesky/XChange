@@ -1,6 +1,7 @@
 package org.knowm.xchange.gateio;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import si.mazi.rescu.HttpStatusExceptionSupport;
@@ -12,6 +13,7 @@ import si.mazi.rescu.HttpStatusExceptionSupport;
  * <p> @author konbluesky </p>
  */
 @ToString
+@Getter
 public class GateioException extends HttpStatusExceptionSupport {
 
   @Setter
