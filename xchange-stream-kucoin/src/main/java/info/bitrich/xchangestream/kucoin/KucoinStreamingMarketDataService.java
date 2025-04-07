@@ -50,6 +50,47 @@ public class KucoinStreamingMarketDataService implements StreamingMarketDataServ
     this.onApiCall = onApiCall;
   }
 
+
+  public Observable<Ticker> getTickers(String symbols) {
+    String channelName = "/market/ticker:" + symbols;
+    return service.subscribeChannel(channelName)
+        .doOnError(ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
+        .filter(message -> message.has("subject"))
+        .flatMap(jsonNode -> {
+          String symbol = jsonNode.get("topic").asText().split("\\:")[1];
+          JsonNode data = jsonNode.get("data");
+          Ticker ticker = new Ticker.Builder()
+              .instrument(KucoinAdapters.adaptCurrencyPair(symbol))
+              .timestamp(new Date(data.get("time").longValue()))
+              .ask(new BigDecimal(data.get("bestAsk").asText()))
+              .askSize(new BigDecimal(data.get("bestAskSize").asText()))
+              .bid(new BigDecimal(data.get("bestBid").asText()))
+              .bidSize(new BigDecimal(data.get("bestBidSize").asText()))
+              .last(new BigDecimal(data.get("price").asText()))
+              .volume(new BigDecimal(data.get("size").asText()))
+              .build();
+          return Observable.just(ticker);
+        });
+  }
+
+  public Observable<OrderBook> getOrderBooks(String symbols) {
+    String channelName = "/spotMarket/level2Depth50:" + symbols;
+    return service
+        .subscribeChannel(channelName)
+        .doOnError(
+            ex -> logger.warn("encountered error while subscribing to channel " + channelName, ex))
+        .flatMap(jsonNode -> {
+          String symbol = jsonNode.get("topic").asText().split("\\:")[1];
+          Instrument instrument = KucoinAdapters.adaptCurrencyPair(symbol);
+          JsonNode data = jsonNode.get("data");
+          KucoinOrderBook kucoinOrderBook = mapper.treeToValue(data, KucoinOrderBook.class);
+          OrderBook orderBook = KucoinStreamingAdapters.adaptOrderBook(kucoinOrderBook, instrument);
+          return Observable.just(orderBook);
+        });
+  }
+
+
+
   @Override
   public Observable<Ticker> getTicker(CurrencyPair currencyPair, Object... args) {
     String channelName = "/market/ticker:" + KucoinAdapters.adaptCurrencyPair(currencyPair);
