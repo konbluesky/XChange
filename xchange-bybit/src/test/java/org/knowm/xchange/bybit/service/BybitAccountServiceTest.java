@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.knowm.xchange.bybit.BybitExchange;
@@ -17,8 +18,11 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.derivative.FuturesContract;
 import org.knowm.xchange.dto.account.AccountInfo;
+import org.knowm.xchange.dto.account.Wallet.WalletFeature;
 import org.knowm.xchange.instrument.Instrument;
+import org.knowm.xchange.service.account.AccountService;
 
+@Slf4j
 @Ignore
 public class BybitAccountServiceTest extends BaseWiremockTest {
 
@@ -101,5 +105,14 @@ public class BybitAccountServiceTest extends BaseWiremockTest {
             BybitCategory.LINEAR, new FuturesContract("BTC/USDT/PERP"), null, 0);
 
     assertThat(bybitSwitchPositionModeResult).isTrue();
+  }
+
+  @Test
+  public void testGetBalance() throws IOException {
+    BybitExchange exchange= createExchangeWithKeyFromJson();
+    AccountService accountService = exchange.getAccountService();
+    AccountInfo accountInfo = accountService.getAccountInfo();
+    log.info("accountInfo:{}",accountInfo.getWallet(WalletFeature.TRADING));
+    assertThat(accountInfo.getWallet().getBalance(new Currency("USDT")).getTotal().doubleValue()>0).isTrue();
   }
 }

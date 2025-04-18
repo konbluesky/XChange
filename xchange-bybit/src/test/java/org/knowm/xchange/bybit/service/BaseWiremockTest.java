@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.bybit.BybitExchange;
+import org.knowm.xchange.utils.AuthUtils;
 
 public class BaseWiremockTest {
 
@@ -32,6 +33,19 @@ public class BaseWiremockTest {
     specification.setApiKey("test_api_key");
     specification.setSecretKey("test_secret_key");
     specification.setShouldLoadRemoteMetaData(false);
+    exchange.applySpecification(specification);
+    return exchange;
+  }
+
+  public BybitExchange createExchangeWithKeyFromJson() throws IOException {
+    BybitExchange exchange =
+        ExchangeFactory.INSTANCE.createExchangeWithoutSpecification(BybitExchange.class);
+    ExchangeSpecification specification = exchange.getDefaultExchangeSpecification();
+//    specification.setHost("localhost");
+//    specification.setSslUri("http://localhost:" + wireMockRule.port());
+//    specification.setPort(wireMockRule.port());
+    AuthUtils.setApiAndSecretKey(specification);
+    specification.setShouldLoadRemoteMetaData(true);
     exchange.applySpecification(specification);
     return exchange;
   }

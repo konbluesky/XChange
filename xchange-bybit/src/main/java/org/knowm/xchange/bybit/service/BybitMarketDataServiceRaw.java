@@ -5,6 +5,7 @@ import org.knowm.xchange.bybit.BybitAdapters;
 import org.knowm.xchange.bybit.BybitExchange;
 import org.knowm.xchange.bybit.dto.BybitCategory;
 import org.knowm.xchange.bybit.dto.BybitResult;
+import org.knowm.xchange.bybit.dto.marketdata.BybitCoinInfoResponse;
 import org.knowm.xchange.bybit.dto.marketdata.instruments.BybitInstrumentInfo;
 import org.knowm.xchange.bybit.dto.marketdata.instruments.BybitInstrumentsInfo;
 import org.knowm.xchange.bybit.dto.marketdata.tickers.BybitTicker;
@@ -43,6 +44,14 @@ public class BybitMarketDataServiceRaw extends BybitBaseService {
       throws IOException {
     BybitResult<BybitTickers<BybitTicker>> result = bybit.getTickers(category.getValue());
 
+    if (!result.isSuccess()) {
+      throw BybitAdapters.createBybitExceptionFromResult(result);
+    }
+    return result;
+  }
+
+  public BybitResult<BybitCoinInfoResponse> getCoinInfos() throws IOException {
+    BybitResult<BybitCoinInfoResponse> result = bybitAuthenticated.getCoinInfo(apiKey,signatureCreator,exchange.getTimeStampFactory());
     if (!result.isSuccess()) {
       throw BybitAdapters.createBybitExceptionFromResult(result);
     }

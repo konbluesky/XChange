@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +42,7 @@ import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.Wallet;
+import org.knowm.xchange.dto.account.Wallet.WalletFeature;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Ticker.Builder;
 import org.knowm.xchange.dto.meta.InstrumentMetaData;
@@ -70,7 +72,7 @@ public class BybitAdapters {
               new BigDecimal(bybitCoinBalance.getEquity()),
               availableToWithdraw));
     }
-    return Wallet.Builder.from(balances).build();
+    return Wallet.Builder.from(balances).features(Collections.singleton(WalletFeature.TRADING)).build();
   }
 
   public static Wallet adaptBybitBalances(BybitAllCoinsBalance allCoinsBalance) {
@@ -82,7 +84,7 @@ public class BybitAdapters {
               coinBalance.getWalletBalance(),
               coinBalance.getTransferBalance()));
     }
-    return Wallet.Builder.from(balances).build();
+    return Wallet.Builder.from(balances).features(Collections.singleton(WalletFeature.TRADING)).build();
   }
 
   public static BybitSide getSideString(Order.OrderType type) {

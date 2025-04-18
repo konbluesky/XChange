@@ -23,6 +23,7 @@ import org.knowm.xchange.bybit.dto.account.feerates.BybitFeeRates;
 import org.knowm.xchange.bybit.dto.account.position.BybitSetLeveragePayload;
 import org.knowm.xchange.bybit.dto.account.position.BybitSwitchModePayload;
 import org.knowm.xchange.bybit.dto.account.walletbalance.BybitWalletBalance;
+import org.knowm.xchange.bybit.dto.marketdata.BybitCoinInfoResponse;
 import org.knowm.xchange.bybit.dto.trade.BybitAmendOrderPayload;
 import org.knowm.xchange.bybit.dto.trade.BybitCancelOrderPayload;
 import org.knowm.xchange.bybit.dto.trade.BybitOrderResponse;
@@ -175,5 +176,16 @@ public interface BybitAuthenticated {
       @HeaderParam(X_BAPI_SIGN) ParamsDigest signature,
       @HeaderParam(X_BAPI_TIMESTAMP) SynchronizedValueFactory<Long> timestamp,
       BybitCancelAllOrdersPayload payload)
+      throws IOException, BybitException;
+
+    /**
+     * @apiSpec <a href="https://bybit-exchange.github.io/docs/zh-TW/v5/asset/coin-info">API</a>
+     */
+    @GET
+    @Path("/asset/coin/query-info")
+    BybitResult<BybitCoinInfoResponse> getCoinInfo(
+        @HeaderParam(X_BAPI_API_KEY) String apiKey,
+        @HeaderParam(X_BAPI_SIGN) ParamsDigest signature,
+      @HeaderParam(X_BAPI_TIMESTAMP) SynchronizedValueFactory<Long> timestamp)
       throws IOException, BybitException;
 }

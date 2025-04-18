@@ -5,10 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.bybit.BybitExchange;
 import org.knowm.xchange.bybit.dto.BybitCategory;
+import org.knowm.xchange.bybit.dto.BybitResult;
+import org.knowm.xchange.bybit.dto.marketdata.BybitCoinInfoResponse;
 import org.knowm.xchange.bybit.dto.marketdata.instruments.BybitInstrumentInfo;
 import org.knowm.xchange.bybit.dto.marketdata.instruments.BybitInstrumentInfo.InstrumentStatus;
 import org.knowm.xchange.bybit.dto.marketdata.instruments.BybitInstrumentsInfo;
@@ -23,7 +27,9 @@ import org.knowm.xchange.bybit.dto.marketdata.tickers.BybitTickers;
 import org.knowm.xchange.bybit.dto.marketdata.tickers.linear.BybitLinearInverseTicker;
 import org.knowm.xchange.bybit.dto.marketdata.tickers.option.BybitOptionTicker;
 import org.knowm.xchange.bybit.dto.marketdata.tickers.spot.BybitSpotTicker;
+import org.knowm.xchange.service.marketdata.MarketDataService;
 
+@Slf4j
 public class BybitMarketDataServiceRawTest extends BaseWiremockTest {
 
   private BybitMarketDataServiceRaw marketDataServiceRaw;
@@ -257,4 +263,16 @@ public class BybitMarketDataServiceRawTest extends BaseWiremockTest {
     assertThat(actualTicker.getVolume24h()).isEqualTo(new BigDecimal("11801.27771"));
     assertThat(actualTicker.getUsdIndexPrice()).isEqualTo(new BigDecimal("20784.12009279"));
   }
+
+  @Test
+  public void testGetCoinInfos() throws Exception {
+    BybitExchange exchange = createExchangeWithKeyFromJson();
+    BybitMarketDataServiceRaw marketDataService = (BybitMarketDataServiceRaw) exchange.getMarketDataService();
+    BybitResult<BybitCoinInfoResponse> coinInfos = marketDataService.getCoinInfos();
+
+    log.info("coinInfo rows:{}", coinInfos.getResult().getRows().size());
+    assertThat(coinInfos.getResult().getRows().size() > 0).isTrue();
+
+  }
+
 }
