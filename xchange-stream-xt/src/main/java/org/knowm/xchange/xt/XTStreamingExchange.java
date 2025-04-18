@@ -1,7 +1,7 @@
 package org.knowm.xchange.xt;
 
 import info.bitrich.xchangestream.core.*;
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 
 /**

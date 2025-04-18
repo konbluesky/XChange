@@ -2,10 +2,10 @@ package org.knowm.xchange.xt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableSource;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.xt.dto.XTSendMessage;
 
