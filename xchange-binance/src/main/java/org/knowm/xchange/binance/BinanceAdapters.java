@@ -120,8 +120,8 @@ public class BinanceAdapters {
       symbol = ((OptionsContract) pair).getCurrencyPair().toString().replace("/", "");
     } else {
       symbol =
-          ((CurrencyPair) pair).base.getCurrencyCode()
-              + ((CurrencyPair) pair).counter.getCurrencyCode();
+          ((CurrencyPair) pair).getBase().getCurrencyCode()
+              + ((CurrencyPair) pair).getCounter().getCurrencyCode();
     }
     return symbol;
   }
@@ -601,13 +601,13 @@ public class BinanceAdapters {
                 .amountStepSize(stepSize)
                 .marketOrderEnabled(Arrays.asList(symbol.getOrderTypes()).contains("MARKET"))
                 .build());
-        Currency baseCurrency = currentCurrencyPair.base;
+        Currency baseCurrency = currentCurrencyPair.getBase();
         CurrencyMetaData baseCurrencyMetaData =
             BinanceAdapters.adaptCurrencyMetaData(
                 currencies, baseCurrency, assetDetailMap, basePrecision);
         currencies.put(baseCurrency, baseCurrencyMetaData);
 
-        Currency counterCurrency = currentCurrencyPair.counter;
+        Currency counterCurrency = currentCurrencyPair.getCounter();
         CurrencyMetaData counterCurrencyMetaData =
             BinanceAdapters.adaptCurrencyMetaData(
                 currencies, counterCurrency, assetDetailMap, counterPrecision);
