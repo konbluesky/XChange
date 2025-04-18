@@ -36,6 +36,7 @@ public class MEXCMarketDataServiceRawTest extends BaseWiremockTest {
   @Test
   public void testGetApiSupportSymbols() throws IOException {
     MEXCExchange exchange = (MEXCExchange) createRawExchange();
+    exchange.remoteInit();
     MEXCMarketDataServiceRaw marketDataService = (MEXCMarketDataServiceRaw) exchange.getMarketDataService();
     List<String> supportApiSymbols = marketDataService.getSupportApiSymbols();
     log.info("size:{}", supportApiSymbols.size());
