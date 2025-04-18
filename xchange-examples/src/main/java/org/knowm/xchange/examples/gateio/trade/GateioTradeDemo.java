@@ -75,41 +75,41 @@ public class GateioTradeDemo {
   private static void raw(GateioTradeServiceRaw tradeService)
       throws IOException, InterruptedException {
 
-    String placedOrderId =
-        tradeService.placeGateioLimitOrder(
-            CurrencyPair.LTC_BTC,
-            GateioOrderType.SELL,
-            new BigDecimal("0.0265"),
-            new BigDecimal("0.384"));
-    System.out.println(placedOrderId);
+//    String placedOrderId =
+//        tradeService.placeGateioLimitOrder(
+//            CurrencyPair.LTC_BTC,
+//            GateioOrderType.SELL,
+//            new BigDecimal("0.0265"),
+//            new BigDecimal("0.384"));
+//    System.out.println(placedOrderId);
+//
+//    Thread.sleep(2000); // wait for Gateio's back-end to propagate the order
 
-    Thread.sleep(2000); // wait for Gateio's back-end to propagate the order
-
-    GateioOpenOrders openOrders = tradeService.getGateioOpenOrders();
-    System.out.println(openOrders);
-
-    List<GateioOpenOrder> openOrdersList = openOrders.getOrders();
-    if (!openOrdersList.isEmpty()) {
-      String existingOrderId = openOrdersList.get(0).getId();
-      GateioOrderStatus orderStatus =
-          tradeService.getGateioOrderStatus(existingOrderId, CurrencyPair.LTC_BTC);
-      System.out.println(orderStatus);
-
-      boolean isCancelled =
-          tradeService.cancelOrder(
-              existingOrderId,
-              CurrencyPairDeserializer.getCurrencyPairFromString(
-                  openOrdersList.get(0).getCurrencyPair()));
-      System.out.println(isCancelled);
-    }
-
-    Thread.sleep(2000); // wait for Gateio's back-end to propagate the cancelled order
-
-    openOrders = tradeService.getGateioOpenOrders();
-    System.out.println(openOrders);
-
-    List<GateioTrade> tradeHistory =
-        tradeService.getGateioTradeHistory(CurrencyPair.LTC_BTC).getTrades();
-    System.out.println(tradeHistory);
+//    GateioOpenOrders openOrders = tradeService.getGateioOpenOrders();
+//    System.out.println(openOrders);
+//
+//    List<GateioOpenOrder> openOrdersList = openOrders.getOrders();
+//    if (!openOrdersList.isEmpty()) {
+//      String existingOrderId = openOrdersList.get(0).getId();
+//      GateioOrderStatus orderStatus =
+//          tradeService.getGateioOrderStatus(existingOrderId, CurrencyPair.LTC_BTC);
+//      System.out.println(orderStatus);
+//
+//      boolean isCancelled =
+//          tradeService.cancelOrder(
+//              existingOrderId,
+//              CurrencyPairDeserializer.getCurrencyPairFromString(
+//                  openOrdersList.get(0).getCurrencyPair()));
+//      System.out.println(isCancelled);
+//    }
+//
+//    Thread.sleep(2000); // wait for Gateio's back-end to propagate the cancelled order
+//
+//    openOrders = tradeService.getGateioOpenOrders();
+//    System.out.println(openOrders);
+//
+//    List<GateioTrade> tradeHistory =
+//        tradeService.getGateioTradeHistory(CurrencyPair.LTC_BTC).getTrades();
+//    System.out.println(tradeHistory);
   }
 }

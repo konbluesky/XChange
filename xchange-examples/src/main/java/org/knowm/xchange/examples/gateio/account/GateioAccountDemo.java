@@ -1,10 +1,13 @@
 package org.knowm.xchange.examples.gateio.account;
 
 import java.io.IOException;
+import java.util.List;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.dto.account.AccountInfo;
+import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.examples.gateio.GateioDemoUtils;
-import org.knowm.xchange.gateio.dto.account.GateioFunds;
+import org.knowm.xchange.gateio.GateioAdapters;
+import org.knowm.xchange.gateio.dto.account.GateioSpotBalanceResponse;
 import org.knowm.xchange.gateio.service.GateioAccountServiceRaw;
 import org.knowm.xchange.service.account.AccountService;
 
@@ -27,7 +30,8 @@ public class GateioAccountDemo {
 
   private static void raw(GateioAccountServiceRaw accountService) throws IOException {
 
-    GateioFunds accountFunds = accountService.getGateioAccountInfo();
-    System.out.println(accountFunds);
+    List<GateioSpotBalanceResponse> gateioAccountInfo = accountService.getGateioAccountInfo();
+    Wallet wallet = GateioAdapters.adaptWalletForSpotAccount(gateioAccountInfo);
+    System.out.println(wallet);
   }
 }
