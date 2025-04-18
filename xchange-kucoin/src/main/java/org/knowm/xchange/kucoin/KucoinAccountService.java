@@ -15,7 +15,6 @@ import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.account.Wallet.WalletFeature;
 import org.knowm.xchange.kucoin.dto.request.ApplyWithdrawApiRequest;
-import org.knowm.xchange.kucoin.dto.request.ApplyWithdrawApiRequest.ApplyWithdrawApiRequestBuilder;
 import org.knowm.xchange.kucoin.dto.request.KucoinWithdrawFundsParams;
 import org.knowm.xchange.kucoin.dto.response.AccountBalancesResponse;
 import org.knowm.xchange.kucoin.dto.response.ApplyWithdrawResponse;
@@ -37,12 +36,12 @@ public class KucoinAccountService extends KucoinAccountServiceRaw implements Acc
   public String withdrawFunds(WithdrawFundsParams params) throws IOException {
     if (params instanceof KucoinWithdrawFundsParams) {
       KucoinWithdrawFundsParams kucoinParam = (KucoinWithdrawFundsParams) params;
-      ApplyWithdrawApiRequestBuilder builder = ApplyWithdrawApiRequest.builder();
-      builder.currency(kucoinParam.getCurrency().getCurrencyCode());
-      builder.address(kucoinParam.getAddress());
-      builder.amount(kucoinParam.getAmount());
-      builder.chain(kucoinParam.getChain());
-      ApplyWithdrawApiRequest payload = builder.build();
+      ApplyWithdrawApiRequest payload = ApplyWithdrawApiRequest.builder()
+          .currency(kucoinParam.getCurrency().getCurrencyCode())
+          .address(kucoinParam.getAddress())
+          .amount(kucoinParam.getAmount())
+          .chain(kucoinParam.getChain())
+          .build();
       ApplyWithdrawResponse applyWithdrawResponse = super.applyWithdraw(payload);
       return applyWithdrawResponse.getWithdrawalId();
     }
