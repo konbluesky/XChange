@@ -5,7 +5,7 @@ import info.bitrich.xchangestream.core.StreamingTradeService;
 import info.bitrich.xchangestream.kucoin.dto.KucoinAccountBalanceChangesEvent;
 import info.bitrich.xchangestream.kucoin.dto.KucoinWebSocketOrderEvent;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.slf4j.Logger;

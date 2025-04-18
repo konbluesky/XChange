@@ -5,7 +5,7 @@ import info.bitrich.xchangestream.core.StreamingAccountService;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.core.StreamingTradeService;
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 import lombok.extern.slf4j.Slf4j;
 
 /** Author: Max Gao (gaamox@tutanota.com) Created: 05-05-2021 */
