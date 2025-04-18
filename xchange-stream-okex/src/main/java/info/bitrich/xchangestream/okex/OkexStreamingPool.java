@@ -1,9 +1,9 @@
 package info.bitrich.xchangestream.okex;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

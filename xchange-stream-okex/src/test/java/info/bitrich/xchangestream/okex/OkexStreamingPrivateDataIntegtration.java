@@ -1,5 +1,6 @@
 package info.bitrich.xchangestream.okex;
 
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,6 @@ import org.knowm.xchange.okex.OkexExchange;
 
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
-import io.reactivex.disposables.Disposable;
 import org.knowm.xchange.okex.service.EmptyFuturesContract;
 
 @Ignore

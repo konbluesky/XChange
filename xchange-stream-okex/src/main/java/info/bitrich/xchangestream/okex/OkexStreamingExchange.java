@@ -1,7 +1,7 @@
 package info.bitrich.xchangestream.okex;
 
 import info.bitrich.xchangestream.core.*;
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.okex.OkexExchange;
