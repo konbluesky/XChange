@@ -16,8 +16,8 @@
     </root>
 
 
-    <logger name="org.eclipse.jetty" level="WARN"/>
-<!--    <logger name="org.knowm.xchange" level="DEBUG"/>-->
-    <!--<logger name="si.mazi.rescu" level="TRACE"/>-->
+<!--    <logger name="org.eclipse.jetty" level="WARN"/>-->
+    <logger name="org.knowm.xchange" level="DEBUG"/>
+    <logger name="si.mazi.rescu" level="TRACE"/>
 
 </configuration>

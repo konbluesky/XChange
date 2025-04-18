@@ -2,12 +2,10 @@ package org.knowm.xchange.okex;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -15,16 +13,11 @@ import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
-import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.derivative.FuturesContract;
-import org.knowm.xchange.dto.meta.CurrencyMetaData;
-import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.okex.dto.marketdata.OkexCurrency;
 import org.knowm.xchange.okex.dto.marketdata.OkexExchangeMetaData;
 import org.knowm.xchange.okex.service.OkexMarketDataServiceRaw;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p> @Date : 2024/4/16 </p>
@@ -57,7 +50,7 @@ public class OkexCoinConfigGenericTest {
     exchange = ExchangeFactory.INSTANCE.createExchange(spec);
   }
   @Test
-  public void newGateioBSC2CoinCsv() throws IOException {
+  public void okexBSC2CoinCsv() throws IOException {
     OkexExchangeMetaData exchangeMetaData = (OkexExchangeMetaData) exchange.getExchangeMetaData();
     OkexMarketDataServiceRaw marketDataServiceRaw = (OkexMarketDataServiceRaw) exchange.getMarketDataService();
 
